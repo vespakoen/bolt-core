@@ -16,7 +16,7 @@
     ],
     "autoload": {
         "psr-0": {
-            "Bolt\\Core": "src/Bolt/Core"
+            "Bolt\\Core\\": "src/Bolt/Core/"
         }
     }
 }
