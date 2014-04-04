@@ -1,0 +1,22 @@
+{
+    "name": "bolt/bolt",
+    "require": {
+        "silex/silex": "dev-master",
+        "symfony/config": "dev-master",
+        "symfony/yaml": "dev-master",
+        "illuminate/support": "dev-master",
+        "doctrine/dbal": "~2.4",
+        "filp/whoops": "dev-master"
+    },
+    "authors": [
+        {
+            "name": "Koen Schmeets",
+            "email": "k.schmeets@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "Bolt\\": "src/"
+        }
+    }
+}
