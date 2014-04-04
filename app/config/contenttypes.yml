@@ -1,0 +1,11 @@
+highlights:
+    name: Highlights
+    singular_name: Highlight
+    icon: picture-o
+    fields:
+        image:
+            type: uploadcare
+        description:
+            type: textarea
+            label: Description
+            multilanguage: true

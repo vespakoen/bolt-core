@@ -1,0 +1,6 @@
+# This is an example configuration for when you want to use bolt's awesome form builder outside of the bolt application
+
+name:
+	type: text
+image:
+	type: uploadcare
