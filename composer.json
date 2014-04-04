@@ -1,12 +1,12 @@
 {
     "name": "vespakoen/bolt-core",
     "require": {
-        "silex/silex": "dev-master",
-        "symfony/config": "dev-master",
-        "symfony/yaml": "dev-master",
-        "illuminate/support": "dev-master",
+        "silex/silex": "1.*",
+        "symfony/config": "~2.4",
+        "symfony/yaml": "~2.4",
         "doctrine/dbal": "~2.4",
-        "filp/whoops": "dev-master"
+        "filp/whoops": "1.*"
+        "illuminate/support": "dev-master",
     },
     "authors": [
         {
