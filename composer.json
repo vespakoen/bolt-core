@@ -1,5 +1,5 @@
 {
-    "name": "bolt/bolt",
+    "name": "vespakoen/bolt-core",
     "require": {
         "silex/silex": "dev-master",
         "symfony/config": "dev-master",
@@ -16,7 +16,7 @@
     ],
     "autoload": {
         "psr-0": {
-            "Bolt\\": "src/"
+            "Bolt\\Core\\": "src/Bolt"
         }
     }
 }
