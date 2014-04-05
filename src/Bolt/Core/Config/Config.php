@@ -11,63 +11,71 @@ class Config {
 
     protected $app;
 
-    protected $loader;
+    protected $rawLoader;
 
-    protected $configs = array(
-        'app',
-        'fieldtypes',
-        'contenttypes',
-        'extensions',
-        'routing',
-    );
+    protected $objectifiedLoader;
 
-    protected $data;
+    protected $configs;
 
-    public function __construct(App $app, LoaderInterface $loader)
+    protected $rawData;
+
+    protected $objectifiedData;
+
+    public function __construct(App $app, LoaderInterface $rawLoader, LoaderInterface $objectifiedLoader, array $configs = array(), array $rawData = array())
     {
         $this->app = $app;
-        $this->loader = $loader;
+        $this->rawLoader = $rawLoader;
+        $this->objectifiedLoader = $objectifiedLoader;
+        $this->configs = $configs;
+        $this->rawData = $this->getRawData();
+    }
 
-        $this->data = $this->getData();
+    public function getRaw($key = null, $default = null)
+    {
+        $key = str_replace('/', '.', $key);
+
+        if(empty($key)) {
+            return $this->rawData;
+        }
+
+        return array_get($this->rawData, $key);
     }
 
     public function get($key = null, $default = null)
     {
-        $array = $this->data->toArray();
-
-        if(is_null($key)) {
-            return $array;
-        }
-
         $key = str_replace('/', '.', $key);
 
-        return array_get($array, $key, $default);
-    }
-
-    public function getConfigs()
-    {
-        return $this->configs;
-    }
-
-    public function setConfigs($configs = array())
-    {
-        $this->configs = $configs;
-    }
-
-    public function getData()
-    {
-        if( ! isset($this->data)) {
-            $this->data = new Collection;
-
-            foreach(array_except($this->getConfigs(), array('fieldtypes')) as $key) {
-                $this->data->put($key, $this->loader->load($key));
-            }
-
-            $allFieldTypes = $this->app['fieldtypes']->merge($this->data->get('fieldtypes'));
-            $this->data->put('fieldtypes', $allFieldTypes);
+        if(is_null($this->objectifiedData)) {
+            $this->objectifiedData = $this->getObjectifiedData();
         }
 
-        return $this->data;
+        if(empty($key)) {
+            return $this->objectifiedData;
+        }
+
+        return array_get($this->objectifiedData->toArray(), $key, $default);
+    }
+
+    protected function getRawData()
+    {
+        $rawData = array();
+
+        foreach($this->configs as $as => $key) {
+            $rawData[is_string($as) ? $as : $key] = $this->rawLoader->load($key);
+        }
+
+        return $rawData;
+    }
+
+    protected function getObjectifiedData()
+    {
+        $data = new Collection;
+
+        foreach($this->configs as $as => $key) {
+            $data->put(is_string($as) ? $as : $key, $this->objectifiedLoader->load($key));
+        }
+
+        return $data;
     }
 
 }
