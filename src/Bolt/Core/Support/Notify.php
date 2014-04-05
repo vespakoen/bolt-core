@@ -2,17 +2,28 @@
 
 namespace Bolt\Core\Support;
 
+use InvalidArgumentException;
+
+use Bolt\Core\App;
+
 class Notify {
 
-	public static function error($developerError, $userError = null)
+	protected $notifications;
+
+	public function __construct(App $app)
 	{
-		$devMode = Config::get('general/dev', false);
+		$this->app = $app;
+	}
+
+	public function error($developerError, $userError = null)
+	{
+		$devMode = $this->app['config']->getRaw('app/debug', false);
 
 		if($devMode) {
-			throw new Exception($developerError);
+			throw new InvalidArgumentException($developerError);
 		}
 		elseif(!is_null($userError)) {
-			App::make('notify')->error($userError);
+			$this->notification['errors'][] = $userError;
 		}
 	}
 
