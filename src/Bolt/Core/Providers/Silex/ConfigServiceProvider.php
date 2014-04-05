@@ -6,6 +6,7 @@ use Bolt\Core\Config\Config;
 use Bolt\Core\Config\ConfigLocator;
 use Bolt\Core\Config\ConfigLoaderResolver;
 use Bolt\Core\Config\Loader\YamlConfigLoader;
+use Bolt\Core\Config\Loader\YamlSerializerLoader;
 
 use Bolt\Core\App\Loader\YamlAppLoader;
 use Bolt\Core\FieldType\Loader\YamlFieldTypeLoader;
@@ -22,7 +23,6 @@ class ConfigServiceProvider implements ServiceProviderInterface {
 
     public function register(Application $app)
     {
-        $this->registerConfigFiles($app);
         $this->registerConfigData($app);
         $this->registerDirectories($app);
         $this->registerLocator($app);
@@ -30,16 +30,6 @@ class ConfigServiceProvider implements ServiceProviderInterface {
         $this->registerResolver($app);
         $this->registerLoaders($app);
         $this->registerConfig($app);
-    }
-
-    protected function registerConfigFiles(Application $app) {
-        $app['config.files'] = array(
-            'app',
-            'fieldtypes',
-            'contenttypes',
-            'extensions',
-            'routing',
-        );
     }
 
     protected function registerConfigData(Application $app) {
@@ -77,6 +67,7 @@ class ConfigServiceProvider implements ServiceProviderInterface {
         $app['config.loaders.objectified'] = $app->share(function($app) {
             return array(
                 new YamlAppLoader($app['config.locator']),
+                new YamlSerializerLoader($app['config.locator']),
                 new YamlContentTypeLoader($app['config.locator']),
                 new YamlFieldTypeLoader($app['config.locator']),
                 new YamlExtensionLoader($app['config.locator']),
