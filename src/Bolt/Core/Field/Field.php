@@ -79,6 +79,12 @@ class Field extends ConfigObject implements ArrayableInterface {
         }
     }
 
+    public function addColumnTo($table)
+    {
+        $migrator = $this->getType()->getMigrator();
+        $migrator($table, $this);
+    }
+
     public function validate()
     {
         $app = $this->app;

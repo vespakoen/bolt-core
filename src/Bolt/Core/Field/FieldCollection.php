@@ -42,6 +42,12 @@ class FieldCollection extends Collection {
         return $this;
     }
 
+    public function addColumnsTo($table) {
+        foreach($this as $field) {
+            $field->addColumnTo($table);
+        }
+    }
+
     public static function validate($config)
     {
         if(!is_array($config)) {

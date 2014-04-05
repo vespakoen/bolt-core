@@ -2,6 +2,7 @@
 
 namespace Bolt\Core\ContentType;
 
+use Bolt\Core\App;
 use Bolt\Core\Support\Collection;
 
 class ContentTypeCollection extends Collection {
@@ -29,6 +30,25 @@ class ContentTypeCollection extends Collection {
         $this->items[$key] = ContentType::fromConfig($key, $config);
 
         return $this;
+    }
+
+    public function addTablesTo($schema)
+    {
+        foreach($this as $contentType) {
+            $contentType->addTableTo($schema);
+        }
+    }
+
+    public function getSchema()
+    {
+        $db = App::make('db');
+
+        $schemaManager = $db->getSchemaManager();
+        $schema = $schemaManager->createSchema();
+
+        $this->addTablesTo($schema);
+
+        return $schema;
     }
 
 }

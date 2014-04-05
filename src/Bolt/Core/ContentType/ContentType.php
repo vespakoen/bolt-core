@@ -233,6 +233,15 @@ class ContentType extends ConfigObject implements ArrayableInterface {
         return $this->defaultStatus;
     }
 
+    public function addTableTo($schema)
+    {
+        $table = $schema->createTable($this->getKey());
+
+        foreach($this->getFields() as $field) {
+            $field->addColumnTo($table);
+        }
+    }
+
     /**
      * Guesses the slug if none is given
      *
