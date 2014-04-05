@@ -2,11 +2,15 @@
 
 namespace Bolt\Core\Extension;
 
+use Bolt\Core\App;
 use Bolt\Core\Field\FieldCollection;
+use Bolt\Core\Config\ConfigObject;
 
 use Illuminate\Support\Contracts\ArrayableInterface;
 
-class Extension implements ArrayableInterface {
+class Extension extends ConfigObject implements ArrayableInterface {
+
+    protected $objectType = 'extension';
 
     protected $key;
 
@@ -14,47 +18,73 @@ class Extension implements ArrayableInterface {
 
     protected $providers;
 
-    protected $config;
-
-    public function __construct($key, $enabled = false, $providers = array(), $config)
+    public function __construct($app, $key, $enabled = false, $providers = array(), $options = array())
     {
+        $this->app = $app;
         $this->key = $key;
         $this->enabled = $enabled;
         $this->providers = $providers;
-        $this->config = $config;
+        $this->options = $options;
+
+        $this->validate();
     }
 
     public static function fromConfig($key, $config)
     {
-        static::validate($key, $config);
-
+        $app = App::instance();
         $enabled = $config['enabled'];
         $providers = array_get($config, 'providers', array());
         if(array_key_exists('provider', $config)) {
             $providers = array($config['provider']);
         }
-        $config = array_get($config, 'config', array());
+        $options = array_get($options, 'options', array());
 
-        return new static($key, $enabled, $providers, $config);
+        return new static($app, $key, $enabled, $providers, $config);
     }
 
-    public static function validate($key, $config)
+    /**
+     * Gets the key.
+     *
+     * @return mixed
+     */
+    public function getKey()
     {
-        $cleaned = preg_replace("/[^a-zA-Z0-9-_]+/", "", $key);
+        return $this->key;
+    }
 
-        if($key !== $cleaned) {
-            throw new InvalidArgumentException(sprintf('Invalid Extension key "%s". It may only contain [a-z, A-Z, 0-9, -, _].', $key));
+    /**
+     * Indicates whether the extension is enabled
+     *
+     * @return mixed
+     */
+    public function getEnabled()
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * Gets the providers
+     *
+     * @return mixed
+     */
+    public function getProviders()
+    {
+        return $this->providers;
+    }
+
+
+    /**
+     * Validates the properties of the contenttype
+     *
+     * @return void
+     */
+    public function validate()
+    {
+        $cleaned = preg_replace("/[^a-zA-Z0-9-_]+/", "", $this->key);
+
+        if($this->key !== $cleaned) {
+            $this->app['notify']->error(sprintf('Invalid Extension key "%s". It may only contain [a-z, A-Z, 0-9, -, _].', $this->key));
         }
-    }
-
-    public function toArray()
-    {
-        return array(
-            'key' => $this->key,
-            'enabled' => $this->enabled,
-            'providers' => $this->providers,
-            'config' => $this->config
-        );
     }
 
 }

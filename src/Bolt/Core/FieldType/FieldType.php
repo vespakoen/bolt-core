@@ -2,13 +2,17 @@
 
 namespace Bolt\Core\FieldType;
 
+use Bolt\Core\App;
 use Bolt\Core\Field\Field;
+use Bolt\Core\Config\ConfigObject;
 
 use Doctrine\DBAL\Schema\Table;
 
 use Illuminate\Support\Contracts\ArrayableInterface;
 
-class FieldType implements ArrayableInterface {
+class FieldType extends ConfigObject implements ArrayableInterface {
+
+    protected $objectType = 'fieldtype';
 
     protected $key;
 
@@ -18,18 +22,21 @@ class FieldType implements ArrayableInterface {
 
     protected $migrator;
 
-    public function __construct($key, $doctrineType = null, $serializer = null, Closure $migrator = null)
+    public function __construct($app, $key, $doctrineType = null, $serializer = null, Closure $migrator = null, $options = array())
     {
+        $this->app = $app;
         $this->key = $key;
         $this->doctrineType = is_null($doctrineType) ? $this->getDefaultDoctrineType() : $doctrineType;
         $this->serializer = is_null($serializer) ? $this->getDefaultSerializer() : $serializer;
         $this->migrator = is_null($migrator) ? $this->getDefaultMigrator() : $migrator;
+        $this->options = $options;
+
+        $this->validate();
     }
 
     public static function fromConfig($key, $config = array())
     {
-        static::validate($key, $config);
-
+        $app = App::instance();
         $doctrineType = array_get($config, 'doctrine_type');
         $serializer = array_get($config, 'serializer');
         $migrator = array_get($config, 'migrator');
@@ -45,16 +52,7 @@ class FieldType implements ArrayableInterface {
             };
         }
 
-        return new static($key, $doctrineType, $serializer, $migrator);
-    }
-
-    public static function validate($key, $config)
-    {
-        $cleaned = preg_replace("/[^a-zA-Z0-9-_]+/", '', $key);
-
-        if($key !== $cleaned) {
-            throw new InvalidArgumentException(sprintf('Invalid FieldType key "%s". It may only contain [a-z, A-Z, 0-9, -, _].', $key));
-        }
+        return new static($app, $key, $doctrineType, $serializer, $migrator);
     }
 
     public function getSerializer()
@@ -62,6 +60,11 @@ class FieldType implements ArrayableInterface {
         $serializerClass = $this->serializer;
 
         return new $serializerClass;
+    }
+
+    public function getSerializerClass()
+    {
+        return $this->serializer;
     }
 
     public function getKey()
@@ -79,13 +82,13 @@ class FieldType implements ArrayableInterface {
         return $this->migrator;
     }
 
-    public function toArray()
+    public function validate()
     {
-        return array(
-            'doctrine_type' => $this->doctrineType,
-            'serializer' => $this->serializer,
-            'migrator' => $this->getMigratorConfig()
-        );
+        $cleaned = preg_replace("/[^a-zA-Z0-9-_]+/", '', $this->key);
+
+        if($this->key !== $cleaned) {
+            $this->app['notify']->error(sprintf('Invalid FieldType key "%s". It may only contain [a-z, A-Z, 0-9, -, _].', $this->key));
+        }
     }
 
     protected function getMigratorConfig()

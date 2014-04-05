@@ -35,10 +35,6 @@ class App extends Application {
 		$this->register(new FieldTypeServiceProvider);
 		$this->register(new FieldServiceProvider);
 		//$this->register(new DatabaseServiceProvider);
-
-		foreach($values as $key => $value) {
-		    $this[$key] = $value;
-		}
 	}
 
 	public static function instance()
