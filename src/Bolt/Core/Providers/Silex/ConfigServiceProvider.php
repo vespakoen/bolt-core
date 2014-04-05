@@ -43,11 +43,7 @@ class ConfigServiceProvider implements ServiceProviderInterface {
     }
 
     protected function registerConfigData(Application $app) {
-        $app['config.data'] = array(
-            'general' => array(
-                'env' => $app['env']
-            )
-        );
+        $app['config.data'] = array();
     }
 
     protected function registerDirectories(Application $app)
