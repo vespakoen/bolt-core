@@ -9,11 +9,13 @@ use Illuminate\Support\Str;
 
 class ContentType implements ArrayableInterface {
 
-    public function __construct($key, $name, $singularName = null, FieldCollection $fields = null, $showOnDashboard = null, $sort = null, $defaultStatus = null)
+    public function __construct($key, $name, FieldCollection $fields = null, $slug = null, $singularName = null, $singularSlug = null, $showOnDashboard = null, $sort = null, $defaultStatus = null)
     {
         $this->key = $key;
         $this->name = $name;
+        $this->slug = is_null($slug) ? $this->guessSlug() : $slug;
         $this->singularName = is_null($singularName) ? $this->guessSingularName() : $singularName;
+        $this->singularSlug = is_null($singularSlug) ? $this->guessSingularSlug() : $singularSlug;
         $this->fields = $fields;
         $this->showOnDashboard = is_null($showOnDashboard) ? true : $showOnDashboard;
         $this->sort = is_null($sort) ? $this->getDefaultSortColumn() : $sort;
@@ -25,10 +27,16 @@ class ContentType implements ArrayableInterface {
         static::validate($key, $config);
 
         $name = $config['name'];
+        $slug = array_get($config, 'slug');
         $singularName = array_get($config, 'singular_name');
-        $collection = FieldCollection::fromConfig($config['fields']);
+        $singularSlug = array_get($config, 'singular_slug');
+        $showOnDashboard = array_get($config, 'show_on_dashboard');
+        $sort = array_get($config, 'sort');
+        $defaultStatus = array_get($config, 'default_status');
 
-        return new static($key, $name, $singularName, $collection);
+        $fields = FieldCollection::fromConfig($config['fields']);
+
+        return new static($key, $name, $fields, $slug, $singularName, $singularSlug, $showOnDashboard, $sort, $defaultStatus);
     }
 
     public static function validate($key, $config)
@@ -36,7 +44,11 @@ class ContentType implements ArrayableInterface {
         $cleaned = preg_replace("/[^a-zA-Z0-9-_]+/", "", $key);
 
         if($key !== $cleaned) {
-            throw new InvalidArgumentException(sprintf('Invalid ContentType key "%s". It may only contain [a-z, A-Z, 0-9, -, _].', $key));
+            $this->app['notify']->error(sprintf('Invalid ContentType key "%s". It may only contain [a-z, A-Z, 0-9, -, _].', $key));
+        }
+
+        if( ! array_key_exists('fields', $config)) {
+            $this->app['notify']->error('Missing "fields" key in contenttype with key "'.$key.'"');
         }
     }
 
@@ -45,7 +57,9 @@ class ContentType implements ArrayableInterface {
         return array(
             'key' => $this->key,
             'name' => $this->name,
+            'slug' => $this->slug,
             'singular_name' => $this->singularName,
+            'singular_slug' => $this->singularSlug,
             'fields' => $this->fields->toArray(),
             'show_on_dashboard' => $this->showOnDashboard,
             'sort' => $this->sort,
@@ -53,9 +67,19 @@ class ContentType implements ArrayableInterface {
         );
     }
 
+    protected function guessSlug()
+    {
+        return $this->key;
+    }
+
     protected function guessSingularName()
     {
         return Str::singular($this->name);
+    }
+
+    protected function guessSingularSlug()
+    {
+        return $this->singularName;
     }
 
     protected function getDefaultSortColumn()
