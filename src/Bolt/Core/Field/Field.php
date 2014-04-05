@@ -15,13 +15,13 @@ class Field implements ArrayableInterface {
 
     protected $type;
 
-    protected $label;
+    protected $options;
 
-    public function __construct($key, FieldType $type = null, $label = null)
+    public function __construct($key, FieldType $type = null, $options = array())
     {
         $this->key = $key;
         $this->type = is_null($type) ? $this->getDefaultType() : $type;
-        $this->label = is_null($label) ? $this->guessLabel() : $label;
+        $this->options = array_merge($this->getDefaultOptions(), $options);
     }
 
     public static function fromConfig($key, $config)
@@ -29,30 +29,32 @@ class Field implements ArrayableInterface {
         static::validate($key, $config);
 
         $type = App::make('fieldtypes')->get($config['type']);
-        $label = array_get($config, 'label');
+        $options = array_except($config, array('type'));
 
-        return new static($key, $type, $label);
+        return new static($key, $type, $options);
     }
 
     public static function validate($key, $config)
     {
+        $app = App::instance();
+
         $cleaned = preg_replace("/[^a-zA-Z0-9-_]+/", "", $key);
 
         if($key !== $cleaned) {
-            throw new InvalidArgumentException(sprintf('Invalid field key "%s". It may only contain [a-z, A-Z, 0-9, -, _].', $key));
+            $app['notify']->error(sprintf('Invalid field key "%s". It may only contain [a-z, A-Z, 0-9, -, _].', $key));
         }
 
-        $registeredFieldTypes = App::make('fieldtypes')->keys();
+        $registeredFieldTypes = $app['fieldtypes']->keys();
         if( ! array_key_exists('type', $config)) {
-            throw new InvalidArgumentException(sprintf('Missing "type" key in field options for "%s". It must be one of the following: '.implode(', ', $registeredFieldTypes).'.', $key));
+            $app['notify']->error(sprintf('Missing "type" key in field options for "%s". It must be one of the following: '.implode(', ', $registeredFieldTypes).'.', $key));
         }
 
         if(!in_array($config['type'], $registeredFieldTypes)) {
-            throw new InvalidArgumentException(sprintf('Invalid "type" key (%s) in field options for "%s" field. It must be one of the following: '.implode(', ', $registeredFieldTypes).'.', $config['type'], $key));
+            $app['notify']->error(sprintf('Invalid "type" key (%s) in field options for "%s" field. It must be one of the following: '.implode(', ', $registeredFieldTypes).'.', $config['type'], $key));
         }
 
-        if(in_array($key, static::getReservedFieldNames())) {
-            throw new InvalidArgumentException(sprintf('Invalid key for Field "%s". It may NOT be named as the following reserved field names '.implode(',', $registeredFieldTypes).'.', $key));
+        if($config['type'] != 'slug' && in_array($key, static::getReservedFieldNames())) {
+            $app['notify']->error(sprintf('Invalid key for Field "%s". It may NOT be named as the following reserved field names '.implode(',', static::getReservedFieldNames()).'.', $key));
         }
     }
 
@@ -82,23 +84,33 @@ class Field implements ArrayableInterface {
         return $this->type;
     }
 
-    public function getLabel()
+    public function getOptions()
     {
         return $this->label;
     }
 
     public function toArray()
     {
-        return array(
+        return array_merge(array(
             'key' => $this->key,
-            'type' => $this->type->getKey(),
-            'label' => $this->label
-        );
+            'type' => $this->type->getKey()
+        ), $this->options);
     }
 
     protected function getDefaultType()
     {
         return App::make('fieldtypes')->get('text');
+    }
+
+    protected function getDefaultOptions()
+    {
+        return array(
+            'label' => $this->guessLabel(),
+            'class' => '',
+            'variant' => '',
+            'default' => '',
+            'pattern' => '',
+        );
     }
 
     protected function guessLabel()
