@@ -6,7 +6,8 @@
         "symfony/yaml": "~2.4",
         "doctrine/dbal": "~2.4",
         "filp/whoops": "1.*",
-        "illuminate/support": "dev-master"
+        "illuminate/support": "dev-master",
+        "layla/cody": "dev-master"
     },
     "authors": [
         {
