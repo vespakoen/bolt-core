@@ -3,12 +3,12 @@
 namespace Bolt\Core\FieldType;
 
 /**
- * UploadcareFieldType class
+ * SlugFieldType class
  */
-class UploadcareFieldType extends FieldType {
+class SlugFieldType extends FieldType {
 
 	/**
-	 * Create a new UploadcareFieldType instance
+	 * Create a new SlugFieldType instance
 	 *
 	 * @param $app \Silex\Application
 	 * @param $key string
@@ -16,7 +16,7 @@ class UploadcareFieldType extends FieldType {
 	 * @param $serializer string
 	 * @param $migrator Closure
 	 */
-    public function __construct($app, $key = 'uploadcare', Closure $migrator = null)
+    public function __construct($app, $key = 'slug', Closure $migrator = null)
     {
         parent::__construct($app, $key, $migrator);
     }

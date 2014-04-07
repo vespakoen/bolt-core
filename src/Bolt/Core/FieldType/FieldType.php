@@ -7,27 +7,29 @@ use Bolt\Core\Field\Field;
 use Bolt\Core\Config\ConfigObject;
 
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Type;
 
 use Illuminate\Support\Contracts\ArrayableInterface;
 
 class FieldType extends ConfigObject implements ArrayableInterface {
 
+    /**
+     * The doctrine type name
+     *
+     * @var string
+     */
+    protected $doctrineType = 'string';
+
     protected $objectType = 'fieldtype';
 
     protected $key;
 
-    protected $doctrineType;
-
-    protected $serializer;
-
     protected $migrator;
 
-    public function __construct($app, $key, $doctrineType = null, $serializer = null, Closure $migrator = null, $options = array())
+    public function __construct($app, $key, Closure $migrator = null, $options = array())
     {
         $this->app = $app;
         $this->key = $key;
-        $this->doctrineType = is_null($doctrineType) ? $this->getDefaultDoctrineType() : $doctrineType;
-        $this->serializer = is_null($serializer) ? $this->getDefaultSerializer() : $serializer;
         $this->migrator = is_null($migrator) ? $this->getDefaultMigrator() : $migrator;
         $this->options = $options;
 
@@ -37,8 +39,17 @@ class FieldType extends ConfigObject implements ArrayableInterface {
     public static function fromConfig($key, $config = array())
     {
         $app = App::instance();
-        $doctrineType = array_get($config, 'doctrine_type');
-        $serializer = array_get($config, 'serializer');
+
+        if( ! is_string($config)) {
+            $fieldClass = $config;
+
+            if( ! class_exists($fieldClass)) {
+                $app['notify']->error('Unknown class for fieldtype: '.$fieldClass);
+            }
+
+            return new $fieldClass($app);
+        }
+
         $migrator = array_get($config, 'migrator');
 
         if(!is_null($migrator)) {
@@ -52,19 +63,7 @@ class FieldType extends ConfigObject implements ArrayableInterface {
             };
         }
 
-        return new static($app, $key, $doctrineType, $serializer, $migrator);
-    }
-
-    public function getSerializer()
-    {
-        $serializerClass = $this->serializer;
-
-        return new $serializerClass;
-    }
-
-    public function getSerializerClass()
-    {
-        return $this->serializer;
+        return new static($app, $key, $migrator);
     }
 
     public function getKey()
@@ -72,14 +71,14 @@ class FieldType extends ConfigObject implements ArrayableInterface {
         return $this->key;
     }
 
-    public function getDoctrineType()
-    {
-        return $this->doctrineType;
-    }
-
     public function getMigrator()
     {
         return $this->migrator;
+    }
+
+    public function getDoctrineType()
+    {
+        return $this->doctrineType;
     }
 
     public function validate()
@@ -91,19 +90,19 @@ class FieldType extends ConfigObject implements ArrayableInterface {
         }
     }
 
-    protected function getMigratorConfig()
+    public function getMigratorConfig()
     {
         $table = new Table('test');
 
         $migrator = $this->migrator;
-        $migrator($table, new Field('test'));
+        $migrator($table, new Field($this->app, 'test'));
 
         foreach($table->getColumns() as $column)
         {
             $config = $column->toArray();
 
             $result = array(
-                'type' => get_class($config['type']),
+                'type' => $config['type']->getName(),
             );
             unset($config['type']);
             unset($config['name']);
@@ -116,21 +115,33 @@ class FieldType extends ConfigObject implements ArrayableInterface {
         return array();
     }
 
-    protected function getDefaultDoctrineType()
-    {
-        return 'Doctrine\DBAL\Types\StringType';
-    }
-
-    protected function getDefaultSerializer()
-    {
-        return 'Bolt\Core\FieldType\Serializer\PassthroughSerializer';
-    }
-
+    /**
+     * Get the migrator
+     *
+     * @return string
+     */
     protected function getDefaultMigrator()
     {
-        return function($table, $field) {
-            $table->addColumn($field->getKey(), 'string', array('length' => 256, 'default' => ''));
+        $doctrineType = $this->getDoctrineType();
+        $defaultMigratorOptions = $this->getDefaultMigratorOptions();
+
+        return function($table, $field) use ($doctrineType, $defaultMigratorOptions) {
+            $options = array_merge($defaultMigratorOptions, $field->getMigratorOptions());
+            $table->addColumn($field->getKey(), $doctrineType, $options);
         };
+    }
+
+    /**
+     * Get the default column options
+     *
+     * @return array
+     */
+    protected function getDefaultMigratorOptions()
+    {
+        return array(
+            'length' => 256,
+            'default' => ''
+        );
     }
 
 }

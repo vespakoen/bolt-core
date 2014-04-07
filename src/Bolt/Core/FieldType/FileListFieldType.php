@@ -2,13 +2,15 @@
 
 namespace Bolt\Core\FieldType;
 
+use Doctrine\DBAL\Platforms\SqlitePlatform;
+
 /**
- * UploadcareFieldType class
+ * FileListFieldType class
  */
-class UploadcareFieldType extends FieldType {
+class FileListFieldType extends TextFieldType {
 
 	/**
-	 * Create a new UploadcareFieldType instance
+	 * Create a new FileListFieldType instance
 	 *
 	 * @param $app \Silex\Application
 	 * @param $key string
@@ -16,7 +18,7 @@ class UploadcareFieldType extends FieldType {
 	 * @param $serializer string
 	 * @param $migrator Closure
 	 */
-    public function __construct($app, $key = 'uploadcare', Closure $migrator = null)
+    public function __construct($app, $key = 'filelist', Closure $migrator = null)
     {
         parent::__construct($app, $key, $migrator);
     }

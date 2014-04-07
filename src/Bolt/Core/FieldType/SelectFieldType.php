@@ -3,12 +3,12 @@
 namespace Bolt\Core\FieldType;
 
 /**
- * UploadcareFieldType class
+ * SelectFieldType class
  */
-class UploadcareFieldType extends FieldType {
+class SelectFieldType extends TextFieldType {
 
 	/**
-	 * Create a new UploadcareFieldType instance
+	 * Create a new SelectFieldType instance
 	 *
 	 * @param $app \Silex\Application
 	 * @param $key string
@@ -16,7 +16,7 @@ class UploadcareFieldType extends FieldType {
 	 * @param $serializer string
 	 * @param $migrator Closure
 	 */
-    public function __construct($app, $key = 'uploadcare', Closure $migrator = null)
+    public function __construct($app, $key = 'select', Closure $migrator = null)
     {
         parent::__construct($app, $key, $migrator);
     }

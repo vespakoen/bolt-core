@@ -3,8 +3,27 @@
 namespace Bolt\Core\Providers\Silex;
 
 use Bolt\Core\FieldType\FieldTypeCollection;
-use Bolt\Core\FieldType\TextFieldType;
 use Bolt\Core\FieldType\FieldType;
+
+use Bolt\Core\FieldType\TextFieldType;
+use Bolt\Core\FieldType\ImageFieldType;
+use Bolt\Core\FieldType\UploadcareFieldType;
+use Bolt\Core\FieldType\SlugFieldType;
+use Bolt\Core\FieldType\HtmlFieldType;
+use Bolt\Core\FieldType\VideoFieldType;
+use Bolt\Core\FieldType\TemplateSelectFieldType;
+use Bolt\Core\FieldType\GeolocationFieldType;
+use Bolt\Core\FieldType\ImageListFieldType;
+use Bolt\Core\FieldType\FileFieldType;
+use Bolt\Core\FieldType\FileListFieldType;
+use Bolt\Core\FieldType\CheckboxFieldType;
+use Bolt\Core\FieldType\MarkdownFieldType;
+use Bolt\Core\FieldType\DatetimeFieldType;
+use Bolt\Core\FieldType\DateFieldType;
+use Bolt\Core\FieldType\IntegerFieldType;
+use Bolt\Core\FieldType\FloatFieldType;
+use Bolt\Core\FieldType\SelectFieldType;
+use Bolt\Core\FieldType\TextareaFieldType;
 
 use Silex\Application;
 use Silex\ServiceProviderInterface;
@@ -28,27 +47,24 @@ class FieldTypeServiceProvider implements ServiceProviderInterface {
     {
         $defaultFields = new FieldTypeCollection(array(
             'text' => new TextFieldType($app),
-            'image' => FieldType::fromConfig('image'),
-            'uploadcare' => FieldType::fromConfig('uploadcare'),
-            'slug' => FieldType::fromConfig('slug'),
-            'html' => FieldType::fromConfig('html'),
-            'video' => FieldType::fromConfig('video'),
-            'templateselect' => FieldType::fromConfig('templateselect'),
-            'geolocation' => FieldType::fromConfig('geolocation'),
-            'imagelist' => FieldType::fromConfig('imagelist'),
-            'file' => FieldType::fromConfig('file'),
-            'filelist' => FieldType::fromConfig('filelist'),
-            'checkbox' => FieldType::fromConfig('checkbox'),
-            'markdown' => FieldType::fromConfig('markdown'),
-            'datetime' => FieldType::fromConfig('datetime'),
-            'date' => FieldType::fromConfig('date'),
-            'integer' => FieldType::fromConfig('integer'),
-            'float' => FieldType::fromConfig('float'),
-            'select' => FieldType::fromConfig('select'),
-            'textarea' => FieldType::fromConfig('textarea', array(
-                'column' => 'text',
-                'doctrine_type' => 'Doctrine\DBAL\Types\TextType'
-            )),
+            'image' => new ImageFieldType($app),
+            'uploadcare' => new UploadcareFieldType($app),
+            'slug' => new SlugFieldType($app),
+            'html' => new HtmlFieldType($app),
+            'video' => new VideoFieldType($app),
+            'templateselect' => new TemplateSelectFieldType($app),
+            'geolocation' => new GeolocationFieldType($app),
+            'imagelist' => new ImageListFieldType($app),
+            'file' => new FileFieldType($app),
+            'filelist' => new FileListFieldType($app),
+            'checkbox' => new CheckboxFieldType($app),
+            'markdown' => new MarkdownFieldType($app),
+            'datetime' => new DatetimeFieldType($app),
+            'date' => new DateFieldType($app),
+            'integer' => new IntegerFieldType($app),
+            'float' => new FloatFieldType($app),
+            'select' => new SelectFieldType($app),
+            'textarea' => new TextareaFieldType($app),
         ));
 
         $app['fieldtypes'] = $app['fieldtypes']->merge($defaultFields);

@@ -4,6 +4,7 @@ namespace Bolt\Core\FieldType;
 
 use InvalidArgumentException;
 
+use Bolt\Core\App;
 use Bolt\Core\Support\Collection;
 
 class FieldTypeCollection extends Collection {
@@ -37,8 +38,10 @@ class FieldTypeCollection extends Collection {
 
     public static function validate($config)
     {
+        $app = App::instance();
+
         if(!is_array($config)) {
-            throw new InvalidArgumentException(sprintf('Invalid "fieldtypes" configuration given, configuration\'s root value must be of type array.', $key));
+            $app['notify']->error(sprintf('Invalid "fieldtypes" configuration given, configuration\'s root value must be of type array.', $key));
         }
     }
 
