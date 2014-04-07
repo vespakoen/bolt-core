@@ -2,6 +2,8 @@
 
 namespace Bolt\Core\ContentType;
 
+use Twig_Error_Loader;
+
 use Bolt\Core\App;
 use Bolt\Core\Field\FieldCollection;
 use Bolt\Core\Config\ConfigObject;
@@ -242,6 +244,34 @@ class ContentType extends ConfigObject implements ArrayableInterface {
         }
     }
 
+    public function getListingView()
+    {
+        $repositoryKey = 'repositories.'.$this->getKey();
+
+        if( ! isset($this->app[$repositoryKey])) {
+            $this->app['notify']->error('No repository found for contenttype: "'.$this->getKey().'"');
+        }
+
+        $repository = $this->app['repositories.'.$this->getKey()];
+
+        $records = $repository->all(array(
+            'eagerload' => array('test')
+        ));
+
+        $data = array(
+            'contenttype' => $this,
+            'repository' => $repository,
+            'records' => $records
+        );
+
+        try {
+            return $this->app['twig']->render('contenttypes/custom/' . $this->getKey() . '/listing.twig', $data);
+        }
+        catch(Twig_Error_Loader $e) {
+            return $this->app['twig']->render('contenttypes/listing.twig', $data);
+        }
+    }
+
     /**
      * Guesses the slug if none is given
      *
@@ -269,7 +299,7 @@ class ContentType extends ConfigObject implements ArrayableInterface {
      */
     protected function guessSingularSlug()
     {
-        return $this->singularName;
+        return makeSlug($this->singularName);
     }
 
     /**

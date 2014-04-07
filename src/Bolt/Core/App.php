@@ -2,6 +2,8 @@
 
 namespace Bolt\Core;
 
+use Silex\Provider\TwigServiceProvider;
+use Bolt\Core\Providers\Silex\TwigPathServiceProvider;
 use Bolt\Core\Providers\Silex\ConfigServiceProvider;
 use Bolt\Core\Providers\Silex\FieldTypeServiceProvider;
 use Bolt\Core\Providers\Silex\FieldServiceProvider;
@@ -31,10 +33,12 @@ class App extends Application {
 		$this->register(new WhoopsServiceProvider);
 		$this->register(new NotifyServiceProvider);
 		$this->register(new PathsServiceProvider);
+		$this->register(new TwigServiceProvider);
+		$this->register(new TwigPathServiceProvider);
 		$this->register(new ConfigServiceProvider);
 		$this->register(new FieldTypeServiceProvider);
 		$this->register(new FieldServiceProvider);
-		//$this->register(new DatabaseServiceProvider);
+		$this->register(new DatabaseServiceProvider);
 	}
 
 	public static function instance()
