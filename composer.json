@@ -7,7 +7,7 @@
         "doctrine/dbal": "~2.4",
         "filp/whoops": "1.*",
         "illuminate/support": "~4.2",
-        "layla/cody": "~0.1"
+        "layla/cody": "dev-master"
     },
     "authors": [
         {
