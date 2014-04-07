@@ -12,7 +12,7 @@ class ContentTypeSerializer {
 		    'slug' => $contentType->getSlug(),
 		    'singular_name' => $contentType->getSingularName(),
 		    'singular_slug' => $contentType->getSingularSlug(),
-		    'fields' => $contentType->getFields()->toArray(),
+		    'fields' => $contentType->getFields()->serialize('array'),
 		    'show_on_dashboard' => $contentType->getShowOnDashboard(),
 		    'sort' => $contentType->getSort(),
 		    'default_status' => $contentType->getDefaultStatus(),
