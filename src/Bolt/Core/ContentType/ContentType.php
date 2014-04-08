@@ -272,6 +272,21 @@ class ContentType extends ConfigObject implements ArrayableInterface {
         }
     }
 
+    public function toArray()
+    {
+        return array(
+            'key' => $this->getKey(),
+            'name' => $this->getName(),
+            'slug' => $this->getSlug(),
+            'singular_name' => $this->getSingularName(),
+            'singular_slug' => $this->getSingularSlug(),
+            'fields' => $this->getFields()->toArray(),
+            'show_on_dashboard' => $this->getShowOnDashboard(),
+            'sort' => $this->getSort(),
+            'default_status' => $this->getDefaultStatus(),
+        );
+    }
+
     /**
      * Guesses the slug if none is given
      *

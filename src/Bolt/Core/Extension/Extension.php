@@ -72,6 +72,15 @@ class Extension extends ConfigObject implements ArrayableInterface {
         return $this->providers;
     }
 
+    public function toArray()
+    {
+        return array(
+            'key' => $this->getKey(),
+            'enabled' => $this->getEnabled(),
+            'providers' => $this->getProviders(),
+            'config' => $this->getConfig(),
+        );
+    }
 
     /**
      * Validates the properties of the contenttype

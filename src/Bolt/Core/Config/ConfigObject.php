@@ -11,20 +11,6 @@ class ConfigObject {
 	 */
 	protected $options;
 
-	public function serialize($strategy)
-	{
-		$key = 'serializers/' . $strategy . '/' . $this->objectType;
-
-		$serializerClass = $this->app['config']->getRaw($key);
-		if(is_null($serializerClass)) {
-			$this->app['notify']->error('Unknown serializer requested: "' . $key . '"');
-		}
-
-		$serializer = new $serializerClass;
-
-		return $serializer->serialize($this);
-	}
-
 	/**
 	 * Gets the options
 	 *
@@ -43,11 +29,6 @@ class ConfigObject {
 	public function getOption($key, $default = null)
 	{
 		return array_get($this->options, $key, $default);
-	}
-
-	public function toArray()
-	{
-	    return $this->serialize('array');
 	}
 
 }

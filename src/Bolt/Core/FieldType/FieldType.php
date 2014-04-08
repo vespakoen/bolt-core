@@ -81,6 +81,15 @@ class FieldType extends ConfigObject implements ArrayableInterface {
         return $this->doctrineType;
     }
 
+    public function toArray()
+    {
+        return array(
+            'doctrine_type' => $this->getDoctrineType(),
+            'serializer' => $this->getSerializerClass(),
+            'migrator' => $this->getMigratorConfig()
+        );
+    }
+
     public function validate()
     {
         $cleaned = preg_replace("/[^a-zA-Z0-9-_]+/", '', $this->key);

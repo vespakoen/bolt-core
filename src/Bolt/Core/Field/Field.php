@@ -85,6 +85,14 @@ class Field extends ConfigObject implements ArrayableInterface {
         $migrator($table, $this);
     }
 
+    public function toArray()
+    {
+        return array_merge(array(
+            'key' => $this->getKey(),
+            'type' => $this->getType()->getKey()
+        ), $this->getOptions());
+    }
+
     public function validate()
     {
         $app = $this->app;
