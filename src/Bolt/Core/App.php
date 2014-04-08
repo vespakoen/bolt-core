@@ -10,6 +10,8 @@ use Bolt\Core\Providers\Silex\FieldServiceProvider;
 use Bolt\Core\Providers\Silex\PathsServiceProvider;
 use Bolt\Core\Providers\Silex\DatabaseServiceProvider;
 use Bolt\Core\Providers\Silex\NotifyServiceProvider;
+use Bolt\Core\Providers\Silex\SerializerServiceProvider;
+use Bolt\Core\Providers\Silex\CodyServiceProvider;
 
 use Silex\Application;
 
@@ -39,6 +41,12 @@ class App extends Application {
 		$this->register(new FieldTypeServiceProvider);
 		$this->register(new FieldServiceProvider);
 		$this->register(new DatabaseServiceProvider);
+		$this->register(new SerializerServiceProvider);
+		$this->register(new CodyServiceProvider);
+
+		foreach($this['config']->getObjectifiedData() as $key => $object) {
+			$this[$key] = $object;
+		}
 	}
 
 	public static function instance()
