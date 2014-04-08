@@ -19,7 +19,7 @@ class Config {
 
     protected $rawData;
 
-    protected $objectifiedData;
+    protected $data;
 
     public function __construct(App $app, LoaderInterface $rawLoader, LoaderInterface $objectifiedLoader, array $configs = array(), array $rawData = array())
     {
@@ -45,18 +45,18 @@ class Config {
     {
         $key = str_replace('/', '.', $key);
 
-        if(is_null($this->objectifiedData)) {
-            $this->objectifiedData = $this->getObjectifiedData();
+        if(is_null($this->data)) {
+            $this->data = $this->getObjectifiedData()->toArray();
         }
 
         if(empty($key)) {
-            return $this->objectifiedData;
+            return $this->data;
         }
 
-        return array_get($this->objectifiedData->toArray(), $key, $default);
+        return array_get($this->data, $key, $default);
     }
 
-    protected function getRawData()
+    public function getRawData()
     {
         $rawData = array();
 
@@ -67,7 +67,7 @@ class Config {
         return $rawData;
     }
 
-    protected function getObjectifiedData()
+    public function getObjectifiedData()
     {
         $data = new Collection;
 
