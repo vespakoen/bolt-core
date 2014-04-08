@@ -123,10 +123,9 @@ class FieldType extends ConfigObject implements ArrayableInterface {
     protected function getDefaultMigrator()
     {
         $doctrineType = $this->getDoctrineType();
-        $defaultMigratorOptions = $this->getDefaultMigratorOptions();
+        $options = $this->getDefaultMigratorConfig();
 
-        return function($table, $field) use ($doctrineType, $defaultMigratorOptions) {
-            $options = array_merge($defaultMigratorOptions, $field->getMigratorOptions());
+        return function($table, $field) use ($doctrineType, $options) {
             $table->addColumn($field->getKey(), $doctrineType, $options);
         };
     }
@@ -136,7 +135,7 @@ class FieldType extends ConfigObject implements ArrayableInterface {
      *
      * @return array
      */
-    protected function getDefaultMigratorOptions()
+    protected function getDefaultMigratorConfig()
     {
         return array(
             'length' => 256,
