@@ -19,7 +19,6 @@ class CheckboxFieldType extends FieldType {
 	 *
 	 * @param $app \Silex\Application
 	 * @param $key string
-	 * @param $doctrineType string
 	 * @param $serializer string
 	 * @param $migrator Closure
 	 */
@@ -33,10 +32,10 @@ class CheckboxFieldType extends FieldType {
      *
      * @return array
      */
-    protected function getDefaultMigratorOptions()
+    protected function getDefaultMigratorConfig()
     {
         return array(
-            'default' => 0
+            'default' => '0'
         );
     }
 

@@ -19,7 +19,6 @@ class DatetimeFieldType extends FieldType {
 	 *
 	 * @param $app \Silex\Application
 	 * @param $key string
-	 * @param $doctrineType string
 	 * @param $serializer string
 	 * @param $migrator Closure
 	 */
@@ -33,7 +32,7 @@ class DatetimeFieldType extends FieldType {
      *
      * @return array
      */
-    protected function getDefaultMigratorOptions()
+    protected function getDefaultMigratorConfig()
     {
         return array(
             'notnull' => false
