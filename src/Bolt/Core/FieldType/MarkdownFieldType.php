@@ -14,7 +14,6 @@ class MarkdownFieldType extends TextFieldType {
 	 *
 	 * @param $app \Silex\Application
 	 * @param $key string
-	 * @param $doctrineType string
 	 * @param $serializer string
 	 * @param $migrator Closure
 	 */

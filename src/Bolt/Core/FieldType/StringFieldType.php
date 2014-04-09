@@ -12,7 +12,6 @@ class StringFieldType extends FieldType {
 	 *
 	 * @param $app \Silex\Application
 	 * @param $key string
-	 * @param $doctrineType string
 	 * @param $serializer string
 	 * @param $migrator Closure
 	 */
