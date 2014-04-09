@@ -4,7 +4,7 @@ namespace Bolt\Core\FieldType\Loader;
 
 use InvalidArgumentException;
 
-use Bolt\Core\FieldType\FieldTypeCollection;
+use Bolt\Core\Support\Facades\FieldTypeCollection;
 
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Config\Loader\FileLoader;

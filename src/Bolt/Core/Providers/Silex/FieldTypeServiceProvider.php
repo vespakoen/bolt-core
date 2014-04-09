@@ -2,9 +2,10 @@
 
 namespace Bolt\Core\Providers\Silex;
 
-use Bolt\Core\FieldType\FieldTypeCollection;
-use Bolt\Core\FieldType\FieldType;
+use Bolt\Core\FieldType\Factory\FieldType;
+use Bolt\Core\FieldType\Factory\FieldTypeCollection;
 
+use Bolt\Core\FieldType\StringFieldType;
 use Bolt\Core\FieldType\TextFieldType;
 use Bolt\Core\FieldType\ImageFieldType;
 use Bolt\Core\FieldType\UploadcareFieldType;
@@ -32,42 +33,51 @@ class FieldTypeServiceProvider implements ServiceProviderInterface {
 
     public function register(Application $app)
     {
+        $this->registerFieldTypeFactories($app);
         $this->registerFieldTypeCollection($app);
         $this->registerDefaultFieldTypes($app);
     }
 
-    protected function registerFieldTypeCollection(Application $app)
+    protected function registerFieldTypeFactories(Application $app)
+    {
+        $app['fieldtype.factory'] = $app->share(function($app) {
+            return new FieldType($app);
+        });
+
+        $app['fieldtypes.factory'] = $app->share(function($app) {
+            return new FieldTypeCollection($app);
+        });
+    }
+
+    protected function registerFieldTypeCollection($app)
     {
         $app['fieldtypes'] = $app->share(function($app) {
-            return new FieldTypeCollection;
+            return $app['fieldtypes.factory']->create();
         });
     }
 
     protected function registerDefaultFieldTypes(Application $app)
     {
-        $defaultFields = new FieldTypeCollection(array(
-            'text' => new TextFieldType($app),
-            'image' => new ImageFieldType($app),
-            'uploadcare' => new UploadcareFieldType($app),
-            'slug' => new SlugFieldType($app),
-            'html' => new HtmlFieldType($app),
-            'video' => new VideoFieldType($app),
-            'templateselect' => new TemplateSelectFieldType($app),
-            'geolocation' => new GeolocationFieldType($app),
-            'imagelist' => new ImageListFieldType($app),
-            'file' => new FileFieldType($app),
-            'filelist' => new FileListFieldType($app),
-            'checkbox' => new CheckboxFieldType($app),
-            'markdown' => new MarkdownFieldType($app),
-            'datetime' => new DatetimeFieldType($app),
-            'date' => new DateFieldType($app),
-            'integer' => new IntegerFieldType($app),
-            'float' => new FloatFieldType($app),
-            'select' => new SelectFieldType($app),
-            'textarea' => new TextareaFieldType($app),
-        ));
-
-        $app['fieldtypes'] = $app['fieldtypes']->merge($defaultFields);
+        $app['fieldtypes']
+            ->addFieldType('string', new StringFieldType($app))
+            ->addFieldType('image', new ImageFieldType($app))
+            ->addFieldType('uploadcare', new UploadcareFieldType($app))
+            ->addFieldType('slug', new SlugFieldType($app))
+            ->addFieldType('html', new HtmlFieldType($app))
+            ->addFieldType('video', new VideoFieldType($app))
+            ->addFieldType('templateselect', new TemplateSelectFieldType($app))
+            ->addFieldType('geolocation', new GeolocationFieldType($app))
+            ->addFieldType('imagelist', new ImageListFieldType($app))
+            ->addFieldType('file', new FileFieldType($app))
+            ->addFieldType('filelist', new FileListFieldType($app))
+            ->addFieldType('checkbox', new CheckboxFieldType($app))
+            ->addFieldType('markdown', new MarkdownFieldType($app))
+            ->addFieldType('datetime', new DatetimeFieldType($app))
+            ->addFieldType('date', new DateFieldType($app))
+            ->addFieldType('integer', new IntegerFieldType($app))
+            ->addFieldType('float', new FloatFieldType($app))
+            ->addFieldType('select', new SelectFieldType($app))
+            ->addFieldType('textarea', new TextareaFieldType($app));
     }
 
     public function boot(Application $app)
