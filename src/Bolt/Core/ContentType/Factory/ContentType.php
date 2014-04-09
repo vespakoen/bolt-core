@@ -2,6 +2,8 @@
 
 namespace Bolt\Core\ContentType\Factory;
 
+use Bolt\Core\Field\FieldCollection;
+
 class ContentType {
 
     public function __construct($app)
@@ -20,7 +22,7 @@ class ContentType {
     {
         $contentTypeClass = $this->getContentTypeClass();
 
-        if( ! is_string($config)) {
+        if(is_string($config)) {
             $contentTypeClass = $config;
 
             if( ! class_exists($contentTypeClass)) {
@@ -39,7 +41,7 @@ class ContentType {
         $defaultStatus = array_get($config, 'default_status');
         $options = array_except($config, array('name', 'slug', 'singular_name', 'singular_slug', 'show_on_dashboard', 'sort', 'default_status'));
 
-        $fields = FieldCollection::fromConfig($config['fields']);
+        $fields = $this->app['fields.factory']->fromConfig($config['fields']);
         // $relations = RelationCollection::fromConfig(array_get($config, 'relations', array()));
         // $taxonomy = TaxonomyCollection::fromConfig(array_get($config, 'taxonomy', array()));
 

@@ -4,6 +4,7 @@ namespace Bolt\Core\ContentType;
 
 use Bolt\Core\App;
 use Bolt\Core\Support\Collection;
+use Bolt\Core\Support\Facades\ContentType;
 
 class ContentTypeCollection extends Collection {
 
@@ -18,7 +19,7 @@ class ContentTypeCollection extends Collection {
         return $collection;
     }
 
-    public function addContentType($key, ContentType $contentType)
+    public function addContentType($key, $contentType)
     {
         $this->items[$key] = $contentType;
 
