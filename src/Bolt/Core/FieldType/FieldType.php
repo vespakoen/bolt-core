@@ -36,36 +36,6 @@ class FieldType extends ConfigObject implements ArrayableInterface {
         $this->validate();
     }
 
-    public static function fromConfig($key, $config = array())
-    {
-        $app = App::instance();
-
-        if( ! is_string($config)) {
-            $fieldClass = $config;
-
-            if( ! class_exists($fieldClass)) {
-                $app['notify']->error('Unknown class for fieldtype: '.$fieldClass);
-            }
-
-            return new $fieldClass($app);
-        }
-
-        $migrator = array_get($config, 'migrator');
-
-        if(!is_null($migrator)) {
-            $migrator = function($table, $field) use ($migrator) {
-                $key = $field->getKey();
-
-                $type = array_get($migrator, 'type', 'string');
-                $options = array_get($migrator, 'options', array());
-
-                $table->addColumn($key, $type, $options);
-            };
-        }
-
-        return new static($app, $key, $migrator);
-    }
-
     public function getKey()
     {
         return $this->key;
@@ -84,8 +54,8 @@ class FieldType extends ConfigObject implements ArrayableInterface {
     public function toArray()
     {
         return array(
+            'key' => $this->getKey(),
             'doctrine_type' => $this->getDoctrineType(),
-            'serializer' => $this->getSerializerClass(),
             'migrator' => $this->getMigratorConfig()
         );
     }
@@ -104,7 +74,7 @@ class FieldType extends ConfigObject implements ArrayableInterface {
         $table = new Table('test');
 
         $migrator = $this->migrator;
-        $migrator($table, new Field($this->app, 'test'));
+        $migrator($table, new Field($this->app, 'test', $this->app['fieldtypes']->get('string')));
 
         foreach($table->getColumns() as $column)
         {
