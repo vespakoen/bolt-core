@@ -28,17 +28,6 @@ class Field extends ConfigObject implements ArrayableInterface {
         $this->validate();
     }
 
-    public static function fromConfig($key, $config)
-    {
-        static::validateConfig($key, $config);
-
-        $app = App::instance();
-        $type = $app['fieldtypes']->get($config['type']);
-        $options = array_except($config, array('type'));
-
-        return new static($app, $key, $type, $options);
-    }
-
     public static function getReservedFieldNames()
     {
         return array(
@@ -63,20 +52,6 @@ class Field extends ConfigObject implements ArrayableInterface {
     public function getType()
     {
         return $this->type;
-    }
-
-    public static function validateConfig($key, $config)
-    {
-        $app = App::instance();
-
-        if( ! array_key_exists('type', $config)) {
-            $app['notify']->error(sprintf('Not type given for field with key: "%s"', $key));
-        }
-
-        $registeredFieldTypes = $app['fieldtypes']->keys();
-        if(!in_array($config['type'], $registeredFieldTypes)) {
-            $app['notify']->error(sprintf('Invalid "type" key (%s) in field options for "%s" field. It must be one of the following: '.implode(', ', $registeredFieldTypes).'.', $config['type'], $key));
-        }
     }
 
     public function addColumnTo($table)

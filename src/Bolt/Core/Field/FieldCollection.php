@@ -5,6 +5,7 @@ namespace Bolt\Core\Field;
 use InvalidArgumentException;
 
 use Bolt\Core\Support\Collection;
+use Bolt\Core\Support\Facades\Field;
 
 class FieldCollection extends Collection {
 
@@ -28,7 +29,7 @@ class FieldCollection extends Collection {
         return $collection;
     }
 
-    public function addField($key, Field $field)
+    public function addField($key, $field)
     {
         $this->items[$key] = $field;
 
