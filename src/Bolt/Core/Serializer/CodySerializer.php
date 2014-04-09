@@ -46,7 +46,7 @@ class CodySerializer {
 		$name = $this->getModelNameForContentType($contentType);
 
 		$configuration = array(
-			'base' => 'Bolt.Core.Models.Content',
+			'base' => 'Bolt.Core.Content.Eloquent.Model',
 			'table' => $contentType->getKey(),
 			'columns' => $this->getModelColumns($contentType)
 		);
@@ -66,6 +66,7 @@ class CodySerializer {
 			$package->getVendor(),
 			$package->getName(),
 			'Models',
+			'Generated',
 			ucfirst($contentType->getKey())
 		);
 
@@ -96,7 +97,7 @@ class CodySerializer {
 		$name = $this->getRepositoryNameForContentType($contentType);
 
 		$configuration = array(
-			'base' => 'Bolt.Core.Repositories.EloquentRepository',
+			'base' => 'Bolt.Core.Content.Eloquent.Repository',
 			'methods' => array(
 				'__construct' => array(
 					'returnType' => 'void',
@@ -128,6 +129,7 @@ class CodySerializer {
  			$package->getVendor(),
  			$package->getName(),
  			'Repositories',
+ 			'Generated',
  			ucfirst($contentType->getKey()).'Repository'
  		);
 
