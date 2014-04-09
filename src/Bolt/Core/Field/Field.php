@@ -75,7 +75,7 @@ class Field extends ConfigObject implements ArrayableInterface {
 
         $registeredFieldTypes = $app['fieldtypes']->keys();
         if(!in_array($config['type'], $registeredFieldTypes)) {
-            $app['notify']->error(sprintf('Invalid "type" key (%s) in field options for "%s" field. It must be one of the following: '.implode(', ', $registeredFieldTypes).'.', get_class($this->type), $this->key));
+            $app['notify']->error(sprintf('Invalid "type" key (%s) in field options for "%s" field. It must be one of the following: '.implode(', ', $registeredFieldTypes).'.', $config['type'], $key));
         }
     }
 
@@ -110,7 +110,7 @@ class Field extends ConfigObject implements ArrayableInterface {
 
     protected function getDefaultType()
     {
-        return $this->app['fieldtypes']->get('text');
+        return $this->app['fieldtypes']->get('string');
     }
 
     protected function getDefaultOptions()
@@ -121,6 +121,7 @@ class Field extends ConfigObject implements ArrayableInterface {
             'variant' => '',
             'default' => '',
             'pattern' => '',
+            'index' => false,
         );
     }
 
