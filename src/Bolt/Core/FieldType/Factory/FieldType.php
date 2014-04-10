@@ -2,8 +2,6 @@
 
 namespace Bolt\Core\FieldType\Factory;
 
-use Bolt\Core\App;
-
 class FieldType {
 
 	public function __construct($app)

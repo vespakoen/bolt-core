@@ -11,11 +11,11 @@ class Field {
 		$this->app = $app;
 	}
 
-	public function create($app, $key, Closure $migrator = null, $options = array())
+	public function create($key, Closure $migrator = null, $options = array())
 	{
 		$fieldClass = $this->getFieldClass();
 
-		return new $fieldClass($app, $key, $migrator, $options);
+		return new $fieldClass($this->app, $key, $migrator, $options);
 	}
 
 	public function fromConfig($key, $config = array())
