@@ -17,8 +17,11 @@ class CodySerializer {
 		$package = $this->getPackage();
 		foreach($this->app['contenttypes'] as $contentType)
 		{
-			$model = $this->getModelForContentType($contentType);
-			$package->addResource($model);
+			$generatedModel = $this->getGeneratedModelForContentType($contentType);
+			$package->addResource($generatedModel);
+
+			// $model = $this->getModelForContentType($contentType);
+			// $package->addResource($model);
 
 			$repository = $this->getRepositoryForContentType($contentType);
 			$package->addResource($repository);
@@ -37,13 +40,13 @@ class CodySerializer {
 		return new Package($vendor, $name);
 	}
 
-	protected function getModelForContentType($contentType)
+	protected function getGeneratedModelForContentType($contentType)
 	{
 		$package = $this->getPackage();
 
 		$type = 'model';
 
-		$name = $this->getModelNameForContentType($contentType);
+		$name = $this->getGeneratedModelNameForContentType($contentType);
 
 		$configuration = array(
 			'base' => 'Bolt.Core.Content.Eloquent.Model',
@@ -58,7 +61,7 @@ class CodySerializer {
 		return new Resource($package, $type, $name, $configuration, $compilers);
 	}
 
-	protected function getModelNameForContentType($contentType)
+	protected function getGeneratedModelNameForContentType($contentType)
 	{
 		$package = $this->getPackage();
 
@@ -67,7 +70,7 @@ class CodySerializer {
 			$package->getName(),
 			'Models',
 			'Generated',
-			ucfirst($contentType->getKey())
+			ucfirst($contentType->getSingularSlug())
 		);
 
 		return implode('.', $parts);
@@ -98,6 +101,10 @@ class CodySerializer {
 
 		$configuration = array(
 			'base' => 'Bolt.Core.Content.Eloquent.Repository',
+			'uses' => array(
+				'Bolt\Core\Support\Facades\Content',
+				'Bolt\Core\Support\Facades\ContentCollection',
+			),
 			'methods' => array(
 				'__construct' => array(
 					'returnType' => 'void',
@@ -105,10 +112,32 @@ class CodySerializer {
 						'model' => array(
 							'type' => 'mixed',
 							'comment' => 'The Model to be used'
+						),
+						'contentType' => array(
+							'type' => 'mixed',
+							'comment' => 'The ContentType configuration object'
 						)
 					),
 					'content' => array(
-						'php-core' => '$this->model = $model;'
+						'php-core' => '$this->model = $model;'."\n".
+							'$this->contentType = $contentType;'
+					)
+				),
+				'getForListing' => array(
+					'returnType' => 'Bolt.Core.Content.ContentCollection',
+					'parameters' => array(
+						'options' => array(
+							'type' => 'array',
+							'comment' => 'Options for retrieving the content'
+						),
+					),
+					'content' => array(
+						'php-core' => '$models = $this->model->get();'."\n\n".
+							'$items = array();'."\n".
+							'foreach($models as $model) {'."\n\t".
+								'$items[] = Content::create($this->contentType, $model, \'eloquent\');'."\n".
+							'}'."\n\n".
+							'return ContentCollection::create($models->all());'
 					)
 				)
 			)
@@ -130,7 +159,7 @@ class CodySerializer {
  			$package->getName(),
  			'Repositories',
  			'Generated',
- 			ucfirst($contentType->getKey()).'Repository'
+ 			ucfirst($contentType->getSingularSlug()).'Repository'
  		);
 
  		return implode('.', $parts);

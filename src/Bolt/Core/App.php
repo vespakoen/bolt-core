@@ -7,12 +7,13 @@ use Bolt\Core\Providers\Silex\ConfigServiceProvider;
 use Bolt\Core\Providers\Silex\FieldTypeServiceProvider;
 use Bolt\Core\Providers\Silex\FieldServiceProvider;
 use Bolt\Core\Providers\Silex\ContentTypeServiceProvider;
+use Bolt\Core\Providers\Silex\ContentServiceProvider;
 use Bolt\Core\Providers\Silex\PathsServiceProvider;
 use Bolt\Core\Providers\Silex\DatabaseServiceProvider;
 use Bolt\Core\Providers\Silex\NotifyServiceProvider;
 use Bolt\Core\Providers\Silex\SerializerServiceProvider;
 use Bolt\Core\Providers\Silex\ViewServiceProvider;
-use Bolt\Core\Providers\Silex\CoreServiceProvider;
+use Bolt\Core\Providers\Silex\EloquentServiceProvider;
 
 use Silex\Application;
 use Silex\Provider\TwigServiceProvider;
@@ -47,10 +48,11 @@ class App extends Application {
 		$this->register(new FieldTypeServiceProvider);
 		$this->register(new FieldServiceProvider);
 		$this->register(new ContentTypeServiceProvider);
+		$this->register(new ContentServiceProvider);
 		$this->register(new DatabaseServiceProvider);
 		$this->register(new SerializerServiceProvider);
 		$this->register(new ViewServiceProvider);
-		$this->register(new CoreServiceProvider);
+		$this->register(new EloquentServiceProvider);
 	}
 
 	public static function instance()
