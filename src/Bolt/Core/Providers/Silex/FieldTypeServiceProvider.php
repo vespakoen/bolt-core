@@ -6,7 +6,6 @@ use Bolt\Core\FieldType\Factory\FieldType;
 use Bolt\Core\FieldType\Factory\FieldTypeCollection;
 
 use Bolt\Core\FieldType\StringFieldType;
-use Bolt\Core\FieldType\TextFieldType;
 use Bolt\Core\FieldType\ImageFieldType;
 use Bolt\Core\FieldType\UploadcareFieldType;
 use Bolt\Core\FieldType\SlugFieldType;
@@ -29,8 +28,8 @@ use Bolt\Core\FieldType\TextareaFieldType;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 
-class FieldTypeServiceProvider implements ServiceProviderInterface {
-
+class FieldTypeServiceProvider implements ServiceProviderInterface
+{
     public function register(Application $app)
     {
         $this->registerFieldTypeFactories($app);
@@ -40,18 +39,18 @@ class FieldTypeServiceProvider implements ServiceProviderInterface {
 
     protected function registerFieldTypeFactories(Application $app)
     {
-        $app['fieldtype.factory'] = $app->share(function($app) {
+        $app['fieldtype.factory'] = $app->share(function ($app) {
             return new FieldType($app);
         });
 
-        $app['fieldtypes.factory'] = $app->share(function($app) {
+        $app['fieldtypes.factory'] = $app->share(function ($app) {
             return new FieldTypeCollection($app);
         });
     }
 
     protected function registerFieldTypeCollection($app)
     {
-        $app['fieldtypes'] = $app->share(function($app) {
+        $app['fieldtypes'] = $app->share(function ($app) {
             return $app['fieldtypes.factory']->create();
         });
     }

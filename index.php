@@ -1,11 +1,11 @@
 <?php
 
 // Autoloading
-require "vendor/autoload.php";
+require 'vendor/autoload.php';
 
 // We need some helper methods from Laravel for convenience.
 // At the time of writing this, I have only used "array_get" and, sorry to admit "dd" so far.
-require "vendor/illuminate/support/Illuminate/Support/helpers.php";
+require 'vendor/illuminate/support/Illuminate/Support/helpers.php';
 
 // Use some stuff
 use Bolt\Core\App;

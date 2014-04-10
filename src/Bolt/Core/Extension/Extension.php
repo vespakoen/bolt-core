@@ -3,13 +3,12 @@
 namespace Bolt\Core\Extension;
 
 use Bolt\Core\App;
-use Bolt\Core\Field\FieldCollection;
 use Bolt\Core\Config\ConfigObject;
 
 use Illuminate\Support\Contracts\ArrayableInterface;
 
-class Extension extends ConfigObject implements ArrayableInterface {
-
+class Extension extends ConfigObject implements ArrayableInterface
+{
     protected $objectType = 'extension';
 
     protected $key;
@@ -34,7 +33,7 @@ class Extension extends ConfigObject implements ArrayableInterface {
         $app = App::instance();
         $enabled = $config['enabled'];
         $providers = array_get($config, 'providers', array());
-        if(array_key_exists('provider', $config)) {
+        if (array_key_exists('provider', $config)) {
             $providers = array($config['provider']);
         }
         $options = array_get($options, 'options', array());
@@ -91,7 +90,7 @@ class Extension extends ConfigObject implements ArrayableInterface {
     {
         $cleaned = preg_replace("/[^a-zA-Z0-9-_]+/", "", $this->key);
 
-        if($this->key !== $cleaned) {
+        if ($this->key !== $cleaned) {
             $this->app['notify']->error(sprintf('Invalid Extension key "%s". It may only contain [a-z, A-Z, 0-9, -, _].', $this->key));
         }
     }

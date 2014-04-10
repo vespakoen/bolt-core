@@ -5,8 +5,8 @@ namespace Bolt\Core\FieldType;
 /**
  * DateFieldType class
  */
-class DateFieldType extends FieldType {
-
+class DateFieldType extends FieldType
+{
     /**
      * The doctrine type name
      *
@@ -14,14 +14,14 @@ class DateFieldType extends FieldType {
      */
     protected $doctrineType = 'date';
 
-	/**
-	 * Create a new DateFieldType instance
-	 *
-	 * @param $app \Silex\Application
-	 * @param $key string
-	 * @param $serializer string
-	 * @param $migrator Closure
-	 */
+    /**
+     * Create a new DateFieldType instance
+     *
+     * @param $app \Silex\Application
+     * @param $key string
+     * @param $serializer string
+     * @param $migrator Closure
+     */
     public function __construct($app, $key = 'date', Closure $migrator = null)
     {
         parent::__construct($app, $key, $migrator);

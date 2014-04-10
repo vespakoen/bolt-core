@@ -5,8 +5,8 @@ namespace Bolt\Core\FieldType;
 /**
  * IntegerFieldType class
  */
-class IntegerFieldType extends FieldType {
-
+class IntegerFieldType extends FieldType
+{
     /**
      * The doctrine type name
      *
@@ -14,14 +14,14 @@ class IntegerFieldType extends FieldType {
      */
     protected $doctrineType = 'integer';
 
-	/**
-	 * Create a new IntegerFieldType instance
-	 *
-	 * @param $app \Silex\Application
-	 * @param $key string
-	 * @param $serializer string
-	 * @param $migrator Closure
-	 */
+    /**
+     * Create a new IntegerFieldType instance
+     *
+     * @param $app \Silex\Application
+     * @param $key string
+     * @param $serializer string
+     * @param $migrator Closure
+     */
     public function __construct($app, $key = 'integer', Closure $migrator = null)
     {
         parent::__construct($app, $key, $migrator);

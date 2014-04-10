@@ -5,8 +5,8 @@ namespace Bolt\Core\FieldType;
 /**
  * FloatFieldType class
  */
-class FloatFieldType extends FieldType {
-
+class FloatFieldType extends FieldType
+{
     /**
      * The doctrine type name
      *
@@ -14,14 +14,14 @@ class FloatFieldType extends FieldType {
      */
     protected $doctrineType = 'float';
 
-	/**
-	 * Create a new FloatFieldType instance
-	 *
-	 * @param $app \Silex\Application
-	 * @param $key string
-	 * @param $serializer string
-	 * @param $migrator Closure
-	 */
+    /**
+     * Create a new FloatFieldType instance
+     *
+     * @param $app \Silex\Application
+     * @param $key string
+     * @param $serializer string
+     * @param $migrator Closure
+     */
     public function __construct($app, $key = 'float', Closure $migrator = null)
     {
         parent::__construct($app, $key, $migrator);

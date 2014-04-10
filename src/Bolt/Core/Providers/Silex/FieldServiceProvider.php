@@ -8,8 +8,8 @@ use Bolt\Core\Field\Factory\Field;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 
-class FieldServiceProvider implements ServiceProviderInterface {
-
+class FieldServiceProvider implements ServiceProviderInterface
+{
     public function register(Application $app)
     {
         $this->registerFieldFactories($app);
@@ -17,11 +17,11 @@ class FieldServiceProvider implements ServiceProviderInterface {
 
     protected function registerFieldFactories(Application $app)
     {
-        $app['field.factory'] = $app->share(function($app) {
+        $app['field.factory'] = $app->share(function ($app) {
             return new Field($app);
         });
 
-        $app['fields.factory'] = $app->share(function($app) {
+        $app['fields.factory'] = $app->share(function ($app) {
             return new FieldCollection($app);
         });
     }

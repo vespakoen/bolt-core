@@ -11,8 +11,8 @@ use Doctrine\DBAL\Types\Type;
 
 use Illuminate\Support\Contracts\ArrayableInterface;
 
-class FieldType extends ConfigObject implements ArrayableInterface {
-
+class FieldType extends ConfigObject implements ArrayableInterface
+{
     /**
      * The doctrine type name
      *
@@ -64,7 +64,7 @@ class FieldType extends ConfigObject implements ArrayableInterface {
     {
         $cleaned = preg_replace("/[^a-zA-Z0-9-_]+/", '', $this->key);
 
-        if($this->key !== $cleaned) {
+        if ($this->key !== $cleaned) {
             $this->app['notify']->error(sprintf('Invalid FieldType key "%s". It may only contain [a-z, A-Z, 0-9, -, _].', $this->key));
         }
     }
@@ -76,8 +76,7 @@ class FieldType extends ConfigObject implements ArrayableInterface {
         $migrator = $this->migrator;
         $migrator($table, new Field($this->app, 'test', $this->app['fieldtypes']->get('string')));
 
-        foreach($table->getColumns() as $column)
-        {
+        foreach ($table->getColumns() as $column) {
             $config = $column->toArray();
 
             $result = array(
@@ -104,7 +103,7 @@ class FieldType extends ConfigObject implements ArrayableInterface {
         $doctrineType = $this->getDoctrineType();
         $options = $this->getDefaultMigratorConfig();
 
-        return function($table, $field) use ($doctrineType, $options) {
+        return function ($table, $field) use ($doctrineType, $options) {
             $table->addColumn($field->getKey(), $doctrineType, $options);
         };
     }

@@ -2,6 +2,6 @@
 
 namespace Bolt\Core\Content\Eloquent;
 
-class Repository {
-
+class Repository
+{
 }

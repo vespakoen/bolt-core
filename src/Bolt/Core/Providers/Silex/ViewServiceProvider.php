@@ -8,8 +8,8 @@ use Bolt\Core\View\ViewLoader;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 
-class ViewServiceProvider implements ServiceProviderInterface {
-
+class ViewServiceProvider implements ServiceProviderInterface
+{
     public function register(Application $app)
     {
         $this->registerViewFactories($app);
@@ -17,11 +17,11 @@ class ViewServiceProvider implements ServiceProviderInterface {
 
     protected function registerViewFactories(Application $app)
     {
-        $app['view.factory'] = $app->share(function($app) {
+        $app['view.factory'] = $app->share(function ($app) {
             return new View($app);
         });
 
-        $app['twig.loader'] = $app->share(function($app) {
+        $app['twig.loader'] = $app->share(function ($app) {
             return new ViewLoader($app['twig.path']);
         });
     }

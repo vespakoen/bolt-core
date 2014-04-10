@@ -7,8 +7,8 @@ use Bolt\Core\Support\Collection;
 
 use Symfony\Component\Config\Loader\LoaderInterface;
 
-class Config {
-
+class Config
+{
     protected $app;
 
     protected $rawLoader;
@@ -34,7 +34,7 @@ class Config {
     {
         $key = str_replace('/', '.', $key);
 
-        if(empty($key)) {
+        if (empty($key)) {
             return $this->rawData;
         }
 
@@ -45,11 +45,11 @@ class Config {
     {
         $key = str_replace('/', '.', $key);
 
-        if(is_null($this->data)) {
+        if (is_null($this->data)) {
             $this->data = $this->getObjectifiedData()->toArray();
         }
 
-        if(empty($key)) {
+        if (empty($key)) {
             return $this->data;
         }
 
@@ -60,7 +60,7 @@ class Config {
     {
         $rawData = array();
 
-        foreach($this->configs as $as => $key) {
+        foreach ($this->configs as $as => $key) {
             $rawData[is_string($as) ? $as : $key] = $this->rawLoader->load($key);
         }
 
@@ -71,7 +71,7 @@ class Config {
     {
         $data = new Collection;
 
-        foreach($this->configs as $as => $key) {
+        foreach ($this->configs as $as => $key) {
             $data->put(is_string($as) ? $as : $key, $this->objectifiedLoader->load($key));
         }
 

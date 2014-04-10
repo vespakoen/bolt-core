@@ -14,8 +14,8 @@ use Illuminate\Support\Str;
 /**
  * A ContentType defines a resource and can be used to build Forms and Listings
  */
-class ContentType extends ConfigObject implements ArrayableInterface {
-
+class ContentType extends ConfigObject implements ArrayableInterface
+{
     /**
      * The object type, used by the ConfigObject when serializing
      *
@@ -141,7 +141,6 @@ class ContentType extends ConfigObject implements ArrayableInterface {
         $fields = FieldCollection::fromConfig($config['fields']);
         // $relations = RelationCollection::fromConfig(array_get($config, 'relations', array()));
         // $taxonomy = TaxonomyCollection::fromConfig(array_get($config, 'taxonomy', array()));
-
         return new static($app, $key, $name, $fields, $slug, $singularName, $singularSlug, $showOnDashboard, $sort, $defaultStatus, $options);
     }
 
@@ -239,7 +238,7 @@ class ContentType extends ConfigObject implements ArrayableInterface {
     {
         $table = $schema->createTable($this->getKey());
 
-        foreach($this->getFields() as $field) {
+        foreach ($this->getFields() as $field) {
             $field->addColumnTo($table);
         }
     }
@@ -248,7 +247,7 @@ class ContentType extends ConfigObject implements ArrayableInterface {
     {
         $repositoryKey = 'repositories.'.$this->getKey();
 
-        if( ! isset($this->app[$repositoryKey])) {
+        if ( ! isset($this->app[$repositoryKey])) {
             $this->app['notify']->error('No repository found for contenttype: "'.$this->getKey().'"');
         }
 
@@ -266,8 +265,7 @@ class ContentType extends ConfigObject implements ArrayableInterface {
 
         try {
             return $this->app['twig']->render('contenttypes/custom/' . $this->getKey() . '/listing.twig', $data);
-        }
-        catch(Twig_Error_Loader $e) {
+        } catch (Twig_Error_Loader $e) {
             return $this->app['twig']->render('contenttypes/listing.twig', $data);
         }
     }
@@ -358,11 +356,11 @@ class ContentType extends ConfigObject implements ArrayableInterface {
     {
         $cleaned = preg_replace("/[^a-zA-Z0-9-_]+/", "", $this->key);
 
-        if($this->key !== $cleaned) {
+        if ($this->key !== $cleaned) {
             $this->app['notify']->error(sprintf('Invalid ContentType key "%s". It may only contain [a-z, A-Z, 0-9, -, _].', $this->key));
         }
 
-        if($this->fields->isEmpty()) {
+        if ($this->fields->isEmpty()) {
             $this->app['notify']->error('Missing "fields" key in contenttype with key "'.$this->key.'"');
         }
     }

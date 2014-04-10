@@ -4,8 +4,8 @@ namespace Bolt\Core\ContentType\Factory;
 
 use Bolt\Core\Field\FieldCollection;
 
-class ContentType {
-
+class ContentType
+{
     public function __construct($app)
     {
         $this->app = $app;
@@ -22,10 +22,10 @@ class ContentType {
     {
         $contentTypeClass = $this->getContentTypeClass();
 
-        if(is_string($config)) {
+        if (is_string($config)) {
             $contentTypeClass = $config;
 
-            if( ! class_exists($contentTypeClass)) {
+            if ( ! class_exists($contentTypeClass)) {
                 $this->app['notify']->error('Unknown class for contenttype: '.$contentTypeClass);
             }
 
@@ -44,7 +44,6 @@ class ContentType {
         $fields = $this->app['fields.factory']->fromConfig($config['fields']);
         // $relations = RelationCollection::fromConfig(array_get($config, 'relations', array()));
         // $taxonomy = TaxonomyCollection::fromConfig(array_get($config, 'taxonomy', array()));
-
         return new $contentTypeClass($this->app, $key, $name, $fields, $slug, $singularName, $singularSlug, $showOnDashboard, $sort, $defaultStatus, $options);
     }
 

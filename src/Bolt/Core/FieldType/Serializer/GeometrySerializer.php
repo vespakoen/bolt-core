@@ -4,20 +4,20 @@ namespace Bolt\Core\FieldType\Serializer;
 
 use Bolt\Core\FieldType\Geometry\GeometryParser;
 
-class GeometrySerializer implements SerializerInterface {
+class GeometrySerializer implements SerializerInterface
+{
+    public function serialize($value)
+    {
+        $parser = GeometryParser::fromGeoJSON($value);
 
-	public function serialize($value)
-	{
-		$parser = GeometryParser::fromGeoJSON($value);
+        return $parser->asSql();
+    }
 
-		return $parser->asSql();
-	}
+    public function unserialize($value)
+    {
+        $parser = GeometryParser::fromBinary($value);
 
-	public function unserialize($value)
-	{
-		$parser = GeometryParser::fromBinary($value);
-
-		return $parser->asGeoJSON();
-	}
+        return $parser->asGeoJSON();
+    }
 
 }

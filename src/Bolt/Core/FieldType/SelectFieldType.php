@@ -5,16 +5,16 @@ namespace Bolt\Core\FieldType;
 /**
  * SelectFieldType class
  */
-class SelectFieldType extends TextFieldType {
-
-	/**
-	 * Create a new SelectFieldType instance
-	 *
-	 * @param $app \Silex\Application
-	 * @param $key string
-	 * @param $serializer string
-	 * @param $migrator Closure
-	 */
+class SelectFieldType extends TextFieldType
+{
+    /**
+     * Create a new SelectFieldType instance
+     *
+     * @param $app \Silex\Application
+     * @param $key string
+     * @param $serializer string
+     * @param $migrator Closure
+     */
     public function __construct($app, $key = 'select', Closure $migrator = null)
     {
         parent::__construct($app, $key, $migrator);

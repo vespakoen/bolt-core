@@ -9,8 +9,8 @@ use Symfony\Component\Config\FileLocator;
  *
  * @author Koen Schmeets <hello@koenschmeets.nl>
  */
-class ConfigLocator extends FileLocator {
-
+class ConfigLocator extends FileLocator
+{
     protected $allowedExtensions = array(
         'yml'
     );
@@ -28,8 +28,7 @@ class ConfigLocator extends FileLocator {
      */
     public function locate($name, $currentPath = null, $first = true)
     {
-        foreach($this->allowedExtensions as $allowedExtension)
-        {
+        foreach ($this->allowedExtensions as $allowedExtension) {
             $filepaths = array();
             if (null !== $currentPath && file_exists($file = $currentPath.DIRECTORY_SEPARATOR.$name.'.'.$allowedExtension)) {
                 if (true === $first) {

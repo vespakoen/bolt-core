@@ -10,10 +10,8 @@ use Silex\Provider\DoctrineServiceProvider;
 
 use Illuminate\Support\Str;
 
-use Symfony\Component\Config\Loader\DelegatingLoader;
-
-class DatabaseServiceProvider implements ServiceProviderInterface {
-
+class DatabaseServiceProvider implements ServiceProviderInterface
+{
     public function register(Application $app)
     {
         $databaseConfig = $this->getDatabaseConfig($app);

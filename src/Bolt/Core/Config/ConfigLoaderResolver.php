@@ -37,8 +37,7 @@ class ConfigLoaderResolver extends LoaderResolver
      */
     public function resolve($resource, $type = null)
     {
-        if(false === $resource = $this->locator->locate($resource))
-        {
+        if (false === $resource = $this->locator->locate($resource)) {
             return false;
         }
 

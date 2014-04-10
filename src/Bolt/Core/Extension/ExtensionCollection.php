@@ -4,13 +4,13 @@ namespace Bolt\Core\Extension;
 
 use Bolt\Core\Support\Collection;
 
-class ExtensionCollection extends Collection {
-
+class ExtensionCollection extends Collection
+{
     public static function fromConfig($config)
     {
         $collection = new static;
 
-        foreach($config as $key => $config) {
+        foreach ($config as $key => $config) {
             $collection->add($key, $config);
         }
 

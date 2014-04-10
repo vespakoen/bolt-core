@@ -2,28 +2,26 @@
 
 namespace Bolt\Core\FieldType;
 
-use Doctrine\DBAL\Platforms\SqlitePlatform;
-
 /**
  * TextFieldType class
  */
-class TextFieldType extends FieldType {
+class TextFieldType extends FieldType
+{
+    /**
+     * The doctrine type name
+     *
+     * @var string
+     */
+    protected $doctrineType = 'text';
 
-	/**
-	 * The doctrine type name
-	 *
-	 * @var string
-	 */
-	protected $doctrineType = 'text';
-
-	/**
-	 * Create a new TextFieldType instance
-	 *
-	 * @param $app \Silex\Application
-	 * @param $key string
-	 * @param $serializer string
-	 * @param $migrator Closure
-	 */
+    /**
+     * Create a new TextFieldType instance
+     *
+     * @param $app \Silex\Application
+     * @param $key string
+     * @param $serializer string
+     * @param $migrator Closure
+     */
     public function __construct($app, $key = 'text', Closure $migrator = null)
     {
         parent::__construct($app, $key, $migrator);

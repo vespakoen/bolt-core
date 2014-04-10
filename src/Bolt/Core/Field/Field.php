@@ -8,8 +8,8 @@ use Bolt\Core\Config\ConfigObject;
 
 use Illuminate\Support\Contracts\ArrayableInterface;
 
-class Field extends ConfigObject implements ArrayableInterface {
-
+class Field extends ConfigObject implements ArrayableInterface
+{
     protected $objectType = 'field';
 
     protected $key;
@@ -74,11 +74,11 @@ class Field extends ConfigObject implements ArrayableInterface {
 
         $cleaned = preg_replace("/[^a-zA-Z0-9-_]+/", "", $this->key);
 
-        if($this->key !== $cleaned) {
+        if ($this->key !== $cleaned) {
             $app['notify']->error(sprintf('Invalid field key "%s". It may only contain [a-z, A-Z, 0-9, -, _].', $this->key));
         }
 
-        if($this->type->getKey() !== 'slug' && in_array($this->key, static::getReservedFieldNames())) {
+        if ($this->type->getKey() !== 'slug' && in_array($this->key, static::getReservedFieldNames())) {
             $app['notify']->error(sprintf('Invalid key for Field "%s". It may NOT be named as the following reserved field names '.implode(',', static::getReservedFieldNames()).'.', $this->key));
         }
     }

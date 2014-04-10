@@ -11,8 +11,8 @@ use Symfony\Component\Config\Loader\FileLoader;
 
 use Illuminate\Support\Str;
 
-class YamlFieldTypeLoader extends FileLoader {
-
+class YamlFieldTypeLoader extends FileLoader
+{
     /**
      * Loads a Yaml file.
      *

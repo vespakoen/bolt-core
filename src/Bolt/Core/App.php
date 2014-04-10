@@ -17,52 +17,51 @@ use Bolt\Core\Providers\Silex\EloquentServiceProvider;
 
 use Silex\Application;
 use Silex\Provider\TwigServiceProvider;
-use Silex\Provider\DoctrineServiceProvider;
 
 use Illuminate\Support\Facades\Facade;
 
 use Whoops\Provider\Silex\WhoopsServiceProvider;
 
-class App extends Application {
+class App extends Application
+{
+    protected static $app;
 
-	protected static $app;
+    public function __construct($values = array())
+    {
+        parent::__construct();
 
-	public function __construct($values = array())
-	{
-		parent::__construct();
+        static::$app = $this;
 
-		static::$app = $this;
+        foreach ($values as $key => $value) {
+            $this[$key] = $value;
+        }
 
-		foreach($values as $key => $value) {
-		    $this[$key] = $value;
-		}
+        Facade::setFacadeApplication($this);
 
-		Facade::setFacadeApplication($this);
+        $this->register(new WhoopsServiceProvider);
+        $this->register(new NotifyServiceProvider);
+        $this->register(new PathsServiceProvider);
+        $this->register(new TwigServiceProvider);
+        $this->register(new TwigPathServiceProvider);
+        $this->register(new ConfigServiceProvider);
+        $this->register(new FieldTypeServiceProvider);
+        $this->register(new FieldServiceProvider);
+        $this->register(new ContentTypeServiceProvider);
+        $this->register(new ContentServiceProvider);
+        $this->register(new DatabaseServiceProvider);
+        $this->register(new SerializerServiceProvider);
+        $this->register(new ViewServiceProvider);
+        $this->register(new EloquentServiceProvider);
+    }
 
-		$this->register(new WhoopsServiceProvider);
-		$this->register(new NotifyServiceProvider);
-		$this->register(new PathsServiceProvider);
-		$this->register(new TwigServiceProvider);
-		$this->register(new TwigPathServiceProvider);
-		$this->register(new ConfigServiceProvider);
-		$this->register(new FieldTypeServiceProvider);
-		$this->register(new FieldServiceProvider);
-		$this->register(new ContentTypeServiceProvider);
-		$this->register(new ContentServiceProvider);
-		$this->register(new DatabaseServiceProvider);
-		$this->register(new SerializerServiceProvider);
-		$this->register(new ViewServiceProvider);
-		$this->register(new EloquentServiceProvider);
-	}
+    public static function instance()
+    {
+        return static::$app;
+    }
 
-	public static function instance()
-	{
-		return static::$app;
-	}
-
-	public static function make($key)
-	{
-		return static::$app[$key];
-	}
+    public static function make($key)
+    {
+        return static::$app[$key];
+    }
 
 }

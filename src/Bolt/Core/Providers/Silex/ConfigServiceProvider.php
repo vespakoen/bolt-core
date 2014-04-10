@@ -19,8 +19,8 @@ use Silex\ServiceProviderInterface;
 
 use Symfony\Component\Config\Loader\DelegatingLoader;
 
-class ConfigServiceProvider implements ServiceProviderInterface {
-
+class ConfigServiceProvider implements ServiceProviderInterface
+{
     public function register(Application $app)
     {
         $this->registerConfigData($app);
@@ -32,16 +32,17 @@ class ConfigServiceProvider implements ServiceProviderInterface {
         $this->registerConfig($app);
     }
 
-    protected function registerConfigData(Application $app) {
+    protected function registerConfigData(Application $app)
+    {
         $app['config.data'] = array();
     }
 
     protected function registerDirectories(Application $app)
     {
-        $app['config.directories'] = $app->share(function($app) {
+        $app['config.directories'] = $app->share(function ($app) {
             $paths = array($app['paths.config']);
 
-            if(isset($app['env'])) {
+            if (isset($app['env'])) {
                 $paths[] = $app['paths.config'].$app['env'];
             }
 
@@ -51,20 +52,20 @@ class ConfigServiceProvider implements ServiceProviderInterface {
 
     protected function registerLocator(Application $app)
     {
-        $app['config.locator'] = $app->share(function($app) {
+        $app['config.locator'] = $app->share(function ($app) {
             return new ConfigLocator($app['config.directories']);
         });
     }
 
     protected function registerConfigLoaders(Application $app)
     {
-        $app['config.loaders.raw'] = $app->share(function($app) {
+        $app['config.loaders.raw'] = $app->share(function ($app) {
             return array(
                 new YamlConfigLoader($app['config.locator']),
             );
         });
 
-        $app['config.loaders.objectified'] = $app->share(function($app) {
+        $app['config.loaders.objectified'] = $app->share(function ($app) {
             return array(
                 new YamlAppLoader($app['config.locator']),
                 new YamlSerializerLoader($app['config.locator']),
@@ -78,14 +79,14 @@ class ConfigServiceProvider implements ServiceProviderInterface {
 
     protected function registerResolver(Application $app)
     {
-        $app['config.resolver.raw'] = $app->share(function($app) {
+        $app['config.resolver.raw'] = $app->share(function ($app) {
             return new ConfigLoaderResolver(
                 $app['config.locator'],
                 $app['config.loaders.raw']
             );
         });
 
-        $app['config.resolver.objectified'] = $app->share(function($app) {
+        $app['config.resolver.objectified'] = $app->share(function ($app) {
             return new ConfigLoaderResolver(
                 $app['config.locator'],
                 $app['config.loaders.objectified']
@@ -95,18 +96,18 @@ class ConfigServiceProvider implements ServiceProviderInterface {
 
     protected function registerLoaders(Application $app)
     {
-        $app['config.loader.raw'] = $app->share(function($app) {
+        $app['config.loader.raw'] = $app->share(function ($app) {
             return new DelegatingLoader($app['config.resolver.raw']);
         });
 
-        $app['config.loader.objectified'] = $app->share(function($app) {
+        $app['config.loader.objectified'] = $app->share(function ($app) {
             return new DelegatingLoader($app['config.resolver.objectified']);
         });
     }
 
     protected function registerConfig(Application $app)
     {
-        $app['config'] = $app->share(function($app) {
+        $app['config'] = $app->share(function ($app) {
             return new Config($app, $app['config.loader.raw'], $app['config.loader.objectified'], $app['config.files'], $app['config.data']);
         });
     }

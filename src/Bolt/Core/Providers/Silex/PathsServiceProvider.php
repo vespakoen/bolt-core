@@ -5,8 +5,8 @@ namespace Bolt\Core\Providers\Silex;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 
-class PathsServiceProvider implements ServiceProviderInterface {
-
+class PathsServiceProvider implements ServiceProviderInterface
+{
     public function register(Application $app)
     {
         $app['paths.root'] = realpath(__DIR__.'/../../../../../../../../').'/';

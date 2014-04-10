@@ -9,8 +9,8 @@ use Symfony\Component\Config\Loader\FileLoader;
 
 use Illuminate\Support\Str;
 
-class YamlConfigLoader extends FileLoader {
-
+class YamlConfigLoader extends FileLoader
+{
     /**
      * Loads a Yaml file.
      *

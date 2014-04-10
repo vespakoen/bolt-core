@@ -8,8 +8,8 @@ use Bolt\Core\Content\Factory\ContentCollection;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 
-class ContentServiceProvider implements ServiceProviderInterface {
-
+class ContentServiceProvider implements ServiceProviderInterface
+{
     public function register(Application $app)
     {
         $this->registerContentFactories($app);
@@ -17,11 +17,11 @@ class ContentServiceProvider implements ServiceProviderInterface {
 
     protected function registerContentFactories(Application $app)
     {
-        $app['content.factory'] = $app->share(function($app) {
+        $app['content.factory'] = $app->share(function ($app) {
             return new Content($app);
         });
 
-        $app['contents.factory'] = $app->share(function($app) {
+        $app['contents.factory'] = $app->share(function ($app) {
             return new ContentCollection($app);
         });
     }

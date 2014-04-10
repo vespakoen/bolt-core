@@ -4,15 +4,13 @@ namespace Bolt\Core\App\Loader;
 
 use InvalidArgumentException;
 
-use Bolt\Core\App\AppCollection;
-
 use Symfony\Component\Config\Loader\FileLoader;
 use Symfony\Component\Yaml\Yaml;
 
 use Illuminate\Support\Str;
 
-class YamlAppLoader extends FileLoader {
-
+class YamlAppLoader extends FileLoader
+{
     /**
      * Loads a Yaml file.
      *

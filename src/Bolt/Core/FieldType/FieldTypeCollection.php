@@ -2,14 +2,11 @@
 
 namespace Bolt\Core\FieldType;
 
-use InvalidArgumentException;
-
-use Bolt\Core\App;
 use Bolt\Core\Support\Collection;
 use Bolt\Core\Support\Facades\FieldType;
 
-class FieldTypeCollection extends Collection {
-
+class FieldTypeCollection extends Collection
+{
     public function addFieldType($key, $field)
     {
         $this->items[$key] = $field;

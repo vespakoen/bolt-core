@@ -5,8 +5,8 @@ namespace Bolt\Core\FieldType;
 /**
  * CheckboxFieldType class
  */
-class CheckboxFieldType extends FieldType {
-
+class CheckboxFieldType extends FieldType
+{
     /**
      * The doctrine type name
      *
@@ -14,14 +14,14 @@ class CheckboxFieldType extends FieldType {
      */
     protected $doctrineType = 'boolean';
 
-	/**
-	 * Create a new CheckboxFieldType instance
-	 *
-	 * @param $app \Silex\Application
-	 * @param $key string
-	 * @param $serializer string
-	 * @param $migrator Closure
-	 */
+    /**
+     * Create a new CheckboxFieldType instance
+     *
+     * @param $app \Silex\Application
+     * @param $key string
+     * @param $serializer string
+     * @param $migrator Closure
+     */
     public function __construct($app, $key = 'checkbox', Closure $migrator = null)
     {
         parent::__construct($app, $key, $migrator);

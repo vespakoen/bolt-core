@@ -7,8 +7,8 @@ use InvalidArgumentException;
 use Bolt\Core\Support\Collection;
 use Bolt\Core\Support\Facades\Field;
 
-class FieldCollection extends Collection {
-
+class FieldCollection extends Collection
+{
     protected $items = array();
 
     public function __construct($items = array())
@@ -22,7 +22,7 @@ class FieldCollection extends Collection {
 
         $collection = new static;
 
-        foreach($config as $key => $config) {
+        foreach ($config as $key => $config) {
             $collection->add($key, $config);
         }
 
@@ -43,15 +43,16 @@ class FieldCollection extends Collection {
         return $this;
     }
 
-    public function addColumnsTo($table) {
-        foreach($this as $field) {
+    public function addColumnsTo($table)
+    {
+        foreach ($this as $field) {
             $field->addColumnTo($table);
         }
     }
 
     public static function validate($config)
     {
-        if(!is_array($config)) {
+        if (!is_array($config)) {
             throw new InvalidArgumentException(sprintf('Invalid "fields" configuration given, configuration\'s root value must be of type array.', $key));
         }
     }

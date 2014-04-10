@@ -2,10 +2,10 @@
 
 namespace Bolt\Core\FieldType\Serializer;
 
-interface SerializerInterface {
+interface SerializerInterface
+{
+    public function serialize($value);
 
-	public function serialize($value);
-
-	public function unserialize($value);
+    public function unserialize($value);
 
 }
