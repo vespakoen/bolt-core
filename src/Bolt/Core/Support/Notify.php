@@ -17,7 +17,7 @@ class Notify
 
     public function error($developerError, $userError = null)
     {
-        $devMode = $this->app['config']->getRaw('app/debug', false);
+        $devMode = $this->app['config']->get('app/debug', false);
 
         if ($devMode) {
             throw new InvalidArgumentException($developerError);

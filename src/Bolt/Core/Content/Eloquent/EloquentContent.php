@@ -6,7 +6,7 @@ use Bolt\Core\Content\Content;
 
 class EloquentContent extends Content
 {
-    public function __get($key)
+    public function getAttribute($key)
     {
         return $this->model->$key;
     }

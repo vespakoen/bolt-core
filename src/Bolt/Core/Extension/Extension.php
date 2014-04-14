@@ -81,6 +81,14 @@ class Extension extends ConfigObject implements ArrayableInterface
         );
     }
 
+    public function register()
+    {
+        foreach($this->getProviders() as $provider) {
+            $provider = $this->loadProvider($provider);
+            $provider->register();
+        }
+    }
+
     /**
      * Validates the properties of the contenttype
      *
@@ -93,6 +101,17 @@ class Extension extends ConfigObject implements ArrayableInterface
         if ($this->key !== $cleaned) {
             $this->app['notify']->error(sprintf('Invalid Extension key "%s". It may only contain [a-z, A-Z, 0-9, -, _].', $this->key));
         }
+    }
+
+    protected function loadProvider()
+    {
+        if(array_key_exists($provider, $this->loadedProviders)) {
+            return $this->loadedProviders[$provider];
+        }
+
+        $this->loadedProviders[$provider] = new $provider($this->app);
+
+        return $this->loadedProviders[$provider];
     }
 
 }

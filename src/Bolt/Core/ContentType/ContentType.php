@@ -5,8 +5,11 @@ namespace Bolt\Core\ContentType;
 use Twig_Error_Loader;
 
 use Bolt\Core\App;
+use Bolt\Core\Content\Content;
+use Bolt\Core\Content\ContentCollection;
 use Bolt\Core\Field\FieldCollection;
 use Bolt\Core\Config\ConfigObject;
+use Bolt\Core\Support\Facades\View;
 
 use Illuminate\Support\Contracts\ArrayableInterface;
 use Illuminate\Support\Str;
@@ -283,6 +286,34 @@ class ContentType extends ConfigObject implements ArrayableInterface
             'sort' => $this->getSort(),
             'default_status' => $this->getDefaultStatus(),
         );
+    }
+
+    public function getViewForForm(Content $content = null)
+    {
+        $contentType = $this;
+        $view = 'contenttypes/' . $contentType->getKey() . '/form';
+
+        $context = compact(
+            'contentType',
+            'content',
+            'view'
+        );
+
+        return View::create($view, $context);
+    }
+
+    public function getViewForListing(ContentCollection $contents = null)
+    {
+        $contentType = $this;
+        $view = 'contenttypes/' . $contentType->getKey() . '/listing';
+
+        $context = compact(
+            'contentType',
+            'contents',
+            'view'
+        );
+
+        return View::create($view, $context);
     }
 
     /**

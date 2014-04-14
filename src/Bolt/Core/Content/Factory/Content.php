@@ -34,7 +34,7 @@ class Content
 
     protected function getContentClass($type)
     {
-        return $this->app['config']->getRaw('app/classes/content/' . $type . '/content', 'Bolt\Core\Content\Content');
+        return $this->app['config']->get('app/classes/content/' . $type . '/content', 'Bolt\Core\Content\Content');
     }
 
 }

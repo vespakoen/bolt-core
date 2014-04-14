@@ -9,11 +9,11 @@ class FieldType
         $this->app = $app;
     }
 
-    public function create($app, $key, Closure $migrator = null, $options = array())
+    public function create($app, $key, $assets = array(), Closure $migrator = null, $options = array())
     {
         $fieldTypeClass = $this->getFieldTypeClass();
 
-        return new $fieldTypeClass($app, $key, $migrator, $options);
+        return new $fieldTypeClass($app, $key, $assets, $migrator, $options);
     }
 
     public function fromConfig($key, $config = array())
@@ -48,7 +48,7 @@ class FieldType
 
     protected function getFieldTypeClass()
     {
-        return $this->app['config']->getRaw('app/classes/fieldtype', 'Bolt\Core\FieldType\FieldType');
+        return $this->app['config']->get('app/classes/fieldtype', 'Bolt\Core\FieldType\FieldType');
     }
 
 }

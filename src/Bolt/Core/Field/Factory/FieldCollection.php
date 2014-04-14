@@ -40,7 +40,7 @@ class FieldCollection
 
     protected function getFieldCollectionClass()
     {
-        return $this->app['config']->getRaw('app/classes/fieldcollection', 'Bolt\Core\Field\FieldCollection');
+        return $this->app['config']->get('app/classes/fieldcollection', 'Bolt\Core\Field\FieldCollection');
     }
 
 }

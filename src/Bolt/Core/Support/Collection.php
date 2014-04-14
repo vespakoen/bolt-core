@@ -11,14 +11,11 @@ class Collection extends IlluminateCollection
         return array_keys($this->items);
     }
 
-    public function serialize($strategy = 'array')
+    public function filterBy($key, $value, $default = null)
     {
-        $serialized = array();
-        foreach ($this->items as $item) {
-            $serialized[] = $item->serialize($strategy);
-        }
-
-        return $serialized;
+        return $this->filter(function($item) use ($key, $value, $default) {
+            return $item->getOption($key, $default) == $value;
+        });
     }
 
 }

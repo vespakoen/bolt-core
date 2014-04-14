@@ -48,7 +48,7 @@ class Field
 
     protected function getFieldClass()
     {
-        return $this->app['config']->getRaw('app/classes/field', 'Bolt\Core\Field\Field');
+        return $this->app['config']->get('app/classes/field', 'Bolt\Core\Field\Field');
     }
 
 }

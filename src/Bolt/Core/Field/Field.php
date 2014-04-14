@@ -3,8 +3,10 @@
 namespace Bolt\Core\Field;
 
 use Bolt\Core\App;
+use Bolt\Core\Content\Content;
 use Bolt\Core\FieldType\FieldType;
 use Bolt\Core\Config\ConfigObject;
+use Bolt\Core\Support\Facades\View;
 
 use Illuminate\Support\Contracts\ArrayableInterface;
 
@@ -81,6 +83,36 @@ class Field extends ConfigObject implements ArrayableInterface
         if ($this->type->getKey() !== 'slug' && in_array($this->key, static::getReservedFieldNames())) {
             $app['notify']->error(sprintf('Invalid key for Field "%s". It may NOT be named as the following reserved field names '.implode(',', static::getReservedFieldNames()).'.', $this->key));
         }
+    }
+
+    public function getViewForForm(Content $content = null)
+    {
+        return $this->getViewFor('form', $content);
+    }
+
+    public function getViewForListing(Content $content = null)
+    {
+        return $this->getViewFor('listing', $content);
+    }
+
+    protected function getViewFor($screen, $content)
+    {
+        $field = $this;
+        $fieldType = $this->getType();
+        $fieldKey = $this->getKey();
+        $fieldDefault = $this->getOption('default');
+        $value = $content->getAttribute($fieldKey, $fieldDefault);
+        $view = 'fieldtypes/' . $fieldType->getKey() . '/' . $screen;
+
+        $context = compact(
+            'fieldType',
+            'field',
+            'content',
+            'value',
+            'view'
+        );
+
+        return View::create($view, $context);
     }
 
     protected function getDefaultType()

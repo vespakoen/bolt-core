@@ -1,0 +1,36 @@
+{% set fields = contentType.getFields %}
+{% set listingColumns = contentType.getOption('listing_columns') %}
+<html>
+	<head>
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+		<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+	</head>
+	<body>
+		<div class="container">
+			<div class="page-header">
+				<h1>{{ contentType.getName }} overview</h1>
+			</div>
+
+			<table class="table table-striped">
+				{% for content in contents %}
+				<tr>
+					<td>
+						{% if content.get('image') %}<i class="glyphicon glyphicon-check"></i>{% endif %}
+					</td>
+					{% if listingColumns %}
+					{% for fieldKey in listingColumns %}
+					<td>
+						{{ fields.get(fieldKey).getViewForListing(content)|raw }}
+					</td>
+					{% endfor %}
+					{% else %}
+					<td>
+						{{ fields.first.getViewForListing(content)|raw }}
+					</td>
+					{% endif %}
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+	</body>
+</html>

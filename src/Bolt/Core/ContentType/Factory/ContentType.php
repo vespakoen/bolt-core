@@ -11,7 +11,7 @@ class ContentType
         $this->app = $app;
     }
 
-    public function create($app, $key, $name, FieldCollection $fields = null, $slug = null, $singularName = null, $singularSlug = null, $showOnDashboard = null, $sort = null, $defaultStatus = null, $options = array())
+    public function create($key, $name, FieldCollection $fields = null, $slug = null, $singularName = null, $singularSlug = null, $showOnDashboard = null, $sort = null, $defaultStatus = null, $options = array())
     {
         $contentTypeClass = $this->getContentTypeClass();
 
@@ -49,7 +49,7 @@ class ContentType
 
     protected function getContentTypeClass()
     {
-        return $this->app['config']->getRaw('app/classes/contenttype', 'Bolt\Core\ContentType\ContentType');
+        return $this->app['config']->get('app/classes/contenttype', 'Bolt\Core\ContentType\ContentType');
     }
 
 }

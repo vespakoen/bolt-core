@@ -11,13 +11,10 @@ class UploadcareFieldType extends FieldType
      * Create a new UploadcareFieldType instance
      *
      * @param $app \Silex\Application
-     * @param $key string
-     * @param $serializer string
-     * @param $migrator Closure
      */
-    public function __construct($app, $key = 'uploadcare', Closure $migrator = null)
+    public function __construct($app)
     {
-        parent::__construct($app, $key, $migrator);
+        parent::__construct($app, 'uploadcare');
     }
 
 }

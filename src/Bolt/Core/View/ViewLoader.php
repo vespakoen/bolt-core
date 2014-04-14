@@ -46,19 +46,9 @@ class ViewLoader implements Twig_LoaderInterface
             );
 
             if (isset($key)) {
-                $parts = array_merge($baseParts, array(
-                    'custom',
-                    $key
-                ));
-
-                $loadPaths[] = implode('/', $parts);
+                $loadPaths[] = implode('/', array_merge($baseParts, array($key)));
             }
 
-            $parts = array_merge($baseParts, array(
-                'custom'
-            ));
-
-            $loadPaths[] = implode('/', $parts);
             $loadPaths[] = implode('/', $baseParts);
         }
 
@@ -68,6 +58,8 @@ class ViewLoader implements Twig_LoaderInterface
                 return $file;
             }
         }
+
+        return $this->paths[1].'/not-found.twig';
     }
 
     /**

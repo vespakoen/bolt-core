@@ -11,12 +11,14 @@ class Content
         $this->model = $model;
     }
 
-    protected function getTypeForKey($key)
+    public function getAttribute($key, $default = null)
     {
-        $fields = $this->contentType->getFields();
-        $field = $fields->get($key);
+        return array_get($this->model, $key, $default);
+    }
 
-        return $field->getType();
+    public function get($key, $default = null)
+    {
+        return $this->getAttribute($key, $default);
     }
 
 }

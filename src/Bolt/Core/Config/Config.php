@@ -9,45 +9,22 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 
 class Config
 {
-    protected $app;
-
-    protected $rawLoader;
-
-    protected $objectifiedLoader;
+    protected $loader;
 
     protected $configs;
 
-    protected $rawData;
-
     protected $data;
 
-    public function __construct(App $app, LoaderInterface $rawLoader, LoaderInterface $objectifiedLoader, array $configs = array(), array $rawData = array())
+    public function __construct(LoaderInterface $loader, array $configs = array(), array $data = array())
     {
-        $this->app = $app;
-        $this->rawLoader = $rawLoader;
-        $this->objectifiedLoader = $objectifiedLoader;
+        $this->loader = $loader;
         $this->configs = $configs;
-        $this->rawData = $this->getRawData();
-    }
-
-    public function getRaw($key = null, $default = null)
-    {
-        $key = str_replace('/', '.', $key);
-
-        if (empty($key)) {
-            return $this->rawData;
-        }
-
-        return array_get($this->rawData, $key, $default);
+        $this->data = $this->getData();
     }
 
     public function get($key = null, $default = null)
     {
         $key = str_replace('/', '.', $key);
-
-        if (is_null($this->data)) {
-            $this->data = $this->getObjectifiedData()->toArray();
-        }
 
         if (empty($key)) {
             return $this->data;
@@ -56,23 +33,12 @@ class Config
         return array_get($this->data, $key, $default);
     }
 
-    public function getRawData()
+    public function getData()
     {
-        $rawData = array();
+        $data = array();
 
         foreach ($this->configs as $as => $key) {
-            $rawData[is_string($as) ? $as : $key] = $this->rawLoader->load($key);
-        }
-
-        return $rawData;
-    }
-
-    public function getObjectifiedData()
-    {
-        $data = new Collection;
-
-        foreach ($this->configs as $as => $key) {
-            $data->put(is_string($as) ? $as : $key, $this->objectifiedLoader->load($key));
+            $data[is_string($as) ? $as : $key] = $this->loader->load($key);
         }
 
         return $data;

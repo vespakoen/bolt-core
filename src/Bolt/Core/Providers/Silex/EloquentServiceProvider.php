@@ -21,14 +21,14 @@ class EloquentServiceProvider implements ServiceProviderInterface
         $app['eloquent.connection'] = $app->share(function ($app) {
             $config = $app['config'];
 
-            $driver = $config->getRaw('app/database/driver');
+            $driver = $config->get('app/database/driver');
             if ($driver == 'sqlite') {
                 return array(
                     'driver'    => $driver,
-                    'host'      => $config->getRaw('app/database/host', 'localhost'),
+                    'host'      => $config->get('app/database/host', 'localhost'),
                     'database'  => $app['paths.root'] . 'app/database/bolt.db',
-                    'username'  => $config->getRaw('app/database/username'),
-                    'password'  => $config->getRaw('app/database/password'),
+                    'username'  => $config->get('app/database/username'),
+                    'password'  => $config->get('app/database/password'),
                     'charset'   => 'utf8',
                     'collation' => 'utf8_unicode_ci',
                     'prefix'    => 'bolt_',
@@ -36,10 +36,10 @@ class EloquentServiceProvider implements ServiceProviderInterface
             } else {
                 return array(
                     'driver'    => $driver,
-                    'host'      => $config->getRaw('app/database/host', 'localhost'),
-                    'database'  => $config->getRaw('app/database/databasename'),
-                    'username'  => $config->getRaw('app/database/username'),
-                    'password'  => $config->getRaw('app/database/password'),
+                    'host'      => $config->get('app/database/host', 'localhost'),
+                    'database'  => $config->get('app/database/databasename'),
+                    'username'  => $config->get('app/database/username'),
+                    'password'  => $config->get('app/database/password'),
                     'charset'   => 'utf8',
                     'collation' => 'utf8_unicode_ci',
                     'prefix'    => 'bolt_',

@@ -26,9 +26,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
         $this->registerConfigData($app);
         $this->registerDirectories($app);
         $this->registerLocator($app);
-        $this->registerConfigLoaders($app);
-        $this->registerResolver($app);
-        $this->registerLoaders($app);
+        $this->registerLoader($app);
         $this->registerConfig($app);
     }
 
@@ -57,58 +55,17 @@ class ConfigServiceProvider implements ServiceProviderInterface
         });
     }
 
-    protected function registerConfigLoaders(Application $app)
+    protected function registerLoader(Application $app)
     {
-        $app['config.loaders.raw'] = $app->share(function ($app) {
-            return array(
-                new YamlConfigLoader($app['config.locator']),
-            );
-        });
-
-        $app['config.loaders.objectified'] = $app->share(function ($app) {
-            return array(
-                new YamlAppLoader($app['config.locator']),
-                new YamlSerializerLoader($app['config.locator']),
-                new YamlContentTypeLoader($app['config.locator']),
-                new YamlFieldTypeLoader($app['config.locator']),
-                new YamlExtensionLoader($app['config.locator']),
-                new YamlRoutingLoader($app['config.locator']),
-            );
-        });
-    }
-
-    protected function registerResolver(Application $app)
-    {
-        $app['config.resolver.raw'] = $app->share(function ($app) {
-            return new ConfigLoaderResolver(
-                $app['config.locator'],
-                $app['config.loaders.raw']
-            );
-        });
-
-        $app['config.resolver.objectified'] = $app->share(function ($app) {
-            return new ConfigLoaderResolver(
-                $app['config.locator'],
-                $app['config.loaders.objectified']
-            );
-        });
-    }
-
-    protected function registerLoaders(Application $app)
-    {
-        $app['config.loader.raw'] = $app->share(function ($app) {
-            return new DelegatingLoader($app['config.resolver.raw']);
-        });
-
-        $app['config.loader.objectified'] = $app->share(function ($app) {
-            return new DelegatingLoader($app['config.resolver.objectified']);
+        $app['config.loader'] = $app->share(function ($app) {
+            return new YamlConfigLoader($app['config.locator']);
         });
     }
 
     protected function registerConfig(Application $app)
     {
         $app['config'] = $app->share(function ($app) {
-            return new Config($app, $app['config.loader.raw'], $app['config.loader.objectified'], $app['config.files'], $app['config.data']);
+            return new Config($app['config.loader'], $app['config.files'], $app['config.data']);
         });
     }
 

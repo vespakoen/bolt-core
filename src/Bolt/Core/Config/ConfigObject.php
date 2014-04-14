@@ -31,4 +31,9 @@ class ConfigObject
         return array_get($this->options, $key, $default);
     }
 
+    public function get($key, $default = null)
+    {
+        return $this->getOption($key, $default);
+    }
+
 }

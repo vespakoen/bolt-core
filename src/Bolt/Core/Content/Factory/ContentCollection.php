@@ -40,7 +40,7 @@ class ContentCollection
 
     protected function getContentCollectionClass()
     {
-        return $this->app['config']->getRaw('app/classes/content/array/collection', 'Bolt\Core\Content\ContentCollection');
+        return $this->app['config']->get('app/classes/content/array/collection', 'Bolt\Core\Content\ContentCollection');
     }
 
 }

@@ -34,7 +34,7 @@ class TextFieldType extends FieldType
      */
     protected function getDefaultMigratorOptions()
     {
-        $driver = $this->app['config']->getRaw('app/database/driver');
+        $driver = $this->app['config']->get('app/database/driver');
 
         $textDefault = null;
         if ($driver == "sqlite") {

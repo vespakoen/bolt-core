@@ -2,8 +2,6 @@
 
 namespace Bolt\Core\View\Factory;
 
-use Bolt\Core\App;
-
 class View
 {
     public function __construct($app)
@@ -20,7 +18,7 @@ class View
 
     protected function getViewClass()
     {
-        return $this->app['config']->getRaw('app/classes/view', 'Bolt\Core\View\View');
+        return $this->app['config']->get('app/classes/view', 'Bolt\Core\View\View');
     }
 
 }
