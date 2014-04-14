@@ -1,0 +1,7 @@
+<textarea
+	name="{{ field.getKey }}"
+	class="{% if field.get('class') %}{{ field.get('class') }}{% endif %} ckeditor"
+    style="{% if field.get('height', false) %}height: {{ field.get('height') }}{% endif %}"
+    {% if field.get('required', false) %}required{% endif %}>
+    {{ value }}
+</textarea>
