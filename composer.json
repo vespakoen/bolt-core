@@ -8,7 +8,7 @@
         "filp/whoops": "1.*",
         "illuminate/support": "~4.2",
         "illuminate/database": "~4.2",
-        "layla/cody": "dev-master"
+        "layla/cody": "~0.2.0"
     },
     "authors": [
         {
