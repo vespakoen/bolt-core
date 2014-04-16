@@ -6,6 +6,7 @@ use Bolt\Core\Providers\Silex\TwigPathServiceProvider;
 use Bolt\Core\Providers\Silex\ConfigServiceProvider;
 use Bolt\Core\Providers\Silex\FieldTypeServiceProvider;
 use Bolt\Core\Providers\Silex\FieldServiceProvider;
+use Bolt\Core\Providers\Silex\RelationServiceProvider;
 use Bolt\Core\Providers\Silex\ContentTypeServiceProvider;
 use Bolt\Core\Providers\Silex\ContentServiceProvider;
 use Bolt\Core\Providers\Silex\PathsServiceProvider;
@@ -44,6 +45,7 @@ class App extends Application
         $this->register(new TwigServiceProvider);
         $this->register(new TwigPathServiceProvider);
         $this->register(new ConfigServiceProvider);
+        $this->register(new RelationServiceProvider);
         $this->register(new FieldTypeServiceProvider);
         $this->register(new FieldServiceProvider);
         $this->register(new ContentTypeServiceProvider);

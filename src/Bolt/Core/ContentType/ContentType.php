@@ -8,6 +8,7 @@ use Bolt\Core\App;
 use Bolt\Core\Content\Content;
 use Bolt\Core\Content\ContentCollection;
 use Bolt\Core\Field\FieldCollection;
+use Bolt\Core\Relation\RelationCollection;
 use Bolt\Core\Config\ConfigObject;
 use Bolt\Core\Support\Facades\View;
 
@@ -104,47 +105,22 @@ class ContentType extends ConfigObject implements ArrayableInterface
      *
      * @return \Bolt\Core\ContentType\ContentType
      */
-    public function __construct($app, $key, $name, FieldCollection $fields = null, $slug = null, $singularName = null, $singularSlug = null, $showOnDashboard = null, $sort = null, $defaultStatus = null, $options = array())
+    public function __construct($app, $key, $name, FieldCollection $fields = null, RelationCollection $relations = null, $slug = null, $singularName = null, $singularSlug = null, $showOnDashboard = null, $sort = null, $defaultStatus = null, $options = array())
     {
         $this->app = $app;
         $this->key = $key;
         $this->name = $name;
+        $this->fields = $fields;
+        $this->relations = $relations;
         $this->slug = is_null($slug) ? $this->guessSlug() : $slug;
         $this->singularName = is_null($singularName) ? $this->guessSingularName() : $singularName;
         $this->singularSlug = is_null($singularSlug) ? $this->guessSingularSlug() : $singularSlug;
-        $this->fields = $fields;
         $this->showOnDashboard = is_null($showOnDashboard) ? true : $showOnDashboard;
         $this->sort = is_null($sort) ? $this->getDefaultSort() : $sort;
         $this->defaultStatus = is_null($defaultStatus) ? $this->getDefaultDefaultStatus() : $defaultStatus;
         $this->options = array_merge($this->getDefaultOptions(), $options);
 
         $this->validate();
-    }
-
-    /**
-     * Initialize a ContentType object from a config
-     *
-     * @param $key
-     * @param $config
-     *
-     * @return \Bolt\Core\ContentType\ContentType
-     */
-    public static function fromConfig($key, $config)
-    {
-        $app = App::instance();
-        $name = $config['name'];
-        $slug = array_get($config, 'slug');
-        $singularName = array_get($config, 'singular_name');
-        $singularSlug = array_get($config, 'singular_slug');
-        $showOnDashboard = array_get($config, 'show_on_dashboard');
-        $sort = array_get($config, 'sort');
-        $defaultStatus = array_get($config, 'default_status');
-        $options = array_except($config, array('name', 'slug', 'singular_name', 'singular_slug', 'show_on_dashboard', 'sort', 'default_status'));
-
-        $fields = FieldCollection::fromConfig($config['fields']);
-        // $relations = RelationCollection::fromConfig(array_get($config, 'relations', array()));
-        // $taxonomy = TaxonomyCollection::fromConfig(array_get($config, 'taxonomy', array()));
-        return new static($app, $key, $name, $fields, $slug, $singularName, $singularSlug, $showOnDashboard, $sort, $defaultStatus, $options);
     }
 
     /**
@@ -208,6 +184,16 @@ class ContentType extends ConfigObject implements ArrayableInterface
     }
 
     /**
+     * Gets the relations.
+     *
+     * @return \Bolt\Core\Relation\RelationCollection
+     */
+    public function getRelations()
+    {
+        return $this->relations;
+    }
+
+    /**
      * Indicates whether the contenttype should be displayed on the dashboard
      *
      * @return boolean
@@ -243,6 +229,10 @@ class ContentType extends ConfigObject implements ArrayableInterface
 
         foreach ($this->getFields() as $field) {
             $field->addColumnTo($table);
+        }
+
+        foreach ($this->getRelations() as $relation) {
+            $relation->addColumnsTo($table);
         }
     }
 

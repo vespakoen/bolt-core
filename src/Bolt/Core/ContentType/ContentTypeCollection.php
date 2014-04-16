@@ -8,16 +8,6 @@ use Bolt\Core\Support\Facades\ContentType;
 
 class ContentTypeCollection extends Collection
 {
-    public static function fromConfig($config)
-    {
-        $collection = new static;
-
-        foreach ($config as $key => $config) {
-            $collection->add($key, $config);
-        }
-
-        return $collection;
-    }
 
     public function addContentType($key, $contentType)
     {

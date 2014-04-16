@@ -3,6 +3,7 @@
 namespace Bolt\Core\ContentType\Factory;
 
 use Bolt\Core\Field\FieldCollection;
+use Bolt\Core\Relation\RelationCollection;
 
 class ContentType
 {
@@ -11,11 +12,11 @@ class ContentType
         $this->app = $app;
     }
 
-    public function create($key, $name, FieldCollection $fields = null, $slug = null, $singularName = null, $singularSlug = null, $showOnDashboard = null, $sort = null, $defaultStatus = null, $options = array())
+    public function create($key, $name, FieldCollection $fields = null, RelationCollection $relations = null, $slug = null, $singularName = null, $singularSlug = null, $showOnDashboard = null, $sort = null, $defaultStatus = null, $options = array())
     {
         $contentTypeClass = $this->getContentTypeClass();
 
-        return new $contentTypeClass($this->app, $key, $name, $fields, $slug, $singularName, $singularSlug, $showOnDashboard, $sort, $defaultStatus, $options);
+        return new $contentTypeClass($this->app, $key, $name, $fields, $relations, $slug, $singularName, $singularSlug, $showOnDashboard, $sort, $defaultStatus, $options);
     }
 
     public function fromConfig($key, $config = array())
@@ -39,12 +40,13 @@ class ContentType
         $showOnDashboard = array_get($config, 'show_on_dashboard');
         $sort = array_get($config, 'sort');
         $defaultStatus = array_get($config, 'default_status');
-        $options = array_except($config, array('name', 'slug', 'singular_name', 'singular_slug', 'show_on_dashboard', 'sort', 'default_status'));
+        $options = array_except($config, array('fields', 'relations', 'listing_columns', 'name', 'slug', 'singular_name', 'singular_slug', 'show_on_dashboard', 'sort', 'default_status'));
 
         $fields = $this->app['fields.factory']->fromConfig($config['fields']);
-        // $relations = RelationCollection::fromConfig(array_get($config, 'relations', array()));
+        $relations = $this->app['relations.factory']->fromConfig(array_get($config, 'relations', array()));
         // $taxonomy = TaxonomyCollection::fromConfig(array_get($config, 'taxonomy', array()));
-        return new $contentTypeClass($this->app, $key, $name, $fields, $slug, $singularName, $singularSlug, $showOnDashboard, $sort, $defaultStatus, $options);
+
+        return new $contentTypeClass($this->app, $key, $name, $fields, $relations, $slug, $singularName, $singularSlug, $showOnDashboard, $sort, $defaultStatus, $options);
     }
 
     protected function getContentTypeClass()

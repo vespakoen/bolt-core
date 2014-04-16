@@ -37,6 +37,4 @@ class EloquentRepository
 		return ContentCollection::create($contents);
 	}
 
-	public function getForForm()
-
 }

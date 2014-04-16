@@ -31,9 +31,14 @@ class EloquentServiceProvider implements ServiceProviderInterface
                     'password'  => $config->get('app/database/password'),
                     'charset'   => 'utf8',
                     'collation' => 'utf8_unicode_ci',
-                    'prefix'    => 'bolt_',
+                    'prefix'    => '',
                 );
-            } else {
+            }
+            else {
+                if($driver == 'postgres') {
+                    $driver = 'pgsql';
+                }
+
                 return array(
                     'driver'    => $driver,
                     'host'      => $config->get('app/database/host', 'localhost'),
@@ -42,7 +47,7 @@ class EloquentServiceProvider implements ServiceProviderInterface
                     'password'  => $config->get('app/database/password'),
                     'charset'   => 'utf8',
                     'collation' => 'utf8_unicode_ci',
-                    'prefix'    => 'bolt_',
+                    'prefix'    => '',
                 );
             }
         });
