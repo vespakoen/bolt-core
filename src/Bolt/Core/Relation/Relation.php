@@ -79,7 +79,7 @@ class Relation extends ConfigObject implements ArrayableInterface
 
     public function addColumnsTo($table)
     {
-        dd($this);
+        dd('Relation -> addColumnsTo', $this);
     }
 
     protected function getViewFor($screen, $content)

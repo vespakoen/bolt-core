@@ -6,8 +6,8 @@
         "symfony/yaml": "~2.4",
         "doctrine/dbal": "~2.4",
         "filp/whoops": "1.*",
-        "illuminate/support": "~4.2",
-        "illuminate/database": "~4.2",
+        "illuminate/support": "~4.1",
+        "illuminate/database": "~4.1",
         "layla/cody": "~0.2"
     },
     "authors": [
