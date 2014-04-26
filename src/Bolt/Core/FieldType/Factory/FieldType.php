@@ -9,41 +9,21 @@ class FieldType
         $this->app = $app;
     }
 
-    public function create($app, $key, $assets = array(), Closure $migrator = null, $options = array())
+    public function create($key, $type, $options = array())
     {
         $fieldTypeClass = $this->getFieldTypeClass();
 
-        return new $fieldTypeClass($app, $key, $assets, $migrator, $options);
+        return new $fieldTypeClass($this->app, $key, $type, $options);
     }
 
     public function fromConfig($key, $config = array())
     {
         $fieldTypeClass = $this->getFieldTypeClass();
 
-        if ( ! is_string($config)) {
-            $fieldTypeClass = $config;
+        $type = array_get($config, 'doctrine.type');
+        $options = array_except(array_get($config, 'doctrine'), array('type'));
 
-            if ( ! class_exists($fieldTypeClass)) {
-                $this->app['notify']->error('Unknown class for fieldtype: '.$fieldTypeClass);
-            }
-
-            return new $fieldTypeClass($this->app);
-        }
-
-        $migrator = array_get($config, 'migrator');
-
-        if (!is_null($migrator)) {
-            $migrator = function ($table, $field) use ($migrator) {
-                $key = $field->getKey();
-
-                $type = array_get($migrator, 'type', 'string');
-                $options = array_get($migrator, 'options', array());
-
-                $table->addColumn($key, $type, $options);
-            };
-        }
-
-        return new $fieldTypeClass($this->app, $key, $migrator);
+        return new $fieldTypeClass($this->app, $key, $type, $options);
     }
 
     protected function getFieldTypeClass()

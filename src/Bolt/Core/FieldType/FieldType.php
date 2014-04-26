@@ -14,23 +14,23 @@ use Illuminate\Support\Contracts\ArrayableInterface;
 class FieldType extends ConfigObject implements ArrayableInterface
 {
     /**
-     * The doctrine type name
-     *
-     * @var string
+     * Bolt's key for the FieldType
+     * Examples: image,geolocation,html,text etc
      */
-    protected $doctrineType = 'string';
-
-    protected $objectType = 'fieldtype';
-
     protected $key;
 
-    protected $migrator;
-
-    public function __construct($app, $key, Closure $migrator = null, $options = array())
+    /**
+     * Create a new FieldType instance
+     *
+     * @param $app The application container
+     * @param $key The key that will be used within bolt
+     * @param $options array Options for doctrine
+     */
+    public function __construct($app, $key, $type, $options = array())
     {
         $this->app = $app;
         $this->key = $key;
-        $this->migrator = is_null($migrator) ? $this->getDefaultMigrator() : $migrator;
+        $this->type = $type;
         $this->options = $options;
 
         $this->validate();
@@ -41,22 +41,26 @@ class FieldType extends ConfigObject implements ArrayableInterface
         return $this->key;
     }
 
-    public function getMigrator()
+    public function getType()
     {
-        return $this->migrator;
+        return $this->type;
     }
 
-    public function getDoctrineType()
+    public function addColumnTo($table, $field)
     {
-        return $this->doctrineType;
+        $table->addColumn($field->getKey(), $this->getType(), $this->getOptions());
+
+        if($field->hasIndex()) {
+            $table->addIndex($field->getKey(), $field->getIndexName());
+        }
     }
 
     public function toArray()
     {
         return array(
             'key' => $this->getKey(),
-            'doctrine_type' => $this->getDoctrineType(),
-            'migrator' => $this->getMigratorConfig()
+            'type' => $this->getType(),
+            'doctrine' => $this->getOption('doctrine')
         );
     }
 
@@ -67,58 +71,6 @@ class FieldType extends ConfigObject implements ArrayableInterface
         if ($this->key !== $cleaned) {
             $this->app['notify']->error(sprintf('Invalid FieldType key "%s". It may only contain [a-z, A-Z, 0-9, -, _].', $this->key));
         }
-    }
-
-    public function getMigratorConfig()
-    {
-        $table = new Table('test');
-
-        $migrator = $this->migrator;
-        $migrator($table, new Field($this->app, 'test', $this->app['fieldtypes']->get('string')));
-
-        foreach ($table->getColumns() as $column) {
-            $config = $column->toArray();
-
-            $result = array(
-                'type' => $config['type']->getName(),
-            );
-            unset($config['type']);
-            unset($config['name']);
-
-            $result['options'] = $config;
-
-            return $result;
-        }
-
-        return array();
-    }
-
-    /**
-     * Get the migrator
-     *
-     * @return string
-     */
-    protected function getDefaultMigrator()
-    {
-        $doctrineType = $this->getDoctrineType();
-        $options = $this->getDefaultMigratorConfig();
-
-        return function ($table, $field) use ($doctrineType, $options) {
-            $table->addColumn($field->getKey(), $doctrineType, $options);
-        };
-    }
-
-    /**
-     * Get the default column options
-     *
-     * @return array
-     */
-    protected function getDefaultMigratorConfig()
-    {
-        return array(
-            'length' => 256,
-            'default' => ''
-        );
     }
 
 }
