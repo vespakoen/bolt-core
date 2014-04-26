@@ -183,6 +183,39 @@ class ContentType extends ConfigObject implements ArrayableInterface
         return $this->fields;
     }
 
+    public function getDefaultFields()
+    {
+        return $this->app['fields.factory']->fromConfig(array(
+            "id" => array(
+                "type" => "integer"
+            ),
+            "slug" => array(
+                "type" => "string"
+            ),
+            "datecreated" => array(
+                "type" => "datetime"
+            ),
+            "datechanged" => array(
+                "type" => "datetime"
+            ),
+            "datepublish" => array(
+                "type" => "datetime"
+            ),
+            "datedepublish" => array(
+                "type" => "datetime"
+            ),
+            "username" => array(
+                "type" => "string"
+            ),
+            "ownerid" => array(
+                "type" => "integer"
+            ),
+            "status" => array(
+                "type" => "string"
+            )
+        ));
+    }
+
     /**
      * Gets the relations.
      *
@@ -221,6 +254,11 @@ class ContentType extends ConfigObject implements ArrayableInterface
     public function getDefaultStatus()
     {
         return $this->defaultStatus;
+    }
+
+    public function getTableName()
+    {
+        return $this->key;
     }
 
     public function addTableTo($schema)
