@@ -50,6 +50,27 @@ class FieldCollection extends Collection
         }
     }
 
+    public function getPrimaryKeyFields()
+    {
+        return $this->filter(function($item) {
+            return $item->getKey() == 'id';
+        });
+    }
+
+    public function getNonPrimaryKeyFields()
+    {
+        return $this->filter(function($item) {
+            return $item->getKey() !== 'id';
+        });
+    }
+
+    public function filterByTypeKey($typeKey)
+    {
+        return $this->filter(function($item) use ($typeKey) {
+            return $item->getType()->getKey() == $typeKey;
+        });
+    }
+
     public static function validate($config)
     {
         if (!is_array($config)) {
