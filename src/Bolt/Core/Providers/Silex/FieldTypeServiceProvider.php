@@ -33,7 +33,6 @@ class FieldTypeServiceProvider implements ServiceProviderInterface
     public function register(Application $app)
     {
         $this->registerFieldTypeFactories($app);
-        $this->registerFieldTypeCollection($app);
         $this->registerDefaultFieldTypes($app);
     }
 
@@ -48,35 +47,12 @@ class FieldTypeServiceProvider implements ServiceProviderInterface
         });
     }
 
-    protected function registerFieldTypeCollection($app)
+    protected function registerDefaultFieldTypes($app)
     {
-        $app['fieldtypes'] = $app->share(function ($app) {
-            return $app['fieldtypes.factory']->create();
+        $app['fieldtypes'] = $app->share(function($app) {
+            $config = $app['config']->get('fieldtypes');
+            return $app['fieldtypes.factory']->fromConfig($config);
         });
-    }
-
-    protected function registerDefaultFieldTypes(Application $app)
-    {
-        $app['fieldtypes']
-            ->addFieldType('string', new StringFieldType($app))
-            ->addFieldType('image', new ImageFieldType($app))
-            ->addFieldType('uploadcare', new UploadcareFieldType($app))
-            ->addFieldType('slug', new SlugFieldType($app))
-            ->addFieldType('html', new HtmlFieldType($app))
-            ->addFieldType('video', new VideoFieldType($app))
-            ->addFieldType('templateselect', new TemplateSelectFieldType($app))
-            ->addFieldType('geolocation', new GeolocationFieldType($app))
-            ->addFieldType('imagelist', new ImageListFieldType($app))
-            ->addFieldType('file', new FileFieldType($app))
-            ->addFieldType('filelist', new FileListFieldType($app))
-            ->addFieldType('checkbox', new CheckboxFieldType($app))
-            ->addFieldType('markdown', new MarkdownFieldType($app))
-            ->addFieldType('datetime', new DatetimeFieldType($app))
-            ->addFieldType('date', new DateFieldType($app))
-            ->addFieldType('integer', new IntegerFieldType($app))
-            ->addFieldType('float', new FloatFieldType($app))
-            ->addFieldType('select', new SelectFieldType($app))
-            ->addFieldType('textarea', new TextareaFieldType($app));
     }
 
     public function boot(Application $app)
