@@ -10,6 +10,10 @@
         "illuminate/database": "~4.2",
         "layla/cody": "~0.2"
     },
+    "require-dev": {
+        "phpmd/phpmd": "dev-master",
+        "phpspec/phpspec": "dev-master"
+    },
     "authors": [
         {
             "name": "Koen Schmeets",

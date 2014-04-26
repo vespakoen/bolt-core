@@ -1,0 +1,4 @@
+local:
+  key: value
+    nested:
+      key: value
