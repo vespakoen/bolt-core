@@ -1,10 +1,3 @@
-<script src="https://ucarecdn.com/widget/1.0.1/uploadcare/uploadcare-1.0.1.min.js"></script>
-<script>
-    UPLOADCARE_PUBLIC_KEY = 'demopublickey';
-    UPLOADCARE_PATH_VALUE = true;
-    UPLOADCARE_PREVIEW_STEP = true;
-</script>
-
 <img class="img-rounded" id="uploadcare-preview-{{ field.getKey }}" src="{{ value }}" style="max-width: 30%; float: right;">
 
 <input type="hidden" role="uploadcare-uploader" class="form-control" name="{{ field.getKey }}" id="field-{{ field.getKey }}"

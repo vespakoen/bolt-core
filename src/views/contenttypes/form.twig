@@ -1,30 +1,9 @@
-<html>
-	<head>
-		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
-		<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-	</head>
-	<body>
-		<div class="container">
-			<div class="page-header">
-				<h1>{{ contentType.getName }}</h1>
-			</div>
-
-			<form class="form-horizontal" role="form">
-				{% for field in contentType.getFields %}
-				<div class="form-group">
-					<label class="control-label col-sm-2">{{ field.getOption('label') }}</label>
-					<div class="col-sm-10">
-						{{ field.getViewForForm(content)|raw }}<br>
-					</div>
-				</div>
-				{% endfor %}
-
-				<div class="form-group">
-					<div class="col-sm-offset-2 col-sm-10">
-						<input type="submit" class="btn btn-primary btn-lg" value="Save">
-					</div>
-				</div>
-			</form>
-		</div>
-	</body>
-</html>
+{% for field in contentType.getFields %}
+<div class="form-group">
+	<label class="control-label col-sm-2" style="font-weight: bold">{{ field.getOption('label') }}</label>
+	<div class="col-sm-10">
+		{{ field.getViewForForm(content)|raw }}<br>
+	</div>
+</div>
+<div class="line line-dashed line-lg pull-in"></div>
+{% endfor %}
