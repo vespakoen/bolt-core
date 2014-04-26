@@ -9,22 +9,11 @@ class Content
         $this->app = $app;
     }
 
-    public function create($contentType, $model, $type = 'array')
+    public function create($model = array(), $type = 'array')
     {
         $contentClass = $this->getContentClass($type);
 
-        return new $contentClass($this->app, $contentType, $model);
-    }
-
-    public function fromConfig($key, $config = array())
-    {
-        $this->validateConfig($key, $config);
-
-        $contentClass = $this->getContentClass('array');
-        $contentType = $this->app['contenttypes']->get($config['contenttype']);
-        $model = $config['data'];
-
-        return new $contentClass($this->app, $contentType, $model);
+        return new $contentClass($this->app, $model);
     }
 
     public function validateConfig($key, $config)

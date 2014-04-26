@@ -33,16 +33,16 @@ class Field extends ConfigObject implements ArrayableInterface
     public static function getReservedFieldNames()
     {
         return array(
-            'id',
-            'slug',
-            'datecreated',
-            'datechanged',
-            'datepublish',
-            'datedepublish',
-            'ownerid',
-            'username',
-            'status',
-            'link'
+            // 'id',
+            // 'slug',
+            // 'datecreated',
+            // 'datechanged',
+            // 'datepublish',
+            // 'datedepublish',
+            // 'ownerid',
+            // 'username',
+            // 'status',
+            // 'link'
         );
     }
 
@@ -58,8 +58,18 @@ class Field extends ConfigObject implements ArrayableInterface
 
     public function addColumnTo($table)
     {
-        $migrator = $this->getType()->getMigrator();
-        $migrator($table, $this);
+        $this->getType()
+            ->addColumnTo($table, $this);
+    }
+
+    public function hasIndex()
+    {
+        return $this->getOption('index', false);
+    }
+
+    public function getIndexName()
+    {
+        return $this->getOption('index_name', null);
     }
 
     public function toArray()

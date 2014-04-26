@@ -3,6 +3,7 @@
 namespace Bolt\Core\Field\Factory;
 
 use Bolt\Core\App;
+use Bolt\Core\FieldType\FieldType;
 
 class Field
 {
@@ -11,11 +12,15 @@ class Field
         $this->app = $app;
     }
 
-    public function create($key, Closure $migrator = null, $options = array())
+    public function create($key, $type, $options = array())
     {
         $fieldClass = $this->getFieldClass();
 
-        return new $fieldClass($this->app, $key, $migrator, $options);
+        if( ! $type instanceof FieldType) {
+            $type = $app['fieldtypes']->get($type);
+        }
+
+        return new $fieldClass($this->app, $key, $type, $options);
     }
 
     public function fromConfig($key, $config = array())

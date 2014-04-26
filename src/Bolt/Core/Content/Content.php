@@ -4,10 +4,9 @@ namespace Bolt\Core\Content;
 
 class Content
 {
-    public function __construct($app, $contentType, $model)
+    public function __construct($app, $model)
     {
         $this->app = $app;
-        $this->contentType = $contentType;
         $this->model = $model;
     }
 
