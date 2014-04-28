@@ -32,28 +32,31 @@ class ViewLoader implements Twig_LoaderInterface
     {
         $parts = explode('/', $name);
 
-        if (count($parts) == 3) {
-            list($type, $key, $template) = $parts;
-        } else {
-            list($type, $template) = $parts;
-        }
+        list($type, $template, $key, $env) = $parts;
 
-        $loadPaths = array();
+        $files = array();
         foreach ($this->paths as $path) {
-            $baseParts = array(
-                $path,
-                $type,
-            );
+            for ($i = 0; $i < 3; $i++) {
+                $baseParts = array(
+                    $path,
+                    $type,
+                );
 
-            if (isset($key)) {
-                $loadPaths[] = implode('/', array_merge($baseParts, array($key)));
+                if (!is_null($env) && $i <= 1) {
+                    $baseParts[] = $env;
+                }
+
+                if (!is_null($key) && $i <= 0) {
+                    $baseParts[] = $key;
+                }
+
+                $baseParts[] = $template.'.twig';
+                $files[] = implode('/', $baseParts);
             }
-
-            $loadPaths[] = implode('/', $baseParts);
         }
 
-        foreach ($loadPaths as $path) {
-            $file = $path.'/'.$template.'.twig';
+        $files = array_unique($files);
+        foreach ($files as $file) {
             if (file_exists($file)) {
                 return $file;
             }

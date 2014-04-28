@@ -41,7 +41,7 @@ class App extends Application
 
         $this->register(new WhoopsServiceProvider);
         $this->register(new NotifyServiceProvider);
-        $this->register(new PathsServiceProvider);
+        //$this->register(new PathsServiceProvider);
         $this->register(new TwigServiceProvider);
         $this->register(new TwigPathServiceProvider);
         $this->register(new ConfigServiceProvider);
@@ -50,10 +50,10 @@ class App extends Application
         $this->register(new FieldServiceProvider);
         $this->register(new ContentTypeServiceProvider);
         $this->register(new ContentServiceProvider);
-        $this->register(new DatabaseServiceProvider);
+        //$this->register(new DatabaseServiceProvider);
         $this->register(new SerializerServiceProvider);
         $this->register(new ViewServiceProvider);
-        $this->register(new EloquentServiceProvider);
+        //$this->register(new EloquentServiceProvider);
     }
 
     public static function instance()

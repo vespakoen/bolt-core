@@ -10,7 +10,6 @@ use Bolt\Core\Content\ContentCollection;
 use Bolt\Core\Field\FieldCollection;
 use Bolt\Core\Relation\RelationCollection;
 use Bolt\Core\Config\ConfigObject;
-use Bolt\Core\Support\Facades\View;
 
 use Illuminate\Support\Contracts\ArrayableInterface;
 use Illuminate\Support\Str;
@@ -274,33 +273,6 @@ class ContentType extends ConfigObject implements ArrayableInterface
         }
     }
 
-    public function getListingView()
-    {
-        $repositoryKey = 'repositories.'.$this->getKey();
-
-        if ( ! isset($this->app[$repositoryKey])) {
-            $this->app['notify']->error('No repository found for contenttype: "'.$this->getKey().'"');
-        }
-
-        $repository = $this->app['repositories.'.$this->getKey()];
-
-        $records = $repository->all(array(
-            'eagerload' => array('test')
-        ));
-
-        $data = array(
-            'contenttype' => $this,
-            'repository' => $repository,
-            'records' => $records
-        );
-
-        try {
-            return $this->app['twig']->render('contenttypes/custom/' . $this->getKey() . '/listing.twig', $data);
-        } catch (Twig_Error_Loader $e) {
-            return $this->app['twig']->render('contenttypes/listing.twig', $data);
-        }
-    }
-
     public function toArray()
     {
         return array(
@@ -319,7 +291,7 @@ class ContentType extends ConfigObject implements ArrayableInterface
     public function getViewForForm(Content $content = null)
     {
         $contentType = $this;
-        $view = 'contenttypes/' . $contentType->getKey() . '/form';
+        $view = 'contenttypes/form';
 
         $context = compact(
             'contentType',
@@ -327,13 +299,13 @@ class ContentType extends ConfigObject implements ArrayableInterface
             'view'
         );
 
-        return View::create($view, $context);
+        return $this->app['view.factory']->create($view, $context, $contentType->getKey());
     }
 
-    public function getViewForListing(ContentCollection $contents = null)
+    public function getViewForListing(ContentCollection $contents)
     {
         $contentType = $this;
-        $view = 'contenttypes/' . $contentType->getKey() . '/listing';
+        $view = 'contenttypes/listing';
 
         $context = compact(
             'contentType',
@@ -341,7 +313,7 @@ class ContentType extends ConfigObject implements ArrayableInterface
             'view'
         );
 
-        return View::create($view, $context);
+        return $this->app['view.factory']->create($view, $context, $contentType->getKey());
     }
 
     /**
@@ -371,7 +343,7 @@ class ContentType extends ConfigObject implements ArrayableInterface
      */
     protected function guessSingularSlug()
     {
-        return makeSlug($this->singularName);
+        return Str::slug($this->singularName);
     }
 
     /**

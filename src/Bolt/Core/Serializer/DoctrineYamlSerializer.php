@@ -17,7 +17,7 @@ class DoctrineYamlSerializer extends Serializer
         $app = $this->app;
 
         foreach($this->compileContentTypes() as $destination => $data) {
-            $path = $app['paths.root'].'cache/doctrine-yml/';
+            $path = $app['paths']['base'].'cache/doctrine-yml/';
             $destination = $path . $destination;
 
             if( ! is_dir($path)) {

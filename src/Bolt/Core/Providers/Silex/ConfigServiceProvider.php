@@ -38,12 +38,13 @@ class ConfigServiceProvider implements ServiceProviderInterface
     protected function registerDirectories(Application $app)
     {
         $app['config.directories'] = $app->share(function ($app) {
-            $paths = array($app['paths.config']);
+            $paths = array();
 
             if (isset($app['env'])) {
-                $paths[] = $app['paths.config'].$app['env'];
+                $paths[] = $app['paths']['app'].'/config/'.$app['env'];
             }
 
+            $paths[] = $app['paths']['app'].'/config/';
             return $paths;
         });
     }

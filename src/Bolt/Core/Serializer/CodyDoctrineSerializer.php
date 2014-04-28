@@ -27,7 +27,7 @@ class CodyDoctrineSerializer
 
             foreach(array($generatedModel, $model) as $resource) {
                 foreach($resource->getCompilerObjects() as $compiler) {
-                    $path = $app['paths.root'].'vendor/';
+                    $path = $app['paths']['base'].'vendor/';
                     $destination = $path . $compiler->getDestination();
                     $path = dirname($destination);
 
@@ -47,7 +47,7 @@ class CodyDoctrineSerializer
             $name = $package->getName();
             $lowerName = strtolower($name);
 
-            $app['autoloader']->add($vendor.'\\'.$name, $app['paths.root'].'vendor/'.$lowerVendor.'/'.$lowerName.'/src');
+            $app['autoloader']->add($vendor.'\\'.$name, $app['paths']['base'].'vendor/'.$lowerVendor.'/'.$lowerName.'/src');
 
             $this->registerModel($key, $model);
         }

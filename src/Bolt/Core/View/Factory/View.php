@@ -13,7 +13,7 @@ class View
     {
         $viewClass = $this->getViewClass();
 
-        return new $viewClass($this->app['twig'], $file, $context, $key);
+        return new $viewClass($this->app['twig'], $this->app['env'], $file, $context, $key);
     }
 
     protected function getViewClass()

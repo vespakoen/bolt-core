@@ -26,7 +26,7 @@ class EloquentServiceProvider implements ServiceProviderInterface
                 return array(
                     'driver'    => $driver,
                     'host'      => $config->get('app/database/host', 'localhost'),
-                    'database'  => $app['paths.root'] . 'app/database/bolt.db',
+                    'database'  => $app['paths']['base'] . 'app/database/bolt.db',
                     'username'  => $config->get('app/database/username'),
                     'password'  => $config->get('app/database/password'),
                     'charset'   => 'utf8',

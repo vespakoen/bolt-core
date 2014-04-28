@@ -28,7 +28,7 @@ class CodyLaravelSerializer
 
             foreach(array($generatedModel, $model, $repository) as $resource) {
                 foreach($resource->getCompilerObjects() as $compiler) {
-                    $path = $app['paths.root'].'vendor/';
+                    $path = $app['paths']['base'].'vendor/';
                     $destination = $path . $compiler->getDestination();
                     $path = dirname($destination);
 
@@ -48,7 +48,7 @@ class CodyLaravelSerializer
             $name = $package->getName();
             $lowerName = strtolower($name);
 
-            $app['autoloader']->add($vendor.'\\'.$name, $app['paths.root'].'vendor/'.$lowerVendor.'/'.$lowerName.'/src');
+            $app['autoloader']->add($vendor.'\\'.$name, $app['paths']['base'].'vendor/'.$lowerVendor.'/'.$lowerName.'/src');
 
             $this->registerModel($key, $model);
             $this->registerRepository($key, $repository);
