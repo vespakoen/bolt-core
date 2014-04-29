@@ -9,11 +9,11 @@ class View
         $this->app = $app;
     }
 
-    public function create($file, $context = array(), $key = null)
+    public function create($file, $context = array())
     {
         $viewClass = $this->getViewClass();
 
-        return new $viewClass($this->app['twig'], $this->app['env'], $file, $context, $key);
+        return new $viewClass($this->app['twig'], $this->app['env'], $file, $context);
     }
 
     protected function getViewClass()

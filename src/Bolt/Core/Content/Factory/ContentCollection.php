@@ -13,22 +13,12 @@ class ContentCollection
     {
         $contentCollectionClass = $this->getContentCollectionClass();
 
-        return new $contentCollectionClass($items);
-    }
-
-    public function fromConfig($config)
-    {
-        $this->validateConfig($config);
-
-        $contentCollectionClass = $this->getContentCollectionClass();
-
-        $collection = new $contentCollectionClass;
-
-        foreach ($config as $key => $config) {
-            $collection->add($key, $config);
+        $contents = array();
+        foreach($items as $key => $item) {
+            $contents[$key] = $this->app['content.factory']->create($item);
         }
 
-        return $collection;
+        return new $contentCollectionClass($contents);
     }
 
     public function validateConfig($config)
@@ -40,7 +30,7 @@ class ContentCollection
 
     protected function getContentCollectionClass()
     {
-        return $this->app['config']->get('app/classes/content/array/collection', 'Bolt\Core\Content\ContentCollection');
+        return $this->app['config']->get('app/classes/contentcollection', 'Bolt\Core\Content\ContentCollection');
     }
 
 }

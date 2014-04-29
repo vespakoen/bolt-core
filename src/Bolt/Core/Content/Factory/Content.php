@@ -9,11 +9,11 @@ class Content
         $this->app = $app;
     }
 
-    public function create($model = array(), $type = 'array')
+    public function create($attributes = array())
     {
-        $contentClass = $this->getContentClass($type);
+        $contentClass = $this->getContentClass();
 
-        return new $contentClass($this->app, $model);
+        return new $contentClass($this->app, $attributes);
     }
 
     public function validateConfig($key, $config)
@@ -21,9 +21,9 @@ class Content
         // @todo implement
     }
 
-    protected function getContentClass($type)
+    protected function getContentClass()
     {
-        return $this->app['config']->get('app/classes/content/' . $type . '/content', 'Bolt\Core\Content\Content');
+        return $this->app['config']->get('app/classes/content', 'Bolt\Core\Content\Content');
     }
 
 }

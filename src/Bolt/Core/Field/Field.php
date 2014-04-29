@@ -6,7 +6,6 @@ use Bolt\Core\App;
 use Bolt\Core\Content\Content;
 use Bolt\Core\FieldType\FieldType;
 use Bolt\Core\Config\ConfigObject;
-use Bolt\Core\Support\Facades\View;
 
 use Illuminate\Support\Contracts\ArrayableInterface;
 
@@ -56,20 +55,32 @@ class Field extends ConfigObject implements ArrayableInterface
         return $this->type;
     }
 
-    public function addColumnTo($table)
+    public function addColumnTo($table, $key)
     {
-        $this->getType()
-            ->addColumnTo($table, $this);
+        $type = $this->getType();
+        $table->addColumn($key, $type->getType(), $type->getOptions());
+
+        if($this->hasIndex()) {
+            $table->addIndex($key);
+        }
+    }
+
+    public function addColumnsTo($table)
+    {
+        if ($this->getOption('multilanguage', false)) {
+            $locales = $this->app['config']->get('app/locales');
+            foreach ($locales as $locale => $name) {
+                $key = $this->getKey().'_'.$locale;
+                $this->addColumnTo($table, $key);
+            }
+        } else {
+            $this->addColumnTo($table, $this->getKey());
+        }
     }
 
     public function hasIndex()
     {
         return $this->getOption('index', false);
-    }
-
-    public function getIndexName()
-    {
-        return $this->getOption('index_name', null);
     }
 
     public function toArray()
@@ -109,12 +120,18 @@ class Field extends ConfigObject implements ArrayableInterface
     {
         $field = $this;
         $fieldType = $this->getType();
-        $fieldKey = $this->getKey();
+        $key = $this->getKey();
         $fieldDefault = $this->getOption('default');
-        $value = $content->getAttribute($fieldKey, $fieldDefault);
-        $view = 'fieldtypes/' . $fieldType->getKey() . '/' . $screen;
+        if($this->get('multilanguage')) {
+            $value = $content->get($key . '_' . $this->app['locale'], $fieldDefault);
+        } else {
+            $value = $content->get($key, $fieldDefault);
+        }
+
+        $view = 'fieldtypes/' . $screen . '/' . $fieldType->getKey();
 
         $context = compact(
+            'key',
             'fieldType',
             'field',
             'content',
@@ -122,7 +139,7 @@ class Field extends ConfigObject implements ArrayableInterface
             'view'
         );
 
-        return View::create($view, $context);
+        return $this->app['view.factory']->create($view, $context);
     }
 
     protected function getDefaultType()

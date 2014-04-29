@@ -46,15 +46,6 @@ class FieldType extends ConfigObject implements ArrayableInterface
         return $this->type;
     }
 
-    public function addColumnTo($table, $field)
-    {
-        $table->addColumn($field->getKey(), $this->getType(), $this->getOptions());
-
-        if($field->hasIndex()) {
-            $table->addIndex($field->getKey(), $field->getIndexName());
-        }
-    }
-
     public function toArray()
     {
         return array(

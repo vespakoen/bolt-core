@@ -182,6 +182,23 @@ class ContentType extends ConfigObject implements ArrayableInterface
         return $this->fields;
     }
 
+    public function getTitleField()
+    {
+        if ($titleFieldKey = $this->getOption('title_field')) {
+            return $this->fields->get($titleFieldKey);
+        }
+
+        $titleGuessFields = $this->fields->filterByTypeKeys(array(
+            'string',
+            'text',
+            'textarea',
+            'html',
+            'markdown'
+        ));
+
+        return $titleGuessFields->first();
+    }
+
     public function getDefaultFields()
     {
         return $this->app['fields.factory']->fromConfig(array(
@@ -262,10 +279,14 @@ class ContentType extends ConfigObject implements ArrayableInterface
 
     public function addTableTo($schema)
     {
-        $table = $schema->createTable($this->getKey());
+        $table = $schema->createTable($this->getTableName());
+
+        foreach ($this->getDefaultFields() as $field) {
+            $field->addColumnsTo($table);
+        }
 
         foreach ($this->getFields() as $field) {
-            $field->addColumnTo($table);
+            $field->addColumnsTo($table);
         }
 
         foreach ($this->getRelations() as $relation) {
@@ -291,7 +312,7 @@ class ContentType extends ConfigObject implements ArrayableInterface
     public function getViewForForm(Content $content = null)
     {
         $contentType = $this;
-        $view = 'contenttypes/form';
+        $view = 'contenttypes/form/' . $contentType->getKey();
 
         $context = compact(
             'contentType',
@@ -299,13 +320,13 @@ class ContentType extends ConfigObject implements ArrayableInterface
             'view'
         );
 
-        return $this->app['view.factory']->create($view, $context, $contentType->getKey());
+        return $this->app['view.factory']->create($view, $context);
     }
 
     public function getViewForListing(ContentCollection $contents)
     {
         $contentType = $this;
-        $view = 'contenttypes/listing';
+        $view = 'contenttypes/listing/' . $contentType->getKey();
 
         $context = compact(
             'contentType',
@@ -313,7 +334,7 @@ class ContentType extends ConfigObject implements ArrayableInterface
             'view'
         );
 
-        return $this->app['view.factory']->create($view, $context, $contentType->getKey());
+        return $this->app['view.factory']->create($view, $context);
     }
 
     /**

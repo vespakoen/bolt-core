@@ -66,8 +66,12 @@ class FieldCollection extends Collection
 
     public function filterByTypeKey($typeKey)
     {
-        return $this->filter(function($item) use ($typeKey) {
-            return $item->getType()->getKey() == $typeKey;
+        return $this->filterByTypeKeys(array($typeKey));
+    }
+
+    public function filterByTypeKeys($typeKeys) {
+        return $this->filter(function($item) use ($typeKeys) {
+            return in_array($item->getType()->getKey(), $typeKeys);
         });
     }
 

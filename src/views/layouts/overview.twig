@@ -1,0 +1,98 @@
+{% include '_header.twig' with { 'active':'content' } %}
+
+<header class="header bg-dark">
+  <p class="h4">
+    {{ contentType.getName|raw }}
+
+    <span>{% if pager is defined and pager.totalpages > 1 %}
+        {{ __('Showing') }} {{ pager.showing_from }} - {{ pager.showing_to }} {{ __('of') }} {{ pager.count }}
+    {%endif %}</span>
+  </p>
+  <form class="m-t-sm navbar-right" role="search">
+    <div class="form-group">
+      <div class="input-group input-s">
+        <input type="text" name="filter" value="{{app.request.get('filter')}}" class="form-control input-sm no-border dk text-white" placeholder="Search">
+        <span class="input-group-btn">
+          <button type="submit" class="btn btn-sm btn-primary btn-icon"><i class="fa fa-search"></i></button>
+        </span>
+      </div>
+    </div>
+  </form>
+</header>
+<section class="scrollable wrapper">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="row">
+                <div class="col-lg-8">
+                    {% set lastgroup = "----" %}
+                        {% if not multiplecontent %}
+                        <section class="panel">
+                            <div class="panel-body text-center h4">
+                                {{ __('No %contenttypes% available.', {'%contenttypes%':contenttype.name}) }}
+                            </div>
+                        </section>
+                        {% else %}
+                        <section class="panel">
+                                <div class="table-responsive">
+                                    <table class='table table-striped dashboardlisting'>
+                                        {% for content in multiplecontent %}
+
+                                            {% set editable = isallowed('edit', content) %}
+                                            {% include ['custom/listing/'~contenttype.name|lower~'.twig', '_sub_listing.twig'] with { 'excerptlength': 380, 'thumbsize': 80, 'compact': false } %}
+                                            {% if content.group.name is defined and (loop.first or content.group.name != lastgroup) %}
+                                                {% set lastgroup = content.group.name %}
+                                            {% endif %}
+
+                                        {% endfor %}
+                                    </table>
+                                </div>
+                        </section>
+                        {% endif %}
+
+                    {{ pager() }}
+                </div>
+
+                <div class="col-lg-4">
+                    <section class="panel">
+                        <header class="panel-heading h4">
+                            {{__('Actions for %contenttypes%',{'%contenttypes%':contenttype.name})}}
+                        </header>
+                        <div class="panel-body">
+                            <a class="btn btn-primary btn-large" href="{{ path('editcontent', { 'contenttypeslug': contenttype.slug, 'id': '' }) }}">
+                                <i class="fa fa-plus"></i> {{ __('New %contenttype%',{'%contenttype%': contenttype.singular_name}) }}
+                            </a>
+                            {% if request('filter') or request('order') %}
+                            <a class="btn btn-default" href="?">{{ __('Clear sort/filter') }}</a>
+                            {% endif %}
+                        </div>
+                    </section>
+
+                    <section class="panel">
+                        <header class="panel-heading h4">
+                            {{ __('Filtering:') }}
+                        </header>
+                        <div class="panel-body">
+                            <form class="input-group">
+                                <input type="text" class="form-control" value="{{ request('filter', '', true) }}" name="filter">
+                                <div class="input-group-btn">
+                                    {% if request('filter') %}
+                                    <a class="btn btn-default" href="?">
+                                        <i class="fa fa-times"></i>
+                                    </a>
+                                    {% endif %}
+                                    <button type="submit" class="btn btn-primary">{{ __('Filter') }}</button>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
+
+                    {{ render(path("lastmodified", {"contenttypeslug": contenttype.slug} )) }}
+
+                    {{ render(path("showstack", {'items': 5, 'options': 'full' } )) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% include '_footer.twig' %}

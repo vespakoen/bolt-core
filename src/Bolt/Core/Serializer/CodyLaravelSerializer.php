@@ -28,7 +28,7 @@ class CodyLaravelSerializer
 
             foreach(array($generatedModel, $model, $repository) as $resource) {
                 foreach($resource->getCompilerObjects() as $compiler) {
-                    $path = $app['paths']['base'].'vendor/';
+                    $path = $app['paths']['base'].'/vendor/';
                     $destination = $path . $compiler->getDestination();
                     $path = dirname($destination);
 
@@ -48,7 +48,9 @@ class CodyLaravelSerializer
             $name = $package->getName();
             $lowerName = strtolower($name);
 
-            $app['autoloader']->add($vendor.'\\'.$name, $app['paths']['base'].'vendor/'.$lowerVendor.'/'.$lowerName.'/src');
+            $loader = new ClassLoader;
+            $loader->add($vendor.'\\'.$name.'\\', $app['paths']['base'].'/vendor/'.$lowerVendor.'/'.$lowerName.'/src');
+            $loader->register();
 
             $this->registerModel($key, $model);
             $this->registerRepository($key, $repository);
@@ -103,7 +105,8 @@ class CodyLaravelSerializer
         $parts = array(
             $package->getVendor(),
             $package->getName(),
-            'Models',
+            'Model',
+            'Eloquent',
             'Generated',
             'Generated'.ucfirst($contentType->getKey())
         );
@@ -137,7 +140,8 @@ class CodyLaravelSerializer
         $parts = array(
             $package->getVendor(),
             $package->getName(),
-            'Models',
+            'Model',
+            'Eloquent',
             ucfirst($contentType->getKey())
         );
 
@@ -259,7 +263,7 @@ class CodyLaravelSerializer
         $namespaceCompiler = new NamespaceCompiler($repository->getName());
         $className = $namespaceCompiler->getName();
         $app['repository.'.$key] = $app->share(function($app) use ($className, $key) {
-            return new $className($app['model.'.$key], $app['contenttypes']->get($key));
+            return new $className($app, $app['contenttypes']->get($key));
         });
     }
 

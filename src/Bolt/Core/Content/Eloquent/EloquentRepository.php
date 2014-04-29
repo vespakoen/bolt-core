@@ -2,39 +2,34 @@
 
 namespace Bolt\Core\Content\Eloquent;
 
-use Bolt\Core\Support\Facades\Content;
-use Bolt\Core\Support\Facades\ContentCollection;
+use Bolt\Core\Content\AbstractRepository;
 
-class EloquentRepository
+class EloquentRepository extends AbstractRepository
 {
-
 	/**
-	 * @param mixed $model       The Model to be used
-	 * @param mixed $contentType The ContentType configuration object
-	 *
-	 * @return void
+	 * @return \Bolt\Core\Content\ContentCollection
 	 */
-	public function __construct($model, $contentType)
+	public function getForListing($sort, $order, $search, $offset, $limit)
 	{
-		$this->model = $model;
-		$this->contentType = $contentType;
+	    $model = $this->getModel();
+
+	    return $this->app['contents.factory']->create($model->get()->toArray());
 	}
 
 	/**
-	 * @param array $options Options for retrieving the content
-	 *
-	 * @return \Bolt\Core\Content\ContentCollection
+	 * @return bool
 	 */
-	public function getForListing($options)
+	public function store($attributes)
 	{
-		$models = $this->model->get();
+	    return (bool) $this->getModel()->create($attributes);
+	}
 
-		$contents = array();
-		foreach ($models as $model) {
-			$contents[] = Content::create($this->contentType, $model, 'eloquent');
-		}
-
-		return ContentCollection::create($contents);
+	/**
+	 * @return Illuminate\Database\Eloquent\Model
+	 */
+	protected function getModel()
+	{
+	    return $this->app['model.' . $this->contentType->getKey()];
 	}
 
 }

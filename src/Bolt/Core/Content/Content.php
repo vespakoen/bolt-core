@@ -4,15 +4,15 @@ namespace Bolt\Core\Content;
 
 class Content
 {
-    public function __construct($app, $model)
+    public function __construct($app, $attributes)
     {
         $this->app = $app;
-        $this->model = $model;
+        $this->attributes = $attributes;
     }
 
     public function getAttribute($key, $default = null)
     {
-        return array_get($this->model, $key, $default);
+        return array_get($this->attributes, $key, $default);
     }
 
     public function get($key, $default = null)

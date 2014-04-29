@@ -36,4 +36,30 @@ class ConfigObject
         return $this->getOption($key, $default);
     }
 
+    /**
+     * Convenience magic for twig
+     *
+     * Allows 'name' to be used in stead of getName'
+     * in the following example
+     * <code>
+     * {{ contentType.name }}
+     * </cody>
+     */
+    public function __call($key, $value = null)
+    {
+        // Check if the key is present in the options
+        $options = $this->getOptions();
+        if (array_key_exists($key, $options)) {
+            return $options[$key];
+        }
+
+        // Check if a getter exits
+        $methodName = 'get'.ucfirst($key);
+        if (method_exists($this, $methodName)) {
+            return $this->$methodName();
+        }
+
+        return null;
+    }
+
 }

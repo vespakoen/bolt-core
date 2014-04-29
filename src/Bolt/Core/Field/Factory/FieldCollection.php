@@ -21,7 +21,6 @@ class FieldCollection
         $this->validateConfig($config);
 
         $fieldCollectionClass = $this->getFieldCollectionClass();
-
         $collection = new $fieldCollectionClass;
 
         foreach ($config as $key => $config) {

@@ -4,20 +4,12 @@ namespace Bolt\Core\View;
 
 class View
 {
-    public function __construct($twig, $env, $file, $context = array(), $key = null)
+    public function __construct($twig, $env, $file, $context = array())
     {
         $this->twig = $twig;
         $this->env = $env;
         $this->file = $file;
         $this->context = $context;
-
-        if ( ! is_null($key) && ! empty($key)) {
-            $this->file = $this->file . '/' . $key;
-        }
-
-        if ( ! is_null($this->env) && ! empty($this->env)) {
-            $this->file = $this->file . '/' . $this->env;
-        }
     }
 
     public function render()

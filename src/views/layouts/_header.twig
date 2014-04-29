@@ -1,0 +1,195 @@
+{% include '_header_basic.twig' %}
+
+{% if active is not defined %}{% set active="dashboard" %}{% endif %}
+<section class="vbox">
+  <header class="header bg-black navbar navbar-inverse pull-in">
+    <div class="navbar-header nav-bar aside bg-danger">
+      <a class="btn btn-link visible-xs" data-toggle="class:show" data-target=".nav-primary">
+        <i class="fa fa-bars"></i>
+      </a>
+      <a href="#" class="nav-brand" data-toggle="fullscreen">
+        <span class="text-white">{{ app.config.get('general/branding/name') }}</span>
+        {# <img
+          src="{{ paths.app }}view/img/logo.png"
+          title="{{ app.config.get('general/branding/name') }}"
+          alt="{{ app.config.get('general/branding/name') }}"> #}
+      </a>
+      <a class="btn btn-link visible-xs" data-toggle="collapse" data-target=".navbar-collapse">
+        <i class="fa fa-comment-o"></i>
+      </a>
+    </div>
+    <div class="collapse navbar-collapse">
+      <ul class="nav navbar-nav">
+        {% include '_sub_mainmenu.twig' %}
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        {# <li class="hidden-xs">
+          <a href="#" class="dropdown-toggle dk" data-toggle="dropdown">
+            <i class="fa fa-bell-o text-white"></i>
+            <span class="badge up bg-danger m-l-n-sm">2</span>
+          </a>
+          <section class="dropdown-menu animated fadeInUp input-s-lg">
+            <section class="panel bg-white">
+              <header class="panel-heading">
+                <strong>You have <span class="count-n">2</span> notifications</strong>
+              </header>
+              <div class="list-group">
+                <a href="#" class="media list-group-item">
+                  <span class="pull-left thumb-sm">
+                    <img src="{{ paths.app }}view/todo/images/avatar.jpg" alt="John said" class="img-circle">
+                  </span>
+                  <span class="media-body block m-b-none">
+                    Use awesome animate.css<br>
+                    <small class="text-muted">28 Aug 13</small>
+                  </span>
+                </a>
+                <a href="#" class="media list-group-item">
+                  <span class="media-body block m-b-none">
+                    1.0 initial released<br>
+                    <small class="text-muted">27 Aug 13</small>
+                  </span>
+                </a>
+              </div>
+              <footer class="panel-footer text-sm">
+                <a href="#" class="pull-right"><i class="fa fa-cog"></i></a>
+                <a href="#">See all the notifications</a>
+              </footer>
+            </section>
+          </section>
+        </li> #}
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle dker" data-toggle="dropdown">
+            <span class="thumb-sm avatar pull-left m-t-n-xs m-r-xs">
+              <img src="http://www.gravatar.com/avatar/{{ md5(user.email|trim) }}?s=40">
+            </span>
+            {{ user.displayname }} <b class="caret"></b>
+          </a>
+          <ul class="dropdown-menu animated fadeInLeft">
+            <li>
+              <a href="docs.html">Help</a>
+            </li>
+            <li>
+                <a href="{{ path('logout') }}" target="_blank">
+                    <i class="icon-signout"></i> {{ __('Logout') }}
+                </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+      {# <ul class="nav navbar-nav navbar-right">
+        <li class="hidden-xs">
+          <a href="#" class="dropdown-toggle dk" data-toggle="dropdown">
+            <i class="fa fa-bell-o text-white"></i>
+            <span class="badge up bg-danger m-l-n-sm">2</span>
+          </a>
+          <section class="dropdown-menu animated fadeInUp input-s-lg">
+            <section class="panel bg-white">
+              <header class="panel-heading">
+                <strong>You have <span class="count-n">2</span> notifications</strong>
+              </header>
+              <div class="list-group">
+                <a href="#" class="media list-group-item">
+                  <span class="pull-left thumb-sm">
+                    <img src="{{ paths.app }}view/todo/images/avatar.jpg" alt="John said" class="img-circle">
+                  </span>
+                  <span class="media-body block m-b-none">
+                    Use awesome animate.css<br>
+                    <small class="text-muted">28 Aug 13</small>
+                  </span>
+                </a>
+                <a href="#" class="media list-group-item">
+                  <span class="media-body block m-b-none">
+                    1.0 initial released<br>
+                    <small class="text-muted">27 Aug 13</small>
+                  </span>
+                </a>
+              </div>
+              <footer class="panel-footer text-sm">
+                <a href="#" class="pull-right"><i class="fa fa-cog"></i></a>
+                <a href="#">See all the notifications</a>
+              </footer>
+            </section>
+          </section>
+        </li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle aside-sm dker" data-toggle="dropdown">
+            <span class="thumb-sm avatar pull-left m-t-n-xs m-r-xs">
+              <img src="{{ paths.app }}view/todo/images/avatar.jpg">
+            </span>
+            John.Smith <b class="caret"></b>
+          </a>
+          <ul class="dropdown-menu animated fadeInLeft">
+            <li>
+              <a href="#">Settings</a>
+            </li>
+            <li>
+              <a href="profile.html">Profile</a>
+            </li>
+            <li>
+              <a href="#">
+                <span class="badge bg-danger pull-right">3</span>
+                Notifications
+              </a>
+            </li>
+            <li>
+              <a href="docs.html">Help</a>
+            </li>
+            <li>
+              <a href="signin.html">Logout</a>
+            </li>
+          </ul>
+        </li>
+      </ul> #}
+    </div>
+  </header>
+  <section>
+    <section class="hbox stretch">
+      <aside class="aside bg-danger" id="nav">
+        <section class="vbox">
+          <section class="scrollable">
+            <div class="slim-scroll" data-height="auto" data-disable-fade-out="true" data-distance="0" data-size="5px">
+              {% set context = app.session.get('context', 1) %}
+              {% set currentApp = app.storage.getContent('apps', {id: context}) %}
+
+              <div class="nav-user nav-primary hidden-xs pos-rlt">
+                <div class="nav-avatar pos-rlt">
+                  <a href="#" class="thumb-sm avatar animated rollIn" style="border-radius: 5px" data-toggle="dropdown">
+                    <img src="{{ currentApp.image ~ '-/scale_crop/150x150/center/img.jpg' }}" alt="" style="border-radius: 5px"> <span class="caret caret-white"></span>
+                  </a>
+                  <ul class="dropdown-menu m-t-sm animated fadeInLeft">
+                    <span class="arrow top"></span>
+                    {% for app in listcontent('apps', {}, user) %}
+                    <li{% if(app.id == currentApp.id) %} class="active"{% endif %}>
+                      <a href="{{ path('setcontext', {id: app.id}) }}"><img src="{{ app.image ~ '-/scale_crop/15x15/center/img.jpg' }}"> {{ app.trans('title') }}</a>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                  <div class="visible-xs m-t m-b">
+                    <a href="#" class="h3">{{ currentApp.trans('title') }}</a>
+                    {# <p><i class="fa fa-map-marker"></i> Eijsden, Nederland</p> #}
+                  </div>
+                </div>
+              </div>
+
+              <nav class="nav-primary hidden-xs" data-ride="collapse">
+                <ul class="nav">
+                {% set contenttypes = app.config.get('contenttypes') %}
+                {% for slug, contenttype in contenttypes %}
+                  {% if isallowed('contenttype:' ~ slug) %}
+                  {% set url = path('overview', { 'contenttypeslug': slug }) %}
+                  <li class="{% if url == paths.current %}active{% endif %}">
+                    <a href="{{ url }}">
+                      <i class="fa fa-{{contenttype.icon}}"></i>
+                      <span>{{ __('%contenttypes%', {'%contenttypes%': contenttype.name})|ucfirst }}</span>
+                    </a>
+                  </li>
+                  {% endif %}
+                {% endfor %}
+                </ul>
+              </nav>
+            </div>
+          </section>
+        </section>
+      </aside>
+      <section id="content">
+        <section class="vbox">

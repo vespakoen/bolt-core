@@ -40,7 +40,7 @@ class ContentType
         $showOnDashboard = array_get($config, 'show_on_dashboard');
         $sort = array_get($config, 'sort');
         $defaultStatus = array_get($config, 'default_status');
-        $options = array_except($config, array('fields', 'relations', 'listing_columns', 'name', 'slug', 'singular_name', 'singular_slug', 'show_on_dashboard', 'sort', 'default_status'));
+        $options = array_except($config, array('fields', 'relations', 'name', 'slug', 'singular_name', 'singular_slug', 'show_on_dashboard', 'sort', 'default_status'));
 
         $fields = $this->app['fields.factory']->fromConfig($config['fields']);
         $relations = $this->app['relations.factory']->fromConfig(array_get($config, 'relations', array()));
