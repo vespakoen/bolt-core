@@ -17,7 +17,7 @@ class DoctrineYamlSerializer extends Serializer
         $app = $this->app;
 
         foreach($this->compileContentTypes() as $destination => $data) {
-            $path = $app['paths']['base'].'cache/doctrine-yml/';
+            $path = $app['paths']['storage'].'/cache/doctrine-yml/';
             $destination = $path . $destination;
 
             if( ! is_dir($path)) {
@@ -59,8 +59,8 @@ class DoctrineYamlSerializer extends Serializer
         foreach ($contentType->getFields() as $field) {
             $key = $field->getKey();
 
-            $migratorConfig = $field->getType()->getMigratorConfig();
-            $fieldOptions = $migratorConfig['options'];
+            $type = $field->getType();
+            $migratorConfig = $type->getMigratorConfig();
 
             if($field->getOption('index', false)) {
                 $options['indexes']['idx_'.$key.'_'.$contentTypeKey] = array(
@@ -68,7 +68,7 @@ class DoctrineYamlSerializer extends Serializer
                 );
             }
 
-            $options['fields'][$key] = $fieldOptions;
+            $options['fields'][$key] = $migratorConfig;
         }
 
         return array($contentTypeKey => $options);
