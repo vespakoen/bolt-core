@@ -1,6 +1,6 @@
 <?php
 
-namespace Bolt\Core\Serializer;
+namespace Bolt\Core\Compiler;
 
 use Composer\Autoload\ClassLoader;
 
@@ -10,14 +10,14 @@ use Layla\Cody\Compilers\Php\Core\NamespaceCompiler;
 
 use Symfony\Component\Yaml\Yaml;
 
-class DoctrineYamlSerializer extends Serializer
+class DoctrineYamlCompiler extends CodyDoctrineCompiler
 {
-    public function serialize()
+    public function compile()
     {
         $app = $this->app;
 
         foreach($this->compileContentTypes() as $destination => $data) {
-            $path = $app['paths']['base'].'cache/doctrine-yml/';
+            $path = $app['paths']['storage'].'/cache/doctrine-yml/';
             $destination = $path . $destination;
 
             if( ! is_dir($path)) {
@@ -51,24 +51,31 @@ class DoctrineYamlSerializer extends Serializer
         $options = array(
             'type' => 'entity',
             'table' => $contentType->getTableName(),
+            'id' => array(),
             'fields' => array(),
             'indexes' => array(),
             'lifecycleCallbacks' => array()
         );
 
-        foreach ($contentType->getFields() as $field) {
+        $fields = $contentType->getAllFields();
+        foreach ($fields->getNonPrimaryKeyFields()->getDatabaseFields() as $field) {
             $key = $field->getKey();
 
-            $migratorConfig = $field->getType()->getMigratorConfig();
-            $fieldOptions = $migratorConfig['options'];
+            $type = $field->getType();
+            $migratorConfig = $type->getMigratorConfig();
 
-            if($field->getOption('index', false)) {
+            if($field->get('index', false)) {
                 $options['indexes']['idx_'.$key.'_'.$contentTypeKey] = array(
                     'columns' => array($key)
                 );
             }
 
-            $options['fields'][$key] = $fieldOptions;
+            $options['fields'][$key] = $migratorConfig;
+        }
+
+        foreach ($fields->getPrimaryKeyFields() as $field) {
+            $type = $field->getType();
+            $options['id'][$field->getKey()] = $type->getMigratorConfig();
         }
 
         return array($contentTypeKey => $options);

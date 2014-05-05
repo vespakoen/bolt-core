@@ -9,8 +9,6 @@ use Illuminate\Support\Contracts\ArrayableInterface;
 
 class Extension extends ConfigObject implements ArrayableInterface
 {
-    protected $objectType = 'extension';
-
     protected $key;
 
     protected $enabled;

@@ -11,8 +11,6 @@ use Illuminate\Support\Contracts\ArrayableInterface;
 
 class Field extends ConfigObject implements ArrayableInterface
 {
-    protected $objectType = 'field';
-
     protected $key;
 
     protected $type;
@@ -50,6 +48,11 @@ class Field extends ConfigObject implements ArrayableInterface
         return $this->key;
     }
 
+    public function setKey($key)
+    {
+        return $this->key = $key;
+    }
+
     public function getType()
     {
         return $this->type;
@@ -65,22 +68,9 @@ class Field extends ConfigObject implements ArrayableInterface
         }
     }
 
-    public function addColumnsTo($table)
-    {
-        if ($this->getOption('multilanguage', false)) {
-            $locales = $this->app['config']->get('app/locales');
-            foreach ($locales as $locale => $name) {
-                $key = $this->getKey().'_'.$locale;
-                $this->addColumnTo($table, $key);
-            }
-        } else {
-            $this->addColumnTo($table, $this->getKey());
-        }
-    }
-
     public function hasIndex()
     {
-        return $this->getOption('index', false);
+        return $this->get('index', false);
     }
 
     public function toArray()
@@ -121,7 +111,7 @@ class Field extends ConfigObject implements ArrayableInterface
         $field = $this;
         $fieldType = $this->getType();
         $key = $this->getKey();
-        $fieldDefault = $this->getOption('default');
+        $fieldDefault = $this->get('default');
         if($this->get('multilanguage')) {
             $value = $content->get($key . '_' . $this->app['locale'], $fieldDefault);
         } else {

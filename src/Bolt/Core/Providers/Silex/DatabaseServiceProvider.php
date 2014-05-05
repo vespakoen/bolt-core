@@ -20,6 +20,8 @@ class DatabaseServiceProvider implements ServiceProviderInterface
 
     public function boot(Application $app)
     {
+        $databaseConfig = $app['db.options'];
+
         // Do a dummy query, to check for a proper connection to the database.
         try {
             $app['db']->query("SELECT 1;");

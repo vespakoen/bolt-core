@@ -6,6 +6,7 @@ use InvalidArgumentException;
 
 use Bolt\Core\Support\Collection;
 use Bolt\Core\Support\Facades\Field;
+use Bolt\Core\Support\Facades\Config;
 
 class FieldCollection extends Collection
 {
@@ -45,9 +46,29 @@ class FieldCollection extends Collection
 
     public function addColumnsTo($table)
     {
-        foreach ($this as $field) {
-            $field->addColumnTo($table);
+        foreach ($this->getDatabaseFields() as $field) {
+            $field->addColumnTo($table, $field->getKey());
         }
+    }
+
+    public function getDatabaseFields()
+    {
+        $fields = new static($this->items);
+
+        $locales = Config::get('app/locales');
+
+        $multilanguageFields = $fields->getMultilanguageFields();
+        foreach ($multilanguageFields as $multilanguageField) {
+            $fields->forget($multilanguageField->getKey());
+            foreach ($locales as $locale => $name) {
+                $translationField = clone $multilanguageField;
+                $newKey = $multilanguageField->getKey() . '_' . $locale;
+                $translationField->setKey($newKey);
+                $fields->addField($newKey, $translationField);
+            }
+        }
+
+        return $fields;
     }
 
     public function getPrimaryKeyFields()
@@ -61,6 +82,20 @@ class FieldCollection extends Collection
     {
         return $this->filter(function($item) {
             return $item->getKey() !== 'id';
+        });
+    }
+
+    public function getMultilanguageFields()
+    {
+        return $this->filter(function($item) {
+            return $item->get('multilanguage', false) === true;
+        });
+    }
+
+    public function getNonMultilanguageFields()
+    {
+        return $this->filter(function($item) {
+            return $item->get('multilanguage', false) === false;
         });
     }
 

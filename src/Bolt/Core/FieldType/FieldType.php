@@ -9,9 +9,7 @@ use Bolt\Core\Config\ConfigObject;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 
-use Illuminate\Support\Contracts\ArrayableInterface;
-
-class FieldType extends ConfigObject implements ArrayableInterface
+class FieldType extends ConfigObject
 {
     /**
      * Bolt's key for the FieldType
@@ -46,13 +44,11 @@ class FieldType extends ConfigObject implements ArrayableInterface
         return $this->type;
     }
 
-    public function toArray()
+    public function getMigratorConfig()
     {
-        return array(
-            'key' => $this->getKey(),
-            'type' => $this->getType(),
-            'doctrine' => $this->getOption('doctrine')
-        );
+        return array_merge(array(
+            'type' => $this->getType()
+        ), $this->options);
     }
 
     public function validate()

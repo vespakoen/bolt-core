@@ -21,7 +21,7 @@ class FieldTypeTest extends PHPUnit_Framework_TestCase {
 
 		$this->assertEquals('image', $fieldType->getKey());
 		$this->assertEquals('string', $fieldType->getType());
-		$this->assertEquals('testvalue', $fieldType->getOption('default'));
+		$this->assertEquals('testvalue', $fieldType->get('default'));
 	}
 
 	protected function getApp()

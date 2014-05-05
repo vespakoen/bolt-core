@@ -26,14 +26,9 @@ class ConfigObject
         return array_key_exists($option, $this->options);
     }
 
-    public function getOption($key, $default = null)
-    {
-        return array_get($this->options, $key, $default);
-    }
-
     public function get($key, $default = null)
     {
-        return $this->getOption($key, $default);
+        return array_get($this->options, $key, $default);
     }
 
     /**

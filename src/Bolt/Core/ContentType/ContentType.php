@@ -20,13 +20,6 @@ use Illuminate\Support\Str;
 class ContentType extends ConfigObject implements ArrayableInterface
 {
     /**
-     * The object type, used by the ConfigObject when serializing
-     *
-     * @var string
-     */
-    protected $objectType = 'contenttype';
-
-    /**
      * The key that uniquely identifies the content type
      *
      * @var string
@@ -182,9 +175,14 @@ class ContentType extends ConfigObject implements ArrayableInterface
         return $this->fields;
     }
 
+    public function getAllFields()
+    {
+        return $this->getDefaultFields()->merge($this->getFields());
+    }
+
     public function getTitleField()
     {
-        if ($titleFieldKey = $this->getOption('title_field')) {
+        if ($titleFieldKey = $this->get('title_field')) {
             return $this->fields->get($titleFieldKey);
         }
 
@@ -199,37 +197,25 @@ class ContentType extends ConfigObject implements ArrayableInterface
         return $titleGuessFields->first();
     }
 
+    public function getImageField()
+    {
+        if ($imageFieldKey = $this->get('image_field')) {
+            return $this->fields->get($imageFieldKey);
+        }
+
+        $imageGuessFields = $this->fields->filterByTypeKeys(array(
+            'image',
+            'uploadcare'
+        ));
+
+        return $imageGuessFields->first();
+    }
+
     public function getDefaultFields()
     {
-        return $this->app['fields.factory']->fromConfig(array(
-            "id" => array(
-                "type" => "integer"
-            ),
-            "slug" => array(
-                "type" => "string"
-            ),
-            "datecreated" => array(
-                "type" => "datetime"
-            ),
-            "datechanged" => array(
-                "type" => "datetime"
-            ),
-            "datepublish" => array(
-                "type" => "datetime"
-            ),
-            "datedepublish" => array(
-                "type" => "datetime"
-            ),
-            "username" => array(
-                "type" => "string"
-            ),
-            "ownerid" => array(
-                "type" => "integer"
-            ),
-            "status" => array(
-                "type" => "string"
-            )
-        ));
+        $config = $this->app['config']->get('defaultfields');
+
+        return $this->app['fields.factory']->fromConfig($config);
     }
 
     /**
@@ -281,17 +267,8 @@ class ContentType extends ConfigObject implements ArrayableInterface
     {
         $table = $schema->createTable($this->getTableName());
 
-        foreach ($this->getDefaultFields() as $field) {
-            $field->addColumnsTo($table);
-        }
-
-        foreach ($this->getFields() as $field) {
-            $field->addColumnsTo($table);
-        }
-
-        foreach ($this->getRelations() as $relation) {
-            $relation->addColumnsTo($table);
-        }
+        $this->getAllFields()->addColumnsTo($table);
+        $this->getRelations()->addColumnsTo($table);
     }
 
     public function toArray()

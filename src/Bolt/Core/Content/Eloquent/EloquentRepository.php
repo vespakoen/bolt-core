@@ -13,7 +13,23 @@ class EloquentRepository extends AbstractRepository
 	{
 	    $model = $this->getModel();
 
-	    return $this->app['contents.factory']->create($model->get()->toArray());
+	    $selects = array('*');
+
+	    $fields = $this->contentType->getFields();
+	    foreach ($fields as $field) {
+	    	switch ($field->getType()->getType()) {
+	    		case 'linestring':
+	    		case 'point';
+	    			$selects[] = new \Illuminate\Database\Query\Expression("ST_AsGeoJson(".$field->getKey().") as ".$field->getKey());
+	    			break;
+	    	}
+	    }
+
+	    $data = $model->select($selects)
+	    	->get()
+	    	->toArray();
+
+	    return $this->app['contents.factory']->create($data);
 	}
 
 	/**
@@ -21,7 +37,8 @@ class EloquentRepository extends AbstractRepository
 	 */
 	public function store($attributes)
 	{
-	    return (bool) $this->getModel()->create($attributes);
+	    return (bool) $this->getModel()
+	    	->create($attributes);
 	}
 
 	/**
