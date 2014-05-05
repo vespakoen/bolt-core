@@ -1,6 +1,6 @@
 <?php
 
-namespace Bolt\Core\Serializer;
+namespace Bolt\Core\Compiler;
 
 use Composer\Autoload\ClassLoader;
 
@@ -10,9 +10,9 @@ use Layla\Cody\Compilers\Php\Core\NamespaceCompiler;
 
 use Symfony\Component\Yaml\Yaml;
 
-class DoctrineYamlSerializer extends Serializer
+class DoctrineYamlCompiler extends CodyDoctrineCompiler
 {
-    public function serialize()
+    public function compile()
     {
         $app = $this->app;
 
@@ -51,24 +51,31 @@ class DoctrineYamlSerializer extends Serializer
         $options = array(
             'type' => 'entity',
             'table' => $contentType->getTableName(),
+            'id' => array(),
             'fields' => array(),
             'indexes' => array(),
             'lifecycleCallbacks' => array()
         );
 
-        foreach ($contentType->getFields() as $field) {
+        $fields = $contentType->getAllFields();
+        foreach ($fields->getNonPrimaryKeyFields()->getDatabaseFields() as $field) {
             $key = $field->getKey();
 
             $type = $field->getType();
             $migratorConfig = $type->getMigratorConfig();
 
-            if($field->getOption('index', false)) {
+            if($field->get('index', false)) {
                 $options['indexes']['idx_'.$key.'_'.$contentTypeKey] = array(
                     'columns' => array($key)
                 );
             }
 
             $options['fields'][$key] = $migratorConfig;
+        }
+
+        foreach ($fields->getPrimaryKeyFields() as $field) {
+            $type = $field->getType();
+            $options['id'][$field->getKey()] = $type->getMigratorConfig();
         }
 
         return array($contentTypeKey => $options);

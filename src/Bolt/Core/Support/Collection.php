@@ -14,7 +14,7 @@ class Collection extends IlluminateCollection
     public function filterBy($key, $value, $default = null)
     {
         return $this->filter(function($item) use ($key, $value, $default) {
-            return $item->getOption($key, $default) == $value;
+            return $item->get($key, $default) == $value;
         });
     }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Bolt\Core\Serializer;
+namespace Bolt\Core\Compiler;
 
 use Composer\Autoload\ClassLoader;
 
@@ -8,7 +8,7 @@ use Layla\Cody\Blueprints\Package;
 use Layla\Cody\Blueprints\Resource;
 use Layla\Cody\Compilers\Php\Core\NamespaceCompiler;
 
-class Serializer
+class Compiler
 {
     public function __construct($app)
     {

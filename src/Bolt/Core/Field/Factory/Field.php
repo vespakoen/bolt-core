@@ -29,9 +29,7 @@ class Field
 
         $this->validateConfig($key, $config);
 
-        $app = $this->app;
-
-        $type = $app['fieldtypes']->get($config['type']);
+        $type = $this->app['fieldtypes']->get($config['type']);
         $options = array_except($config, array('type'));
 
         return new $fieldClass($app, $key, $type, $options);

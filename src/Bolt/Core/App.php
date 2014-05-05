@@ -12,7 +12,7 @@ use Bolt\Core\Providers\Silex\ContentServiceProvider;
 use Bolt\Core\Providers\Silex\PathsServiceProvider;
 use Bolt\Core\Providers\Silex\DatabaseServiceProvider;
 use Bolt\Core\Providers\Silex\NotifyServiceProvider;
-use Bolt\Core\Providers\Silex\SerializerServiceProvider;
+use Bolt\Core\Providers\Silex\CompilerServiceProvider;
 use Bolt\Core\Providers\Silex\ViewServiceProvider;
 use Bolt\Core\Providers\Silex\EloquentServiceProvider;
 use Bolt\Core\Providers\Silex\MigratorServiceProvider;
@@ -52,7 +52,7 @@ class App extends Application
         $this->register(new ContentTypeServiceProvider);
         $this->register(new ContentServiceProvider);
         $this->register(new DatabaseServiceProvider);
-        $this->register(new SerializerServiceProvider);
+        $this->register(new CompilerServiceProvider);
         $this->register(new ViewServiceProvider);
         $this->register(new EloquentServiceProvider);
         $this->register(new MigratorServiceProvider);

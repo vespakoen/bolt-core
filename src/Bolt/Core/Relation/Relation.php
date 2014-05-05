@@ -11,8 +11,6 @@ use Illuminate\Support\Contracts\ArrayableInterface;
 
 class Relation extends ConfigObject implements ArrayableInterface
 {
-    protected $objectType = 'relation';
-
     protected $key;
 
     protected $type;
@@ -86,7 +84,7 @@ class Relation extends ConfigObject implements ArrayableInterface
     {
         $relation = $this;
         $relationKey = $this->getKey();
-        $relationDefault = $this->getOption('default');
+        $relationDefault = $this->get('default');
         $view = 'relationtypes/' . strtolower($relationType->getType()) . '/' . $screen;
 
         $context = compact(
