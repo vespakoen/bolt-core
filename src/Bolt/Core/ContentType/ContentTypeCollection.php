@@ -38,4 +38,13 @@ class ContentTypeCollection extends Collection
 
         return $schema;
     }
+
+    public function findByOption($key, $value)
+    {
+        foreach($this as $contentType) {
+            if($contentType->get($key) == $value) {
+                return $contentType;
+            }
+        }
+    }
 }
