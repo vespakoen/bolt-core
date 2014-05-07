@@ -19,6 +19,9 @@ use Bolt\Core\Providers\Silex\MigratorServiceProvider;
 
 use Silex\Application;
 use Silex\Provider\TwigServiceProvider;
+use Silex\Provider\UrlGeneratorServiceProvider;
+use Silex\Provider\TranslationServiceProvider;
+use Silex\Provider\SessionServiceProvider;
 
 use Illuminate\Support\Facades\Facade;
 
@@ -44,6 +47,9 @@ class App extends Application
         $this->register(new NotifyServiceProvider);
         //$this->register(new PathsServiceProvider);
         $this->register(new TwigServiceProvider);
+        $this->register(new SessionServiceProvider);
+        $this->register(new UrlGeneratorServiceProvider);
+        $this->register(new TranslationServiceProvider);
         $this->register(new TwigPathServiceProvider);
         $this->register(new ConfigServiceProvider);
         $this->register(new RelationServiceProvider);

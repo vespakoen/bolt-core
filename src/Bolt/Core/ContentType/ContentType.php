@@ -300,8 +300,12 @@ class ContentType extends ConfigObject implements ArrayableInterface
         return $this->app['view.factory']->create($view, $context);
     }
 
-    public function getViewForListing(ContentCollection $contents)
+    public function getViewForListing(ContentCollection $contents = null)
     {
+        if (is_null($contents)) {
+            $contents = $this->app['contents.factory']->create();
+        }
+
         $contentType = $this;
         $view = 'contenttypes/listing/' . $contentType->getKey();
 

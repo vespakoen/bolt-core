@@ -7,12 +7,12 @@
         {{ app.config.get('general/branding/name') }}
         {% if title is defined %}- {{ title|striptags }}{% endif %}
     </title>
-    <link rel="stylesheet" href="{{ paths.root }}public/css/style.css" type="text/css">
-    <link rel="shortcut icon" href="{{ paths.app }}view/img/favicon-bolt.ico">
-    <link rel="apple-touch-icon" sizes="57x57" href="{{ paths.app }}view/img/apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="{{ paths.app }}view/img/apple-touch-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="{{ paths.app }}view/img/apple-touch-icon-114x114.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="{{ paths.app }}view/img/apple-touch-icon-144x144.png">
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+    <link rel="shortcut icon" href="/img/favicon-bolt.ico">
+    <link rel="apple-touch-icon" sizes="57x57" href="/img/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/img/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/img/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/img/apple-touch-icon-144x144.png">
     <script>
         UPLOADCARE_PUBLIC_KEY = 'ccc0b7396e7fd4654e6e';
         UPLOADCARE_PATH_VALUE = true;
@@ -21,24 +21,23 @@
         var leaflet_path="/public/leaflet";
         var ckeditor_lang="{{ app.locale|default('en') }}";
         var ckeditor_path="/app/view/lib/ckeditor/";
-        var path = "{{ paths.bolt }}";
-        var asyncpath = "{{ paths.async }}";
+        var path = "{{ paths.base }}";
         var apppath = "{{ paths.app }}";
 
         var wysiwyg = {
-           images: {{ 0 + config.get('general/wysiwyg/images') }},
-           tables: {{ 0 + config.get('general/wysiwyg/tables') }},
-           anchor: {{ 0 + config.get('general/wysiwyg/anchor') }},
-           fontcolor: {{ 0 + config.get('general/wysiwyg/fontcolor') }},
-           align: {{ 0 + config.get('general/wysiwyg/align') }},
-           subsuper: {{ 0 + config.get('general/wysiwyg/subsuper') }},
-           embed: {{ 0 + config.get('general/wysiwyg/embed') }},
-           {%  if config.get('general/wysiwyg/ck') is iterable %}ck: {{ config.get('general/wysiwyg/ck')|json_encode()|raw }},{% endif %}
-           {%  if config.get('general/wysiwyg/filebrowser') is iterable %}filebrowser: {{ config.get('general/wysiwyg/filebrowser')|json_encode()|raw }}{% else %}filebrowser: false{% endif %}
+           images: {{ 0 + app.config.get('general/wysiwyg/images') }},
+           tables: {{ 0 + app.config.get('general/wysiwyg/tables') }},
+           anchor: {{ 0 + app.config.get('general/wysiwyg/anchor') }},
+           fontcolor: {{ 0 + app.config.get('general/wysiwyg/fontcolor') }},
+           align: {{ 0 + app.config.get('general/wysiwyg/align') }},
+           subsuper: {{ 0 + app.config.get('general/wysiwyg/subsuper') }},
+           embed: {{ 0 + app.config.get('general/wysiwyg/embed') }},
+           {%  if app.config.get('general/wysiwyg/ck') is iterable %}ck: {{ app.config.get('general/wysiwyg/ck')|json_encode()|raw }},{% endif %}
+           {%  if app.config.get('general/wysiwyg/filebrowser') is iterable %}filebrowser: {{ app.config.get('general/wysiwyg/filebrowser')|json_encode()|raw }}{% else %}filebrowser: false{% endif %}
         };
     </script>
     <script src="https://ucarecdn.com/widget/1.0.1/uploadcare/uploadcare-1.0.1.min.js"></script>
-    <script src="{{ paths.root }}public/js/scripts.js"></script>
+    <script src="/js/scripts.js"></script>
     <script>
         moment.lang('{{ app.locale|default('en') }}');
     </script>
