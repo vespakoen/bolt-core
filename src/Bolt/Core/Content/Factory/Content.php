@@ -9,11 +9,11 @@ class Content
         $this->app = $app;
     }
 
-    public function create($attributes = array())
+    public function create($attributes = array(), $contentType)
     {
         $contentClass = $this->getContentClass();
 
-        return new $contentClass($this->app, $attributes);
+        return new $contentClass($this->app, $attributes, $contentType);
     }
 
     public function validateConfig($key, $config)

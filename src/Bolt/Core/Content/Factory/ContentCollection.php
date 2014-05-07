@@ -9,13 +9,13 @@ class ContentCollection
         $this->app = $app;
     }
 
-    public function create($items = array())
+    public function create($items = array(), $contentType)
     {
         $contentCollectionClass = $this->getContentCollectionClass();
 
         $contents = array();
         foreach($items as $key => $item) {
-            $contents[$key] = $this->app['content.factory']->create($item);
+            $contents[$key] = $this->app['content.factory']->create($item, $contentType);
         }
 
         return new $contentCollectionClass($contents);

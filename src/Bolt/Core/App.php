@@ -62,6 +62,7 @@ class App extends Application
         $this->register(new ViewServiceProvider);
         $this->register(new EloquentServiceProvider);
         $this->register(new MigratorServiceProvider);
+        $this->register(new UrlGeneratorServiceProvider);
     }
 
     public static function instance()

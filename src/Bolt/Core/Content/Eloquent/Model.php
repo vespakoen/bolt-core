@@ -42,14 +42,13 @@ class Model extends Eloquent
      */
     protected $dates = array('datepublish');
 
-    public function incoming()
+    /**
+     * Relationship with other contenttypes
+     */
+    public function links()
     {
-        return $this->morphTo('relations', 'to_', 'contenttype', 'id', 'from_');
-    }
-
-    public function outgoing()
-    {
-        return $this->morphTo('relations', 'from_', 'contenttype', 'id', 'to_');
+        return $this->hasMany('Bolt\Core\Content\Eloquent\Link', 'from_id')
+            ->where('from_contenttype', '=', get_class($this));
     }
 
 }
