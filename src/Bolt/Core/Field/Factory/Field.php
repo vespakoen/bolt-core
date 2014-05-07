@@ -32,7 +32,7 @@ class Field
         $type = $this->app['fieldtypes']->get($config['type']);
         $options = array_except($config, array('type'));
 
-        return new $fieldClass($app, $key, $type, $options);
+        return new $fieldClass($this->app, $key, $type, $options);
     }
 
     public function validateConfig($key, $config)

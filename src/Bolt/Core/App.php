@@ -19,6 +19,7 @@ use Bolt\Core\Providers\Silex\MigratorServiceProvider;
 
 use Silex\Application;
 use Silex\Provider\TwigServiceProvider;
+use Silex\Provider\UrlGeneratorServiceProvider;
 
 use Illuminate\Support\Facades\Facade;
 
@@ -56,6 +57,7 @@ class App extends Application
         $this->register(new ViewServiceProvider);
         $this->register(new EloquentServiceProvider);
         $this->register(new MigratorServiceProvider);
+        $this->register(new UrlGeneratorServiceProvider);
     }
 
     public static function instance()

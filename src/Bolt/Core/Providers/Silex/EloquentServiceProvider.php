@@ -67,6 +67,7 @@ class EloquentServiceProvider implements ServiceProviderInterface
     protected function bootEloquent($app)
     {
         $app['eloquent']->bootEloquent();
+        $app['eloquent']->setAsGlobal();
     }
 
     public function boot(Application $app)

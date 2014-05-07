@@ -33,7 +33,7 @@ class FieldCollection
     public function validateConfig($config)
     {
         if (!is_array($config)) {
-            $this->app['notify']->error(sprintf('Invalid "fields" configuration given, configuration\'s root value must be of type array.', $key));
+            $this->app['notify']->error('Invalid "fields" configuration given, configuration\'s root value must be of type array.');
         }
     }
 
