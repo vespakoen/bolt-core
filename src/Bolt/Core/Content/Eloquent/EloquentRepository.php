@@ -26,15 +26,23 @@ class EloquentRepository extends AbstractRepository
             }
         }
 
-        $records = $model
-            ->with(array('links', 'links.other'))
-            ->select($selects)
+        $recordsQuery = $model
+         //   ->with(array('links', 'links.other'))
+            ->select($selects);
+
+        if ( ! is_null($search)) {
+            foreach ($this->contentType->getSearchFields()->getDatabaseFields() as $searchField) {
+                $recordsQuery->orWhere(new Expression('LOWER(' . $searchField->getKey() . ')'), 'LIKE', '%' . strtolower($search) . '%');
+            }
+        }
+
+        $records = $recordsQuery
             ->get()
             ->toArray();
 
         $results = array();
         foreach ($records as $record) {
-            $record['links'] = array_pluck($record['links'], 'other');
+            // $record['links'] = array_pluck($record['links'], 'other');
             $results[] = $record;
         }
 
@@ -45,11 +53,11 @@ class EloquentRepository extends AbstractRepository
     {
         $model = $this->getModel();
 
-        $record = $model->with('links')
+        $record = $model//->with('links')
             ->find($id)
             ->toArray();
 
-        $record['links'] = array_pluck($record['links'], 'other');
+        //$record['links'] = array_pluck($record['links'], 'other');
 
         return $this->app['content.factory']->create($record, $this->contentType);
     }

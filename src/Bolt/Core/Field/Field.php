@@ -58,6 +58,15 @@ class Field extends ConfigObject implements ArrayableInterface
         return $this->type;
     }
 
+    public function getLabel()
+    {
+        if ($label = $this->get('label')) {
+            return $label;
+        }
+
+        return ucfirst(str_replace(array('_', '-'), ' ', $this->getKey()));
+    }
+
     public function addColumnTo($table, $key)
     {
         $type = $this->getType();
@@ -96,17 +105,33 @@ class Field extends ConfigObject implements ArrayableInterface
         }
     }
 
-    public function getViewForForm(Content $content = null)
+    public function getViewForForm(Content $content = null, $locale = null)
     {
-        return $this->getViewFor('form', $content);
+        $field = $this;
+        $fieldType = $this->getType();
+        $key = $this->getKey();
+        if ( ! is_null($locale) && $this->get('multilanguage')) {
+            $key = $key . '_' . $locale;
+        }
+
+        $fieldDefault = $this->get('default');
+        $value = $content->get($key, $fieldDefault);
+
+        $view = 'fieldtypes/form/' . $fieldType->getKey();
+
+        $context = compact(
+            'key',
+            'fieldType',
+            'field',
+            'content',
+            'value',
+            'view'
+        );
+
+        return $this->app['view.factory']->create($view, $context);
     }
 
     public function getViewForListing(Content $content = null)
-    {
-        return $this->getViewFor('listing', $content);
-    }
-
-    protected function getViewFor($screen, $content)
     {
         $field = $this;
         $fieldType = $this->getType();
@@ -118,7 +143,7 @@ class Field extends ConfigObject implements ArrayableInterface
             $value = $content->get($key, $fieldDefault);
         }
 
-        $view = 'fieldtypes/' . $screen . '/' . $fieldType->getKey();
+        $view = 'fieldtypes/listing/' . $fieldType->getKey();
 
         $context = compact(
             'key',

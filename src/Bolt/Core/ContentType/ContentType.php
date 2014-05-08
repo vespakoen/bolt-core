@@ -186,15 +186,9 @@ class ContentType extends ConfigObject implements ArrayableInterface
             return $this->fields->get($titleFieldKey);
         }
 
-        $titleGuessFields = $this->fields->filterByTypeKeys(array(
-            'string',
-            'text',
-            'textarea',
-            'html',
-            'markdown'
-        ));
+        $textFields = $this->getFields()->getTextFields();
 
-        return $titleGuessFields->first();
+        return $textFields->first();
     }
 
     public function getImageField()
@@ -209,6 +203,16 @@ class ContentType extends ConfigObject implements ArrayableInterface
         ));
 
         return $imageGuessFields->first();
+    }
+
+
+    public function getSearchFields()
+    {
+        if ($searchFields = $this->get('search_fields')) {
+            return $this->getFields()->filterByKeys($searchFields);
+        }
+
+        return $this->getFields()->getTextFields();
     }
 
     public function getDefaultFields()

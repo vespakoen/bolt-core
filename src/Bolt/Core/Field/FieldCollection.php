@@ -104,10 +104,29 @@ class FieldCollection extends Collection
         return $this->filterByTypeKeys(array($typeKey));
     }
 
-    public function filterByTypeKeys($typeKeys) {
-        return $this->filter(function($item) use ($typeKeys) {
-            return in_array($item->getType()->getKey(), $typeKeys);
+    public function filterByKeys($keys)
+    {
+        return $this->filter(function($field) use ($keys) {
+            return in_array($field->getKey(), $keys);
         });
+    }
+
+    public function filterByTypeKeys($typeKeys)
+    {
+        return $this->filter(function($field) use ($typeKeys) {
+            return in_array($field->getType()->getKey(), $typeKeys);
+        });
+    }
+
+    public function getTextFields()
+    {
+        return $this->filterByTypeKeys(array(
+            'string',
+            'text',
+            'textarea',
+            'html',
+            'markdown'
+        ));
     }
 
     public static function validate($config)
