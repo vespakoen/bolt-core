@@ -67,6 +67,17 @@ class Field extends ConfigObject implements ArrayableInterface
         return ucfirst(str_replace(array('_', '-'), ' ', $this->getKey()));
     }
 
+    public function getRules()
+    {
+        $type = $this->getType();
+
+        $typeRules = $type->get('rules', array());
+        $rules = $this->get('rules', array());
+        $rules = array_merge($typeRules, $rules);
+
+        return array($this->getKey() => $rules);
+    }
+
     public function addColumnTo($table, $key)
     {
         $type = $this->getType();

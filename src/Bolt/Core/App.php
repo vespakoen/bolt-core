@@ -16,7 +16,7 @@ use Bolt\Core\Providers\Silex\CompilerServiceProvider;
 use Bolt\Core\Providers\Silex\ViewServiceProvider;
 use Bolt\Core\Providers\Silex\EloquentServiceProvider;
 use Bolt\Core\Providers\Silex\MigratorServiceProvider;
-use Bolt\Core\Providers\Silex\IlluminateValidationServiceProvider;
+use Bolt\Core\Providers\Silex\IlluminateServiceProvider;
 
 use Silex\Application;
 use Silex\Provider\TwigServiceProvider;
@@ -49,7 +49,7 @@ class App extends Application
         //$this->register(new PathsServiceProvider);
         $this->register(new TwigServiceProvider);
         $this->register(new SessionServiceProvider);
-        $this->register(new IlluminateValidationServiceProvider);
+        $this->register(new IlluminateServiceProvider);
         $this->register(new UrlGeneratorServiceProvider);
         $this->register(new TranslationServiceProvider);
         $this->register(new TwigPathServiceProvider);

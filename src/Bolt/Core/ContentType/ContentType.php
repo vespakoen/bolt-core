@@ -11,13 +11,12 @@ use Bolt\Core\Field\FieldCollection;
 use Bolt\Core\Relation\RelationCollection;
 use Bolt\Core\Config\ConfigObject;
 
-use Illuminate\Support\Contracts\ArrayableInterface;
 use Illuminate\Support\Str;
 
 /**
  * A ContentType defines a resource and can be used to build Forms and Listings
  */
-class ContentType extends ConfigObject implements ArrayableInterface
+class ContentType extends ConfigObject
 {
     /**
      * The key that uniquely identifies the content type
@@ -232,6 +231,26 @@ class ContentType extends ConfigObject implements ArrayableInterface
         return $this->relations;
     }
 
+    public function getRules()
+    {
+        $rules = array();
+
+        $fields = $this->getAllFields();
+        $app = $this->app;
+        $fields = $fields->map(function($field) use ($app) {
+            if ($field->get('multilanguage', false)) {
+                $field->setKey($field->getKey() . '_' . $app['locale']);
+            }
+            return $field;
+        });
+
+        foreach ($fields as $field) {
+            $rules = array_merge($rules, $field->getRules());
+        }
+
+        return $rules;
+    }
+
     /**
      * Indicates whether the contenttype should be displayed on the dashboard
      *
@@ -273,21 +292,6 @@ class ContentType extends ConfigObject implements ArrayableInterface
 
         $this->getAllFields()->addColumnsTo($table);
         $this->getRelations()->addColumnsTo($table);
-    }
-
-    public function toArray()
-    {
-        return array(
-            'key' => $this->getKey(),
-            'name' => $this->getName(),
-            'slug' => $this->getSlug(),
-            'singular_name' => $this->getSingularName(),
-            'singular_slug' => $this->getSingularSlug(),
-            'fields' => $this->getFields()->toArray(),
-            'show_on_dashboard' => $this->getShowOnDashboard(),
-            'sort' => $this->getSort(),
-            'default_status' => $this->getDefaultStatus(),
-        );
     }
 
     public function getViewForForm(Content $content = null)
