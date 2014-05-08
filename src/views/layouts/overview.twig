@@ -10,7 +10,7 @@
   <form class="m-t-sm navbar-right" role="search">
     <div class="form-group">
       <div class="input-group input-s">
-        <input type="text" name="filter" value="{{app.request.get('filter')}}" class="form-control input-sm no-border dk text-white" placeholder="Search">
+        <input type="text" name="search" value="{{app.request.get('search')}}" class="form-control input-sm no-border dk text-white" placeholder="Search">
         <span class="input-group-btn">
           <button type="submit" class="btn btn-sm btn-primary btn-icon"><i class="fa fa-search"></i></button>
         </span>
@@ -23,57 +23,44 @@
         <div class="col-lg-12">
             <div class="row">
                 <div class="col-lg-8">
-                    {% set lastgroup = "----" %}
-                        {% if not contents %}
-                        <section class="panel">
-                            <div class="panel-body text-center h4">
-                                {{ __('No %contenttypes% available.', {'%contenttypes%':contentType.name}) }}
-                            </div>
-                        </section>
-                        {% else %}
-                        <section class="panel">
-                                {{ contentType.getViewForListing(contents)|raw }}
-                        </section>
-                        {% endif %}
-
+                    <section class="panel">
+                    {% if not contents.isEmpty %}
+                        {{ contentType.getViewForListing(contents)|raw }}
+                    {% else %}
+                        <div class="panel-body text-center h4">
+                            {{ __('No %contenttypes% available.', {'%contenttypes%':contentType.name}) }}
+                        </div>
+                    {% endif %}
+                    </section>
                     {{ pager() }}
                 </div>
 
                 <div class="col-lg-4">
                     <section class="panel">
                         <header class="panel-heading h4">
-                            {# {{__('Actions for %contenttypes%',{'%contenttypes%':contentType.name})}} #}
+                            {{ __('Actions for %contenttypes%',{'%contenttypes%':contentType.name}) }}
                         </header>
                         <div class="panel-body">
-                            <a class="btn btn-primary btn-large" href="{{ path('editcontent', { 'contenttypeslug': contentType.slug, 'id': '' }) }}">
+                            <a class="btn btn-primary btn-large" href="{{ path('manage', { 'contentTypeKey': contentType.slug, 'id': 'new' }) }}">
                                 <i class="fa fa-plus"></i> {{ __('New %contenttype%',{'%contenttype%': contentType.singular_name}) }}
                             </a>
-                            {% if request('filter') or request('order') %}
-                            <a class="btn btn-default" href="?">{{ __('Clear sort/filter') }}</a>
-                            {% endif %}
-                        </div>
-                    </section>
+                            <div class="line line-dashed line-lg pull-in"></div>
 
-                    <section class="panel">
-                        <header class="panel-heading h4">
-                            {{ __('Filtering:') }}
-                        </header>
-                        <div class="panel-body">
                             <form class="input-group">
-                                <input type="text" class="form-control" value="{{ request('filter', '', true) }}" name="filter">
+                                <input type="text" class="form-control" value="{{ request('search', '', true) }}" name="search">
                                 <div class="input-group-btn">
-                                    {% if request('filter') %}
+                                    {% if request('search') %}
                                     <a class="btn btn-default" href="?">
                                         <i class="fa fa-times"></i>
                                     </a>
                                     {% endif %}
-                                    <button type="submit" class="btn btn-primary">{{ __('Filter') }}</button>
+                                    <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> {{ __('Search') }}</button>
                                 </div>
                             </form>
                         </div>
                     </section>
 
-                    {# {{ render(path("lastmodified", {"contenttypeslug": contentType.slug} )) }} #}
+                    {# {{ render(path("lastmodified", {"contentTypeKey": contentType.slug} )) }} #}
 
                     {# {{ render(path("showstack", {'items': 5, 'options': 'full' } )) }} #}
                 </div>

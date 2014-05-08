@@ -1,9 +1,52 @@
-{% for field in contentType.getFields %}
-<div class="form-group">
-	<label class="control-label col-sm-2" style="font-weight: bold">{{ field.getOption('label') }}</label>
-	<div class="col-sm-10">
-		{{ field.getViewForForm(content)|raw }}<br>
-	</div>
-</div>
-<div class="line line-dashed line-lg pull-in"></div>
-{% endfor %}
+{% set fields = contentType.getFields %}
+
+{% set nonMultilanguageFields = fields.getNonMultilanguageFields %}
+{% if not nonMultilanguageFields.isEmpty %}
+<section class="panel">
+    <div class="panel-body">
+        {% for field in nonMultilanguageFields %}
+        <div class="form-group">
+            <label class="control-label col-sm-2" style="font-weight: bold">{{ field.getLabel }}</label>
+            <div class="col-sm-10">
+                {{ field.getViewForForm(content)|raw }}<br>
+            </div>
+        </div>
+        {% if not loop.last %}
+        <div class="line line-dashed line-lg pull-in"></div>
+        {% endif %}
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% set multilanguageFields = fields.getMultilanguageFields %}
+{% if not multilanguageFields.isEmpty %}
+<section class="panel">
+    <header class="panel-heading bg-light">
+        <ul class="nav nav-tabs">
+            {% for key, locale in app.config.get('app/locales') %}
+            <li{% if loop.first %} class="active"{% endif %}><a href="#{{key}}" data-toggle="tab">{{locale}}</a></li>
+            {% endfor %}
+        </ul>
+    </header>
+    <div class="panel-body">
+        <div class="tab-content">
+            {% for key, locale in app.config.get('app/locales') %}
+            <div class="tab-pane{% if loop.first %} active{% endif %}" id="{{key}}">
+                {% for field in contentType.getFields.getMultilanguageFields %}
+                <div class="form-group">
+                    <label class="control-label col-sm-2" style="font-weight: bold">{{ field.getLabel }}</label>
+                    <div class="col-sm-10">
+                        {{ field.getViewForForm(content, key)|raw }}<br>
+                    </div>
+                </div>
+                {% if not loop.last %}
+                <div class="line line-dashed line-lg pull-in"></div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}

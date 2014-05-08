@@ -1,0 +1,67 @@
+<div id="map" style="width: 100%; height: 400px"></div>
+<input type="hidden" name="{{key}}" class="form-control" id="field-{{key}}" value="{{ value }}">
+<script>
+    $(document).ready(function() {
+        var map = L.map('map')
+            .setView([50.505, 5.09], 7);
+
+        // add an OpenStreetMap tile layer
+        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        {% if value %}
+        var point = {{value|raw}};
+        var featureGroup = L.geoJson(point).addTo(map);
+        map.fitBounds(featureGroup.getBounds());
+        {% else %}
+        var featureGroup = L.featureGroup().addTo(map);
+        {% endif %}
+
+
+        var editControl = new L.Control.Draw({
+            edit: {
+                featureGroup: featureGroup,
+                remove: false
+            },
+            draw: false
+        });
+
+        var drawControl = new L.Control.Draw({
+            draw: {
+                polyline: false,
+                polygon: false,
+                rectangle: false,
+                circle: false,
+                marker: {
+                    repeatMode: false
+                }
+            },
+            edit: {
+                featureGroup: featureGroup,
+                remove: false
+            }
+        });
+
+        {% if value %}
+        map.addControl(editControl);
+        {% else %}
+        map.addControl(drawControl);
+        {% endif %}
+
+        map.on('draw:created', function(e) {
+            map.removeControl(drawControl);
+            map.addControl(editControl);
+            featureGroup.addLayer(e.layer);
+            var layer = e.layer;
+            $('#field-{{key}}').val(JSON.stringify(layer.toGeoJSON().geometry));
+        });
+
+        map.on('draw:edited', function(e) {
+            var layers = e.layers;
+            layers.eachLayer(function(layer) {
+                $('#field-{{key}}').val(JSON.stringify(layer.toGeoJSON().geometry));
+            });
+        });
+    });
+</script>

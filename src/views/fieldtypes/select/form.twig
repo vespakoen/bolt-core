@@ -1,0 +1,6 @@
+<select name="{{ key }}"
+    class="form-control">
+    {% for key, value in field.options.values %}
+    <option value="{{ key }}"{% if(key == value) %} selected="selected"{% endif %}>{{ value }}</option>
+    {% endfor %}
+</select>

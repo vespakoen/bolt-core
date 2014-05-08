@@ -18,7 +18,7 @@
         UPLOADCARE_PATH_VALUE = true;
         UPLOADCARE_PREVIEW_STEP = true;
 
-        var leaflet_path="/public/leaflet";
+        var leaflet_path="/leaflet";
         var ckeditor_lang="{{ app.locale|default('en') }}";
         var ckeditor_path="/app/view/lib/ckeditor/";
         var path = "{{ paths.base }}";
@@ -39,6 +39,7 @@
     <script src="https://ucarecdn.com/widget/1.0.1/uploadcare/uploadcare-1.0.1.min.js"></script>
     <script src="/js/scripts.js"></script>
     <script>
+        L.Icon.Default.imagePath = leaflet_path;
         moment.lang('{{ app.locale|default('en') }}');
     </script>
     <!--[if lt IE 9]>
