@@ -1,0 +1,8 @@
+{% if value %}
+{% set coordinates = value|raw|json_decode.coordinates %}
+{% set coords = [] %}
+{% for coordinate in coordinates %}
+    {% set coords = coords|merge([coordinate[1] ~ ',' ~ coordinate[0]]) %}
+{% endfor %}
+<img src="https://maps.googleapis.com/maps/api/staticmap?path=color:0xff0000ff%7Cweight:3%7C{{ coords|join('|') }}&size=70x70&sensor=false">
+{% endif %}

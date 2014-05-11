@@ -1,20 +1,27 @@
-<img class="img-rounded" id="uploadcare-preview-{{ key }}" src="{{ value }}" style="max-width: 30%; float: right;">
+<div class="form-group{% if errors|length > 0 %} has-error{% endif %}">
+    <img class="img-rounded" id="uploadcare-preview-{{ key }}" src="{% if value %}{{ value }}-/scale_crop/200x200/center/img.jpg{% endif %}" style="max-width: 30%; float: right;">
 
-<input type="hidden" role="uploadcare-uploader" class="form-control" name="{{ key }}" id="field-{{ key }}"
-    value="{{ value }}"
-    data-locale="en"
-    data-tabs="{{ field.get('tabs', 'file url facebook gdrive instagram evernote box skydrive') }}"
-    data-images-only="true"
-    data-path-value="true"
-    data-preview-step="true"
-    data-clearable="false"
-    data-multiple="false"
-    data-crop="{{field.get('crop/w', 1) }}:{{ field.get('crop/h', 1) }} minimum">
-<br>
+    <input type="hidden" role="uploadcare-uploader" class="form-control" name="{{ key }}" id="field-{{ key }}"
+        value="{{ value }}"
+        data-locale="en"
+        data-tabs="{{ field.get('tabs', 'file url facebook gdrive instagram evernote box skydrive') }}"
+        data-images-only="true"
+        data-path-value="true"
+        data-preview-step="true"
+        data-clearable="false"
+        data-multiple="false"
+        data-crop="{{field.get('crop/w', 1) }}:{{ field.get('crop/h', 1) }} minimum">
+
+    {% for error in errors %}
+    <span class="help-block">{{ __(error) }}</span>
+    {% endfor %}
+</div>
 
 <script>
     var widget = uploadcare.Widget('#field-{{ key }}');
     widget.onUploadComplete(function(info) {
-        document.getElementById('uploadcare-preview-{{ key }}').setAttribute('src', info.cdnUrl);
+        if(info.cdnUrl) {
+            document.getElementById('uploadcare-preview-{{ key }}').setAttribute('src', info.cdnUrl + '-/scale_crop/200x200/center/img.jpg');
+        }
     });
 </script>

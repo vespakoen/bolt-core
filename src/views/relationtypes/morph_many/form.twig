@@ -1,0 +1,82 @@
+<style>
+.modal-dialog.large {
+    width: 90%; /* responsive width */
+}
+</style>
+
+{% set selectedOptions = [] %}
+{% set options = [] %}
+
+{% for uuid, other in content.get('outgoing.' ~ relation.getOther) %}
+    {% set selectedOptions = selectedOptions|merge([other.id]) %}
+    {% set options = options|merge([{
+        'id': other.id,
+        'title': other.title_nl,
+        'image': (other.image ? other.image : other.image_icon) ~ '-/scale_crop/70x70/center/img.jpg',
+        'thumbnail': (other.image ? other.image : other.image_icon)  ~ '-/scale_crop/15x15/center/img.jpg'
+    }]) %}
+{% endfor %}
+
+{% if relation.get('multiple', false) %}
+<select name='outgoing[{{relation.getOther}}][]' id='relation-{{relation.getOther}}' class='wide' multiple data-placeholder="(none)">
+{% else %}
+<select name='outgoing[{{relation.getOther}}][]' id='relation-{{relation.getOther}}' class='wide' data-placeholder="(none)">
+{% endif %}
+</select>
+<script>
+    var $select = $('#relation-{{relation.getOther}}').selectize({
+        valueField: 'id',
+        labelField: 'title',
+        searchField: 'title',
+        options: {{ options|json_encode()|raw }},
+        load: function(query, callback) {
+            $.get('{{ path('async.content', {contentTypeKey: relation.getOther}) }}', function(results) {
+                var data = [];
+                _.each(results, function(result) {
+                    data.push({
+                        id: result.id,
+                        title: result.title_nl,
+                        image: (result.image ? result.image : result.image_icon) + '-/scale_crop/70x70/center/img.jpg',
+                        thumbnail: (result.image ? result.image : result.image_icon) + '-/scale_crop/15x15/center/img.jpg'
+                    });
+                });
+                callback(data);
+            });
+        },
+        render: {
+            item: function(item, escape) {
+                return '<div>' +
+                    '<img src="' + item.thumbnail + '" alt="">' +
+                    (item.title ? '<span class="title"> ' + item.title + '</span>' : '') +
+                '</div>';
+            },
+            option: function(item, escape) {
+                var title = item.title || item.title;
+                return '<div>' +
+                    '<img src="' + item.image + '" alt="">' +
+                    '<span class="title"> ' + title + '</span>' +
+                '</div>';
+            }
+        },
+        preload: true,
+        create: false,
+        plugins: ['remove_button'],
+        delimiter: ',',
+        persist: false
+    });
+
+    var selectize = $select[0].selectize;
+    selectize.setValue([{% for id in selectedOptions %}'{{ id }}',{% endfor %}]);
+</script>
+{#
+{% for uuid, other in content.get('incoming.' ~ relation.getOther) %}
+    {{ dump(uuid) }}
+    {{ dump(other.get('title_nl')) }}
+{% endfor %}
+ #}
+
+{#
+<a class="btn btn-primary" data-toggle="modal" data-target="#modal-{{relation.getOther}}">
+    <i class="fa fa-plus"></i> {% if relation.label %}{{ relation.label|trans }}{% else %}{{ relcontenttype|ucfirst|trans }}{% endif %}
+</a>
+#}

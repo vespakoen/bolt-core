@@ -110,32 +110,30 @@
         <section class="vbox">
           <section class="scrollable">
             <div class="slim-scroll" data-height="auto" data-disable-fade-out="true" data-distance="0" data-size="5px">
-              {# {% set context = app.session.get('context', 1) %}
-              {% set currentApp = app.storage.getContent('apps', {id: context}) %}
-
+              {% set currentProject = app.projects.filterByAttribute('id', app.session.get('project_id')).first %}
               <div class="nav-user nav-primary hidden-xs pos-rlt">
                 <div class="nav-avatar pos-rlt">
-                  <a href="#" class="thumb-sm avatar animated rollIn" style="border-radius: 5px" data-toggle="dropdown">
-                    <img src="{{ currentApp.image ~ '-/scale_crop/150x150/center/img.jpg' }}" alt="" style="border-radius: 5px"> <span class="caret caret-white"></span>
+                  <a href="#" class="thumb-sm avatar animated rollIn" data-toggle="dropdown">
+                    <img src="{{ currentProject.get('image_icon') ~ '-/scale_crop/150x150/center/img.jpg' }}" alt=""> <span class="caret caret-white"></span>
                   </a>
                   <ul class="dropdown-menu m-t-sm animated fadeInLeft">
                     <span class="arrow top"></span>
-                    {% for app in listcontent('apps', {}, user) %}
-                    <li{% if(app.id == currentApp.id) %} class="active"{% endif %}>
-                      <a href="{{ path('setcontext', {id: app.id}) }}"><img src="{{ app.image ~ '-/scale_crop/15x15/center/img.jpg' }}"> {{ app.trans('title') }}</a>
+                    {% for project in app.projects %}
+                    <li{% if project.get('id') == currentProject.get('id') %} class="active"{% endif %}>
+                      <a href="{{ path('setproject', {projectId: project.get('id')}) }}"><img src="{{ project.get('image_icon') ~ '-/scale_crop/15x15/center/img.jpg' }}"> {{ project.get('title_nl') }}</a>
                     </li>
                     {% endfor %}
                   </ul>
                   <div class="visible-xs m-t m-b">
-                    <a href="#" class="h3">{{ currentApp.trans('title') }}</a>
-                    <p><i class="fa fa-map-marker"></i> Eijsden, Nederland</p>
+                    <a href="#" class="h3">{{ currentProject.get('title_nl') }}</a>
+                    {# <p><i class="fa fa-map-marker"></i> Eijsden, Nederland</p> #}
                   </div>
                 </div>
               </div>
- #}
+
               <nav class="nav-primary hidden-xs" data-ride="collapse">
                 <ul class="nav">
-                {% for key, contentType in app.contenttypes %}
+                {% for key, contentType in app.contenttypes if not contentType.get('system') %}
                   {% if isallowed('contenttype:' ~ key) %}
                   {% set url = path('overview', {'contentTypeKey': key }) %}
                   <li class="{% if false %}active{% endif %}">

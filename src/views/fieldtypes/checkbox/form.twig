@@ -1,6 +1,12 @@
-<input type="checkbox"
-    name="{{ key }}"
-    class="form-control"
-    style="width: 20px"
-    type="text"
-    {% if value %}selected="selected"{% endif %}>
+<div class="form-group{% if errors|length > 0 %} has-error{% endif %}">
+    <input type="checkbox"
+        name="{{ key }}"
+        class="form-control"
+        style="width: 20px"
+        type="text"
+        {% if value %}selected="selected"{% endif %}>
+
+    {% for error in errors %}
+    <span class="help-block">{{ __(error) }}</span>
+    {% endfor %}
+</div>

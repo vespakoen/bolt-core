@@ -41,7 +41,7 @@
                             {{ __('Actions for %contenttypes%',{'%contenttypes%':contentType.name}) }}
                         </header>
                         <div class="panel-body">
-                            <a class="btn btn-primary btn-large" href="{{ path('manage', { 'contentTypeKey': contentType.slug, 'id': 'new' }) }}">
+                            <a class="btn btn-primary btn-large" href="{{ path('manage.new', { 'contentTypeKey': contentType.slug }) }}">
                                 <i class="fa fa-plus"></i> {{ __('New %contenttype%',{'%contenttype%': contentType.singular_name}) }}
                             </a>
                             <div class="line line-dashed line-lg pull-in"></div>

@@ -1,4 +1,10 @@
-<textarea
-    name="{{ key }}"
-    class="form-control"
-    type="text">{{ value }}</textarea>
+<div class="form-group{% if errors|length > 0 %} has-error{% endif %}">
+    <textarea
+        name="{{ key }}"
+        class="form-control"
+        type="text">{{ value }}</textarea>
+
+    {% for error in errors %}
+    <span class="help-block">{{ __(error) }}</span>
+    {% endfor %}
+</div>

@@ -1,6 +1,13 @@
-<select name="{{ key }}"
-    class="form-control">
-    {% for key, value in field.options.values %}
-    <option value="{{ key }}"{% if(key == value) %} selected="selected"{% endif %}>{{ value }}</option>
+<div class="form-group{% if errors|length > 0 %} has-error{% endif %}">
+    <select name="{{ key }}{% if field.get('multiple') %}[]{% endif %}"
+        class="form-control"
+        {% if field.get('multiple') %}multiple="multiple"{% endif %}>
+        {% for key, label in field.options.values %}
+        <option value="{{ key }}"{% if(key == value or key in value) %} selected="selected"{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+
+    {% for error in errors %}
+    <span class="help-block">{{ __(error) }}</span>
     {% endfor %}
-</select>
+</div>
