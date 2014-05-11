@@ -32,7 +32,20 @@ class ViewLoader implements Twig_LoaderInterface
     {
         $parts = explode('/', $name);
 
-        list($type, $template, $key, $env) = $parts;
+        switch (count($parts)) {
+            case 2:
+                $key = null;
+                $env = null;
+                list($type, $template) = $parts;
+                break;
+            case 3:
+                $env = null;
+                list($type, $template, $key) = $parts;
+                break;
+            case 4:
+                list($type, $template, $key, $env) = $parts;
+                break;
+        }
 
         $files = array();
         foreach ($this->paths as $path) {
