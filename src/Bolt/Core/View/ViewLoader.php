@@ -3,19 +3,10 @@
 namespace Bolt\Core\View;
 
 use Twig_LoaderInterface;
+use Twig_Loader_Filesystem;
 
-class ViewLoader implements Twig_LoaderInterface
+class ViewLoader extends Twig_Loader_Filesystem implements Twig_LoaderInterface
 {
-    /**
-     * Constructor.
-     *
-     * @param string|array $paths A path or an array of paths where to look for templates
-     */
-    public function __construct($paths = array())
-    {
-        $this->paths = $paths;
-    }
-
     /**
      * Gets the source code of a template, given its name.
      *
@@ -31,6 +22,10 @@ class ViewLoader implements Twig_LoaderInterface
     public function findTemplate($name)
     {
         $parts = explode('/', $name);
+
+        if(ends_with($name, '.twig')) {
+            return parent::findTemplate($name);
+        }
 
         switch (count($parts)) {
             case 2:
@@ -48,7 +43,7 @@ class ViewLoader implements Twig_LoaderInterface
         }
 
         $files = array();
-        foreach ($this->paths as $path) {
+        foreach ($this->paths['__main__'] as $path) {
             for ($i = 0; $i < 3; $i++) {
                 $baseParts = array(
                     $path,
