@@ -45,10 +45,16 @@ class Model extends Eloquent
     /**
      * Relationship with other contenttypes
      */
-    public function links()
+    public function outgoing()
     {
-        return $this->hasMany('Bolt\Core\Content\Eloquent\Link', 'from_id')
-            ->where('from_contenttype', '=', get_class($this));
+        return $this->hasMany('Trapps\Domain\Model\Eloquent\Relations', 'from_id')
+            ->where('from_type', '=', $this->getTable());
+    }
+
+    public function incoming()
+    {
+        return $this->hasMany('Trapps\Domain\Model\Eloquent\Relations', 'to_id')
+            ->where('to_type', '=', $this->getTable());
     }
 
 }

@@ -2,7 +2,9 @@
 
 namespace Bolt\Core\Content;
 
-class Content
+use Illuminate\Support\Contracts\ArrayableInterface;
+
+class Content implements ArrayableInterface
 {
     public function __construct($app, $attributes, $contentType)
     {
@@ -16,8 +18,12 @@ class Content
         return array_get($this->attributes, $key, $default);
     }
 
-    public function get($key, $default = null)
+    public function get($key = null, $default = null)
     {
+        if (is_null($key)) {
+            return $this->attributes;
+        }
+
         return $this->getAttribute($key, $default);
     }
 
@@ -34,6 +40,25 @@ class Content
     public function __call($method, $arguments)
     {
         return $this->get($method);
+    }
+
+    public function toArray()
+    {
+        $attributes = $this->attributes;
+
+        if (array_key_exists('incoming', $attributes)) {
+            foreach ($attributes['incoming'] as $type => $contents) {
+                $attributes['incoming'][$type] = $contents->toArray();
+            }
+        }
+
+        if (array_key_exists('outgoing', $attributes)) {
+            foreach ($attributes['outgoing'] as $type => $contents) {
+                $attributes['outgoing'][$type] = $contents->toArray();
+            }
+        }
+
+        return $attributes;
     }
 
 }

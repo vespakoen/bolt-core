@@ -251,6 +251,23 @@ class ContentType extends ConfigObject
         return $rules;
     }
 
+    public function validateInput($input)
+    {
+        $rules = $this->getRules();
+
+        $validator = $this->app['illuminate']['validator']->make($input, $rules);
+        if ($validator->fails()) {
+            $flashBag = $this->app['session']->getFlashBag();
+            $errors = $validator->errors()->getMessages();
+            $flashBag->set('errors', $errors);
+            $flashBag->set('input', $input);
+
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Indicates whether the contenttype should be displayed on the dashboard
      *

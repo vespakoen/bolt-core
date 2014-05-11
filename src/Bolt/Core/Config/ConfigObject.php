@@ -28,6 +28,8 @@ class ConfigObject
 
     public function get($key, $default = null)
     {
+        $key = str_replace('/', '.', $key);
+
         return array_get($this->options, $key, $default);
     }
 

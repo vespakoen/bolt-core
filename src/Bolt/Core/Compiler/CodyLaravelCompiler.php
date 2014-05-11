@@ -42,6 +42,20 @@ class CodyLaravelCompiler
                 }
             }
 
+            $this->register();
+        }
+    }
+
+    public function register()
+    {
+        $app = $this->app;
+
+        foreach($app['contenttypes'] as $contentType) {
+            $key = $contentType->getKey();
+
+            $model = $this->getModel($contentType);
+            $repository = $this->getRepository($contentType);
+
             $package = $this->getPackage();
             $vendor = $package->getVendor();
             $lowerVendor = strtolower($vendor);
@@ -175,9 +189,9 @@ class CodyLaravelCompiler
             $relationKey = $relation->getKey();
             $otherKey = $relation->getOther();
             $otherContentType = $this->app['contenttypes']->get($otherKey);
-            $relations[$relationKey] = array(
-                'type' => lcfirst($this->studly($relation->getType()))
-            );
+            $relations[$relationKey] = array_merge($relation->getOptions(), array(
+                'type' => lcfirst($this->studly($relation->getType())),
+            ));
 
             if($otherKey) {
                 $relations[$relationKey]['other'] = $this->getModelName($otherContentType);
@@ -191,14 +205,21 @@ class CodyLaravelCompiler
     {
         $methods = array();
 
-        foreach ($contentType->getAllFields()->getDatabaseFields() as $field) {
+        $fields = $contentType->getAllFields()->getDatabaseFields();
+        foreach ($fields as $field) {
             $type = $field->getType();
 
             $body = null;
-            switch ($type->getType()) {
+            switch ($type->getKey()) {
                 case 'linestring':
                 case 'point':
-                    $body =  '$this->' . $field->getKey() . ' = new Expression("ST_GeomFromGeoJSON(\'" . $value . "\')");';
+                    $body =  '$this->attributes[\'' . $field->getKey() . '\'] = new Expression("ST_GeomFromGeoJSON(\'" . $value . "\')");';
+                    break;
+
+                case 'select':
+                    if($field->get('multiple')) {
+                        $body = '$this->attributes[\'' . $field->getKey() . '\'] = json_encode($value);';
+                    }
                     break;
             }
 
@@ -217,6 +238,35 @@ class CodyLaravelCompiler
                 );
             }
         }
+
+        foreach ($fields as $field) {
+            $type = $field->getType();
+
+            $body = null;
+            switch ($type->getKey()) {
+                case 'select':
+                    if($field->get('multiple')) {
+                        $body = 'return json_decode($value);';
+                    }
+                    break;
+            }
+
+            if ( ! is_null($body)) {
+                $methodName = 'get' . $this->studly($field->getKey()).'Attribute';
+                $methods[$methodName] = array(
+                    'parameters' => array(
+                        'value' => array(
+                            'type' => 'string',
+                            'comment' => 'Unserialize the database value'
+                        )
+                    ),
+                    'content' => array(
+                        'php-core' => $body
+                    )
+                );
+            }
+        }
+
 
         return $methods;
     }
@@ -261,6 +311,7 @@ class CodyLaravelCompiler
             $package->getVendor(),
             $package->getName(),
             'Repositories',
+            'Eloquent',
             ucfirst($contentType->getKey()).'Repository'
         );
 
@@ -272,7 +323,7 @@ class CodyLaravelCompiler
         $app = $this->app;
         $namespaceCompiler = new NamespaceCompiler($model->getName());
         $className = $namespaceCompiler->getName();
-        $app['model.'.$key] = $app->share(function($app) use ($className) {
+        $app['model.eloquent.'.$key] = $app->share(function($app) use ($className) {
             return new $className;
         });
     }
@@ -282,8 +333,8 @@ class CodyLaravelCompiler
         $app = $this->app;
         $namespaceCompiler = new NamespaceCompiler($repository->getName());
         $className = $namespaceCompiler->getName();
-        $app['repository.'.$key] = $app->share(function($app) use ($className, $key) {
-            return new $className($app, $app['contenttypes']->get($key));
+        $app['repository.eloquent.'.$key] = $app->share(function($app) use ($className, $key) {
+            return new $className($app, $app['model.eloquent.' . $key], $app['contenttypes']->get($key));
         });
     }
 

@@ -7,9 +7,7 @@ use Bolt\Core\Content\Content;
 use Bolt\Core\Config\ConfigObject;
 use Bolt\Core\Support\Facades\View;
 
-use Illuminate\Support\Contracts\ArrayableInterface;
-
-class Relation extends ConfigObject implements ArrayableInterface
+class Relation extends ConfigObject
 {
     protected $key;
 
@@ -45,13 +43,13 @@ class Relation extends ConfigObject implements ArrayableInterface
         return $this->type;
     }
 
-    public function toArray()
+    public function getLabel()
     {
-        return array_merge(array(
-            'key' => $this->getKey(),
-            'type' => $this->getType()->getKey(),
-            'other' => $this->getOther()
-        ), $this->getOptions());
+        if ($label = $this->get('label')) {
+            return $label;
+        }
+
+        return ucfirst(str_replace(array('_', '-'), ' ', $this->getKey()));
     }
 
     public function validate()
@@ -67,25 +65,11 @@ class Relation extends ConfigObject implements ArrayableInterface
 
     public function getViewForForm(Content $content = null)
     {
-        return $this->getViewFor('form', $content);
-    }
-
-    public function getViewForListing(Content $content = null)
-    {
-        return $this->getViewFor('listing', $content);
-    }
-
-    public function addColumnsTo($table)
-    {
-        //
-    }
-
-    protected function getViewFor($screen, $content)
-    {
         $relation = $this;
         $relationKey = $this->getKey();
+        $relationType = $this->getType();
         $relationDefault = $this->get('default');
-        $view = 'relationtypes/' . strtolower($relationType->getType()) . '/' . $screen;
+        $view = 'relationtypes/form/' . strtolower($relationType);
 
         $context = compact(
             'relationType',
@@ -94,7 +78,12 @@ class Relation extends ConfigObject implements ArrayableInterface
             'view'
         );
 
-        return View::create($view, $context);
+        return $this->app['view.factory']->create($view, $context);
+    }
+
+    public function addColumnsTo($table)
+    {
+        //
     }
 
     protected function getDefaultOptions()

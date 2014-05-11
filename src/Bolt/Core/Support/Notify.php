@@ -6,13 +6,23 @@ use InvalidArgumentException;
 
 use Bolt\Core\App;
 
+use Illuminate\Support\MessageBag;
+
 class Notify
 {
-    protected $notifications;
+    protected $notifications = array();
+
+    protected $errors;
 
     public function __construct(App $app)
     {
         $this->app = $app;
+
+        $this->app->after(function($request, $response) use ($app) {
+            $flashBag = $app['session']->getFlashBag()->clear();
+        });
+
+        $this->errors = new MessageBag();
     }
 
     public function error($developerError, $userError = null)
@@ -22,8 +32,23 @@ class Notify
         if ($devMode) {
             throw new InvalidArgumentException($developerError);
         } elseif (!is_null($userError)) {
-            $this->notification['errors'][] = $userError;
+            $this->notifications[] = $userError;
         }
+    }
+
+    public function notifications()
+    {
+        return $this->notifications;
+    }
+
+    public function errors()
+    {
+        return $this->errors;
+    }
+
+    public function mergeErrors($errors)
+    {
+        $this->errors->merge($errors);
     }
 
 }

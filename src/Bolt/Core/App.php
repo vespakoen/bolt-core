@@ -17,12 +17,14 @@ use Bolt\Core\Providers\Silex\ViewServiceProvider;
 use Bolt\Core\Providers\Silex\EloquentServiceProvider;
 use Bolt\Core\Providers\Silex\MigratorServiceProvider;
 use Bolt\Core\Providers\Silex\IlluminateServiceProvider;
+use Bolt\Core\Providers\Silex\ElasticsearchServiceProvider;
 
 use Silex\Application;
 use Silex\Provider\TwigServiceProvider;
 use Silex\Provider\UrlGeneratorServiceProvider;
 use Silex\Provider\TranslationServiceProvider;
 use Silex\Provider\SessionServiceProvider;
+use Silex\Provider\ServiceControllerServiceProvider;
 
 use Illuminate\Support\Facades\Facade;
 
@@ -65,6 +67,11 @@ class App extends Application
         $this->register(new EloquentServiceProvider);
         $this->register(new MigratorServiceProvider);
         $this->register(new UrlGeneratorServiceProvider);
+        $this->register(new ServiceControllerServiceProvider);
+        $this->register(new ElasticsearchServiceProvider);
+
+        $this->after(function() {
+        });
     }
 
     public static function instance()

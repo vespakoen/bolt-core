@@ -126,7 +126,16 @@ class Field extends ConfigObject implements ArrayableInterface
         }
 
         $fieldDefault = $this->get('default');
+
+        $flashBag = $this->app['session']->getFlashBag();
+
         $value = $content->get($key, $fieldDefault);
+        if ($input = $flashBag->peek('input')) {
+            $value = array_get($input, $key, $value);
+        }
+
+        $allErrors = $flashBag->peek('errors');
+        $errors = array_get($allErrors, $key, array());
 
         $view = 'fieldtypes/form/' . $fieldType->getKey();
 
@@ -136,6 +145,7 @@ class Field extends ConfigObject implements ArrayableInterface
             'field',
             'content',
             'value',
+            'errors',
             'view'
         );
 

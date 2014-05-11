@@ -13,4 +13,11 @@ class ContentCollection extends Collection
 
         return $this;
     }
+
+    public function filterByAttribute($key, $value)
+    {
+        return $this->filter(function($content) use ($key, $value) {
+            return $content->get($key) == $value;
+        });
+    }
 }
