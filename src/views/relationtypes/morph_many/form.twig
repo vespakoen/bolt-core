@@ -7,7 +7,12 @@
 {% set selectedOptions = [] %}
 {% set options = [] %}
 
-{% for uuid, other in content.get('outgoing.' ~ relation.getOther) %}
+{% if relation.get('inverted', false) %}
+{% set related = content.get('incoming.' ~ relation.getOther) %}
+{% else %}
+{% set related = content.get('outgoing.' ~ relation.getOther) %}
+{% endif %}
+{% for uuid, other in related %}
     {% set selectedOptions = selectedOptions|merge([other.id]) %}
     {% set options = options|merge([{
         'id': other.id,

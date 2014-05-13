@@ -1,0 +1,55 @@
+{% include 'layouts/_header' %}
+<section class="scrollable">
+    <div class="wrapper bg-light dker">
+        <form class="input-group">
+            <input type="text" class="form-control" value="{{ request('search', '', true) }}" name="search">
+            <div class="input-group-btn">
+                {% if request('search') %}
+                <a class="btn btn-default" href="?">
+                    <i class="fa fa-times"></i>
+                </a>
+                {% endif %}
+                <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> {{ __('Search') }}</button>
+            </div>
+        </form>
+    </div>
+
+    {% for contentType in contentTypes %}
+    {% set contents = contentTypeContent.get(contentType.getKey) %}
+    {% if contents|length > 0 %}
+    <header class="header bg-dark lter">
+      <p class="h4">
+        {{ contentType.getName|raw }}
+      </p>
+    </header>
+    <div class="wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <section class="panel">
+                            {{ contentType.getViewForListing(contents)|raw }}
+                        </section>
+                        {{ pager() }}
+                    </div>
+
+                    <div class="col-lg-4">
+                        <section class="panel">
+                            <header class="panel-heading h4">
+                                {{ __('Actions for %contenttypes%',{'%contenttypes%':contentType.name}) }}
+                            </header>
+                            <div class="panel-body">
+                                <a class="btn btn-primary btn-large" href="{{ path('manage.new', { 'contentTypeKey': contentType.slug }) }}">
+                                    <i class="fa fa-plus"></i> {{ __('New %contenttype%',{'%contenttype%': contentType.singular_name}) }}
+                                </a>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+</section>
+{% include 'layouts/_footer' %}

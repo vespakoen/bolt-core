@@ -26,9 +26,9 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
         $recordsQuery = $model->select($selects)
             ->with(array('incoming', 'outgoing'));
 
-        if ($filtered) {
-            $recordsQuery->join('relations', $this->contentType->getTableName().'.id', '=', 'relations.to_id')
-                ->where('relations.from_id', '=', $this->app['session']->get('project_id'));
+        if ( ! $this->app['user']->hasRole('ROLE_ADMIN') && $filtered) {
+            $recordsQuery->join('relations', $this->contentType->getTableName().'.id', '=', 'relations.from_id')
+                ->where('relations.to_id', '=', $this->app['session']->get('project_id'));
         }
 
         $records = $recordsQuery->get()
@@ -46,19 +46,24 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
     {
         $model = $this->getModel();
 
-        if ($filtered) {
-            $filtered = $this->contentType->getKey() !== $this->app['config']->get('app/project/contenttype');
-        }
-
         $selects = $this->getSelects();
 
         $recordsQuery = $model
             ->with(array('incoming', 'outgoing'))
-            ->select($selects);
+            ->select($selects)
+            ->take($limit)
+            ->skip($offset);
 
-        if ($filtered) {
-            $recordsQuery->join('relations', $this->contentType->getTableName().'.id', '=', 'relations.to_id')
-                ->where('relations.from_id', '=', $this->app['session']->get('project_id'));
+        if ($filtered && $this->contentType->getKey() !== 'users') {
+            if($this->contentType->getKey() == $this->app['config']->get('app/project/contenttype')) {
+                return $this->app['user']->getProjects();
+            }
+            else {
+                $otherId = $this->app['session']->get('project_id');
+                $recordsQuery->join('relations', $this->contentType->getTableName().'.id', '=', 'relations.from_id')
+                    ->where('relations.to_id', '=', $otherId);
+            }
+
         }
 
         if ( ! is_null($search)) {
@@ -95,6 +100,34 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
         $record = $records[0];
 
         return $this->app['content.factory']->create($record, $this->contentType);
+    }
+
+    public function count()
+    {
+        $model = $this->getModel();
+
+        return $model->count();
+    }
+
+    public function findBy($wheres)
+    {
+        $model = $this->getModel();
+
+        $selects = $this->getSelects();
+
+        $recordsQuery = $model->with(array('incoming', 'outgoing'))
+            ->select($selects);
+
+        foreach ($wheres as $key => $value) {
+            $recordsQuery->where($key, '=', $value);
+        }
+
+        $results = $recordsQuery->get()
+            ->toArray();
+
+        $records = $this->loadRelatedFor($results);
+
+        return $this->app['contents.factory']->create($records, $this->contentType);
     }
 
     public function findMany($ids)
@@ -172,6 +205,10 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
      */
     public function store($attributes)
     {
+        if( ! array_key_exists('id', $attributes)) {
+            $attributes['id'] = $this->uuid();
+        }
+
         $result = $this->getModel()
             ->create($attributes);
 
@@ -213,8 +250,9 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
         return $model->delete();
     }
 
-    public function updateRelations($fromId, $relations)
+    public function updateRelations($fromId, $relationData)
     {
+        $relations = $this->contentType->getRelations();
         $fromType = $this->contentType->getKey();
 
         $relationModel = $this->app['model.eloquent.relations'];
@@ -226,15 +264,33 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
             ->delete();
 
         $newRelations = array();
-        foreach ($relations as $toType => $toIds) {
-            foreach ($toIds as $toId) {
-                $newRelations[] = array(
-                    'id' => $this->uuid(),
-                    'from_type' => $fromType,
-                    'from_id' => $fromId,
-                    'to_type' => $toType,
-                    'to_id' => $toId
-                );
+        foreach ($relationData as $toType => $toIds) {
+            $relation = $relations->get($toType);
+            if ($relation->get('inverted', false)) {
+                $relationModel
+                    ->where('to_type', '=', $fromType)
+                    ->where('to_id', '=', $fromId)
+                    ->delete();
+
+                foreach ($toIds as $toId) {
+                    $newRelations[] = array(
+                        'id' => $this->uuid(),
+                        'to_type' => $fromType,
+                        'to_id' => $fromId,
+                        'from_type' => $toType,
+                        'from_id' => $toId
+                    );
+                }
+            } else {
+                foreach ($toIds as $toId) {
+                    $newRelations[] = array(
+                        'id' => $this->uuid(),
+                        'from_type' => $fromType,
+                        'from_id' => $fromId,
+                        'to_type' => $toType,
+                        'to_id' => $toId
+                    );
+                }
             }
         }
 

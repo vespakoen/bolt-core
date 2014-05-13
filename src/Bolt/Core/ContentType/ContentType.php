@@ -328,7 +328,7 @@ class ContentType extends ConfigObject
     public function getViewForListing(ContentCollection $contents = null)
     {
         if (is_null($contents)) {
-            $contents = $this->app['contents.factory']->create();
+            $contents = $this->app['contents.factory']->create(array(), $this);
         }
 
         $contentType = $this;

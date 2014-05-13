@@ -39,10 +39,17 @@ class ContentTypeCollection extends Collection
         return $schema;
     }
 
-    public function findByOption($key, $value)
+    public function filterByOption($key, $value, $default = null)
+    {
+        return $this->filter(function($contentType) use ($key, $value, $default) {
+            return $contentType->get($key, $default) == $value;
+        });
+    }
+
+    public function findByOption($key, $value, $default = null)
     {
         foreach($this as $contentType) {
-            if($contentType->get($key) == $value) {
+            if($contentType->get($key, $default) == $value) {
                 return $contentType;
             }
         }
