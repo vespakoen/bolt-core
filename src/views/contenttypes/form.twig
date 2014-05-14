@@ -74,3 +74,10 @@
     </div>
 </section>
 {% endif %}
+
+{% set defaultFields = contentType.getDefaultFields %}
+{% for field in defaultFields %}
+{% if field.getKey != 'id' %}
+<input type="hidden" name="{{ field.getKey }}" value="{{ content.get(field.getKey) }}">
+{% endif %}
+{% endfor %}

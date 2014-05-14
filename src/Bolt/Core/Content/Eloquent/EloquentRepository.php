@@ -8,6 +8,8 @@ use Bolt\Core\Content\WriteRepositoryInterface;
 
 use Illuminate\Database\Query\Expression;
 
+use DateTime;
+
 class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInterface
 {
     public function __construct($app, $model, ContentType $contentType)
@@ -17,127 +19,65 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
         $this->contentType = $contentType;
     }
 
-    public function get($filtered = true)
-    {
-        $model = $this->getModel();
-
-        $selects = $this->getSelects();
-
-        $recordsQuery = $model->select($selects)
-            ->with(array('incoming', 'outgoing'));
-
-        if ( ! $this->app['user']->hasRole('ROLE_ADMIN') && $filtered) {
-            $recordsQuery->join('relations', $this->contentType->getTableName().'.id', '=', 'relations.from_id')
-                ->where('relations.to_id', '=', $this->app['session']->get('project_id'));
-        }
-
-        $records = $recordsQuery->get()
-            ->toArray();
-
-        $records = $this->loadRelatedFor($records);
-
-        return $this->app['contents.factory']->create($records, $this->contentType);
-    }
-
     /**
      * @return \Bolt\Core\Content\ContentCollection
      */
-    public function getForListing($sort, $order = 'asc', $offset = 0, $limit = 10, $search = null, $filtered = true)
+    public function get($wheres = array(), $loadRelated = true, $filtered = true, $sort = null, $order = 'asc', $offset = 0, $limit = 10, $search = null)
     {
-        $model = $this->getModel();
-
         $selects = $this->getSelects();
 
-        $recordsQuery = $model
-            ->with(array('incoming', 'outgoing'))
-            ->select($selects)
-            ->take($limit)
-            ->skip($offset);
+        $recordsQuery = $this->model;
 
-        if ($filtered && $this->contentType->getKey() !== 'users') {
+        if($loadRelated) {
+            $recordsQuery = $recordsQuery->with(array('incoming', 'outgoing'));
+        }
+
+        $recordsQuery = $recordsQuery->select($selects);
+
+        foreach ($wheres as $key => $value) {
+            if (is_array($value) && count($value) > 0) {
+                $recordsQuery = $recordsQuery->whereIn($key, $value);
+            } else {
+                $recordsQuery = $recordsQuery->where($key, '=', $value);
+            }
+        }
+
+        if ( ! is_null($offset)) {
+            $recordsQuery = $recordsQuery->skip($offset);
+        }
+
+        if ( ! is_null($limit)) {
+            $recordsQuery = $recordsQuery->take($limit);
+        }
+
+        if ($this->app['user'] && $filtered) {
             if($this->contentType->getKey() == $this->app['config']->get('app/project/contenttype')) {
                 return $this->app['user']->getProjects();
-            }
-            else {
+            } else {
                 $otherId = $this->app['session']->get('project_id');
-                $recordsQuery->join('relations', $this->contentType->getTableName().'.id', '=', 'relations.from_id')
+                $recordsQuery
+                    ->join('relations', $this->contentType->getTableName().'.id', '=', 'relations.from_id')
                     ->where('relations.to_id', '=', $otherId);
             }
-
         }
 
         if ( ! is_null($search)) {
-            foreach ($this->contentType->getSearchFields()->getDatabaseFields() as $searchField) {
-                $recordsQuery->orWhere(new Expression('LOWER(' . $searchField->getKey() . ')'), 'LIKE', '%' . strtolower($search) . '%');
-            }
+            $searchFields = $this->contentType
+                ->getSearchFields()
+                ->getDatabaseFields();
+
+            $recordsQuery->where(function($query) use ($searchFields, $search) {
+                foreach ($searchFields as $searchField) {
+                    $query->orWhere(new Expression('LOWER(' . $searchField->getKey() . ')'), 'LIKE', '%' . strtolower($search) . '%');
+                }
+            });
+        }
+
+        if( ! is_null($sort)) {
+            $recordsQuery = $recordsQuery->orderBy($sort, $order);
         }
 
         $records = $recordsQuery
-            ->get()
-            ->toArray();
-
-        $records = $this->loadRelatedFor($records);
-
-        return $this->app['contents.factory']->create($records, $this->contentType);
-    }
-
-    public function find($id)
-    {
-        $model = $this->getModel();
-
-        $selects = $this->getSelects();
-
-        $result = $model->with(array('incoming', 'outgoing'))
-            ->select($selects)
-            ->find($id);
-
-        if ( ! $result) {
-            return false;
-        }
-
-        $records = array($result->toArray());
-        $records = $this->loadRelatedFor($records);
-        $record = $records[0];
-
-        return $this->app['content.factory']->create($record, $this->contentType);
-    }
-
-    public function count()
-    {
-        $model = $this->getModel();
-
-        return $model->count();
-    }
-
-    public function findBy($wheres)
-    {
-        $model = $this->getModel();
-
-        $selects = $this->getSelects();
-
-        $recordsQuery = $model->with(array('incoming', 'outgoing'))
-            ->select($selects);
-
-        foreach ($wheres as $key => $value) {
-            $recordsQuery->where($key, '=', $value);
-        }
-
-        $results = $recordsQuery->get()
-            ->toArray();
-
-        $records = $this->loadRelatedFor($results);
-
-        return $this->app['contents.factory']->create($records, $this->contentType);
-    }
-
-    public function findMany($ids)
-    {
-        $model = $this->getModel();
-
-        $selects = $this->getSelects();
-
-        $records = $model->select($selects)
-            ->whereIn('id', $ids)
             ->get()
             ->toArray();
 
@@ -145,7 +85,39 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
             return array($record['id'], $record);
         });
 
+        if ($loadRelated) {
+            $records = $this->loadRelatedFor($records);
+        }
+
         return $this->app['contents.factory']->create($records, $this->contentType);
+    }
+
+    /**
+     * @return \Bolt\Core\Content\ContentCollection
+     */
+    public function all($loadRelated = true)
+    {
+        return $this->get(array(), $loadRelated, null, null, null, null);
+    }
+
+    public function find($id, $loadRelated = true)
+    {
+        $wheres = array($this->contentType->getKey() . '.id' => $id);
+
+        return $this->findBy($wheres, $loadRelated);
+    }
+
+    public function findBy($wheres, $loadRelated = true)
+    {
+        return $this->get($wheres, $loadRelated)
+            ->first();
+    }
+
+    public function count()
+    {
+        $model = $this->model;
+
+        return $model->count();
     }
 
     public function loadRelatedFor($records) {
@@ -173,30 +145,30 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
         // glue it back together
         foreach ($records as &$record) {
             $incoming = array();
-            foreach($record['incoming'] as $other) {
-                $contentTypeKey = $other['from_type'];
-                $other = $related[$contentTypeKey]->get($other['from_id']);
+            foreach($record['incoming'] as $relation) {
+                $contentTypeKey = $relation['from_type'];
+                $other = $related[$contentTypeKey]->get($relation['from_id']);
                 if ( ! $other) continue;
                 $incoming[$contentTypeKey][$other->get('id')] = $other->get();
             }
             $record['incoming'] = array();
-            foreach($incoming as $contentTypeKey => $attributes) {
-                $record['incoming'][$contentTypeKey] = $this->app['contents.factory']->create($attributes, $this->app['contenttypes']->get($contentTypeKey));
+            foreach($incoming as $contentTypeKey => $contents) {
+                $record['incoming'][$contentTypeKey] = $this->app['contents.factory']->create($contents, $this->app['contenttypes']->get($contentTypeKey));
             }
 
             $outgoing = array();
-            foreach($record['outgoing'] as $other) {
-                $contentTypeKey = $other['to_type'];
-                $other = $related[$contentTypeKey]->get($other['to_id']);
+            foreach($record['outgoing'] as $relation) {
+                $contentTypeKey = $relation['to_type'];
+                $other = $related[$contentTypeKey]->get($relation['to_id']);
                 if ( ! $other) continue;
                 $outgoing[$contentTypeKey][$other->get('id')] = $other->get();
             }
+
             $record['outgoing'] = array();
-            foreach($outgoing as $contentTypeKey => $attributes) {
-                $record['outgoing'][$contentTypeKey] = $this->app['contents.factory']->create($attributes, $this->app['contenttypes']->get($contentTypeKey));
+            foreach($outgoing as $contentTypeKey => $contents) {
+                $record['outgoing'][$contentTypeKey] = $this->app['contents.factory']->create($contents, $this->app['contenttypes']->get($contentTypeKey));
             }
         }
-
         return $records;
     }
 
@@ -209,7 +181,12 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
             $attributes['id'] = $this->uuid();
         }
 
-        $result = $this->getModel()
+        $defaultFields = $this->contentType
+            ->getDefaultFields();
+        $attributes[$defaultFields->forPurpose('datecreated')->getKey()] = new DateTime();
+        $attributes[$defaultFields->forPurpose('datechanged')->getKey()] = new DateTime();
+
+        $result = $this->model
             ->create($attributes);
 
         if ($result) {
@@ -224,8 +201,12 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
      */
     public function update($id, $attributes)
     {
-        $model = $this->getModel()
+        $model = $this->model
             ->find($id);
+
+        $defaultFields = $this->contentType
+            ->getDefaultFields();
+        $attributes[$defaultFields->forPurpose('datechanged')->getKey()] = new DateTime();
 
         if ($model) {
             $model->fill($attributes);
@@ -240,7 +221,7 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
 
     public function delete($id)
     {
-        $model = $this->getModel()
+        $model = $this->model
             ->find($id);
 
         if ( ! $model) {
@@ -299,12 +280,9 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
         }
     }
 
-    /**
-     * @return Illuminate\Database\Eloquent\Model
-     */
-    protected function getModel()
+    protected function findMany($ids)
     {
-        return $this->model;
+        return $this->get(array($this->contentType->getKey() . '.id' => $ids), false);
     }
 
     protected function getSelects()

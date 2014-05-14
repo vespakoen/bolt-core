@@ -23,9 +23,9 @@
 {% endfor %}
 
 {% if relation.get('multiple', false) %}
-<select name='outgoing[{{relation.getOther}}][]' id='relation-{{relation.getOther}}' class='wide' multiple data-placeholder="(none)">
+<select name='links[{{relation.getOther}}][]' id='relation-{{relation.getOther}}' class='wide' multiple data-placeholder="(none)">
 {% else %}
-<select name='outgoing[{{relation.getOther}}][]' id='relation-{{relation.getOther}}' class='wide' data-placeholder="(none)">
+<select name='links[{{relation.getOther}}][]' id='relation-{{relation.getOther}}' class='wide' data-placeholder="(none)">
 {% endif %}
 </select>
 <script>

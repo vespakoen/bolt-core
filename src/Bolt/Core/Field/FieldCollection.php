@@ -118,6 +118,19 @@ class FieldCollection extends Collection
         });
     }
 
+    public function filterByOption($key, $value)
+    {
+        return $this->filter(function($field) use ($key, $value) {
+            return $field->get($key) == $value;
+        });
+    }
+
+    public function forPurpose($purpose)
+    {
+        return $this->filterByOption('purpose', $purpose)
+            ->first();
+    }
+
     public function getTextFields()
     {
         return $this->filterByTypeKeys(array(
