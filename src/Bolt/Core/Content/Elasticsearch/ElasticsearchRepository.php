@@ -7,6 +7,8 @@ use Bolt\Core\Content\WriteRepositoryInterface;
 
 use Illuminate\Database\Query\Expression;
 
+use DateTime;
+
 class ElasticsearchRepository implements WriteRepositoryInterface
 {
     public function __construct($app, $client, ContentType $contentType)
@@ -34,6 +36,8 @@ class ElasticsearchRepository implements WriteRepositoryInterface
         );
 
         $this->client->index($params);
+
+        return true;
     }
 
     /**
@@ -54,6 +58,8 @@ class ElasticsearchRepository implements WriteRepositoryInterface
         );
 
         $this->client->index($params);
+
+        return true;
     }
 
     public function delete($id)
@@ -68,6 +74,8 @@ class ElasticsearchRepository implements WriteRepositoryInterface
         );
 
         $this->client->delete($params);
+
+        return true;
     }
 
     public function updateRelations($fromId, $relations)
@@ -110,6 +118,11 @@ class ElasticsearchRepository implements WriteRepositoryInterface
         foreach ($attributes as $key => $value) {
             if (substr($key, 0, 4) == 'date') {
                 $newKey = str_replace('date', 'date_', $key);
+
+                if ($value instanceof DateTime) {
+                    $value = $value->format('Y-m-d H:i:s');
+                }
+
                 $attributes[$newKey] = $value;
                 unset($attributes[$key]);
             }
