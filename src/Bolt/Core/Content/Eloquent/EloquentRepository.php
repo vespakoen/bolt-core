@@ -8,8 +8,6 @@ use Bolt\Core\Content\WriteRepositoryInterface;
 
 use Illuminate\Database\Query\Expression;
 
-use DateTime;
-
 class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInterface
 {
     public function __construct($app, $model, ContentType $contentType)
@@ -51,8 +49,10 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
         }
 
         if ($this->app['user'] && $filtered) {
-            if($this->contentType->getKey() == $this->app['config']->get('app/project/contenttype')) {
-                return $this->app['user']->getProjects();
+            $projectKey = $this->app['config']->get('app/project/contenttype');
+            if($this->contentType->getKey() == $projectKey) {
+                $projectIds = $this->app['user']->getProjects()->keys();
+                return $this->get(array($projectKey.'.id' => $projectIds), $loadRelated, false);
             } else {
                 $otherId = $this->app['session']->get('project_id');
                 $recordsQuery
@@ -181,11 +181,6 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
             $attributes['id'] = $this->uuid();
         }
 
-        $defaultFields = $this->contentType
-            ->getDefaultFields();
-        $attributes[$defaultFields->forPurpose('datecreated')->getKey()] = new DateTime();
-        $attributes[$defaultFields->forPurpose('datechanged')->getKey()] = new DateTime();
-
         $result = $this->model
             ->create($attributes);
 
@@ -203,10 +198,6 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
     {
         $model = $this->model
             ->find($id);
-
-        $defaultFields = $this->contentType
-            ->getDefaultFields();
-        $attributes[$defaultFields->forPurpose('datechanged')->getKey()] = new DateTime();
 
         if ($model) {
             $model->fill($attributes);
