@@ -20,7 +20,7 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
     /**
      * @return \Bolt\Core\Content\ContentCollection
      */
-    public function get($wheres = array(), $loadRelated = true, $filtered = true, $sort = null, $order = 'asc', $offset = 0, $limit = 10, $search = null)
+    public function get($wheres = array(), $loadRelated = true, $filtered = true, $sort = null, $order = 'asc', $offset = null, $limit = null, $search = null)
     {
         $selects = $this->getSelects();
 
@@ -48,11 +48,11 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
             $recordsQuery = $recordsQuery->take($limit);
         }
 
-        if ($this->app['user'] && $filtered) {
+        if ($this->app['user'] && $filtered && empty($wheres)) {
             $projectKey = $this->app['config']->get('app/project/contenttype');
             if($this->contentType->getKey() == $projectKey) {
                 $projectIds = $this->app['user']->getProjects()->keys();
-                return $this->get(array($projectKey.'.id' => $projectIds), $loadRelated, false);
+                return $this->get(array($projectKey . '.id' => $projectIds), true, false);
             } else {
                 $otherId = $this->app['session']->get('project_id');
                 $recordsQuery

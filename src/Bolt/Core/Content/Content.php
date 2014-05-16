@@ -42,6 +42,11 @@ class Content implements ArrayableInterface
         return $this->get($method);
     }
 
+    public function __get($key)
+    {
+        return $this->get($key);
+    }
+
     public function toArray()
     {
         $attributes = $this->attributes;

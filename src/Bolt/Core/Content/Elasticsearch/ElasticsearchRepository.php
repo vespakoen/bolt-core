@@ -89,16 +89,18 @@ class ElasticsearchRepository implements WriteRepositoryInterface
         $links = array();
         if (array_key_exists('outgoing', $attributes)) {
             foreach ($attributes['outgoing'] as $type => $related) {
-                if($type == $this->app['config']->get('app/project/contenttype')) continue;
-                $links = array_merge($links, array_keys($related));
+                if ($type !== $this->app['config']->get('app/project/contenttype')) {
+                    $links = array_merge($links, array_keys($related));
+                }
             }
         }
 
         $relations = $this->contentType->getRelations();
         if (array_key_exists('links', $attributes)) {
             foreach ($attributes['links'] as $type => $ids) {
-                if($type == $this->app['config']->get('app/project/contenttype') || $relations->get($type)->get('inverted', false) == true) continue;
-                $links = array_merge($links, $ids);
+                if ($type !== $this->app['config']->get('app/project/contenttype')) {
+                    $links = array_merge($links, $ids);
+                }
             }
         }
         unset($attributes['incoming']);
