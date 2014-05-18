@@ -144,6 +144,12 @@ class ElasticsearchRepository implements WriteRepositoryInterface
 
         ksort($attributes);
 
+        foreach($attributes as $key => $value) {
+            if ($value === "") {
+                $attributes[$key] = null;
+            }
+        }
+
         return $attributes;
     }
 

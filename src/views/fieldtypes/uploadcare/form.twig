@@ -8,7 +8,7 @@
         data-images-only="true"
         data-path-value="true"
         data-preview-step="true"
-        data-clearable="false"
+        data-clearable="{{ 'required' in field.get('rules', []) }}"
         data-multiple="false"
         data-crop="{{field.get('crop/w', 1) }}:{{ field.get('crop/h', 1) }} minimum">
 
