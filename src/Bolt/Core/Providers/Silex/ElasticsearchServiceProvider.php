@@ -2,6 +2,8 @@
 
 namespace Bolt\Core\Providers\Silex;
 
+use Bolt\Core\Content\Elasticsearch\ElasticsearchManager;
+
 use Elasticsearch\Client;
 
 use Silex\Application;
@@ -15,6 +17,10 @@ class ElasticsearchServiceProvider implements ServiceProviderInterface
 
         $app['elasticsearch'] = $app->share(function($app) {
             return new Client($app['elasticsearch.options']);
+        });
+
+        $app['elasticsearch.manager'] = $app->share(function($app) {
+            return new ElasticsearchManager($app, $app['elasticsearch']);
         });
     }
 
