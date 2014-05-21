@@ -217,8 +217,14 @@ class ContentType extends ConfigObject
     public function getDefaultFields()
     {
         $config = $this->app['config']->get('defaultfields');
+        $fields = $this->app['fields.factory']->fromConfig($config);
 
-        return $this->app['fields.factory']->fromConfig($config);
+        if ($this->get('sortable', false) == false) {
+            $weightFieldKey = $fields->forPurpose('weight')->getKey();
+            $fields->forget($weightFieldKey);
+        }
+
+        return $fields;
     }
 
     /**

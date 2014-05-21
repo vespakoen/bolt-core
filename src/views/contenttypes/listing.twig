@@ -57,8 +57,13 @@
                             <i class="icon-trash"></i> {{ __('Delete %contenttype%',{'%contenttype%': content.contentType.singular_name}) }}</a></li>
                         {# {% endif %} #}
                         <li class="divider"></li>
-
-                        <li><a class="nolink">{{__('Author:') }} <strong><i class="icon-user"></i>
+                        {% if content.contentType.get('sortable') %}
+                        <li><a href="{{ path('reorder', { 'contentTypeKey': content.contentType.key, 'id': content.id, 'direction': 'up' }) }}"><i class="fa fa-arrow-up pull-left"></i> Move up</a></li>
+                        <li><a href="{{ path('reorder', { 'contentTypeKey': content.contentType.key, 'id': content.id, 'direction': 'down' }) }}"><i class="fa fa-arrow-down pull-left"></i> Move down</a></li>
+                        {# <li><a href="#"><i class="fa fa-random pull-left"></i> Move to position</li> #}
+                        <li class="divider"></li>
+                        {% endif %}
+                        {# <li><a class="nolink">{{__('Author:') }} <strong><i class="icon-user"></i>
                             {% if content.user.displayname is defined %}
                                 {{ content.user.displayname|trimtext(15) }}
                             {% else %}
@@ -67,7 +72,7 @@
                         <li><a class="nolink">{{ __('Current status:') }}
                             <strong>{{ content.status }}</strong></a></li>
                         <li><a class="nolink">{{ __('Slug:') }}
-                            <code title="{{ content.slug }}">{{ content.slug|trimtext(24) }}</code></a></li>
+                            <code title="{{ content.slug }}">{{ content.slug|trimtext(24) }}</code></a></li> #}
                         <li><a class="nolink">{{ __('Created on:') }}
                             <i class="icon-asterisk"></i> {{ content.datecreated|date("Y-m-d H:i") }}</a></li>
                         <li><a class="nolink">{{ __('Published on:') }}
