@@ -20,12 +20,10 @@ class ControllerServiceProvider implements ServiceProviderInterface
         $app['controller.admin'] = $app->share(function($app) {
             return new Admin($app);
         });
-        // $app['controller.admin']->connect($app);
 
         $app['controller.async'] = $app->share(function($app) {
             return new Async($app);
         });
-        // $app['controller.async']->connect($app);
     }
 
     public function boot(Application $app)
