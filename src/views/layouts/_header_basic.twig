@@ -7,7 +7,7 @@
         {{ app.config.get('general/branding/name') }}
         {% if title is defined %}- {{ title|striptags }}{% endif %}
     </title>
-    <link rel="stylesheet" href="/css/style.css" type="text/css">
+    <link rel="stylesheet" href="/css/admin.css" type="text/css">
     <link rel="shortcut icon" href="/img/favicon-bolt.ico">
     <link rel="apple-touch-icon" sizes="57x57" href="/img/apple-touch-icon.png">
     <link rel="apple-touch-icon" sizes="72x72" href="/img/apple-touch-icon-72x72.png">
@@ -37,7 +37,7 @@
         };
     </script>
     <script src="https://ucarecdn.com/widget/1.0.1/uploadcare/uploadcare-1.0.1.min.js"></script>
-    <script src="/js/scripts.js"></script>
+    <script src="/js/admin.js"></script>
     <script>
         L.Icon.Default.imagePath = leaflet_path;
         moment.lang('{{ app.locale|default('en') }}');
