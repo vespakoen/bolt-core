@@ -4,7 +4,8 @@
         class="form-control"
         style="width: 20px"
         type="text"
-        {% if value %}selected="selected"{% endif %}>
+        value="1"
+        {% if value == true %}checked="checked"{% endif %}>
 
     {% for error in errors %}
     <span class="help-block">{{ __(error) }}</span>

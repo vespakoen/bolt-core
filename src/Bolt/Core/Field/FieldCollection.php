@@ -118,6 +118,18 @@ class FieldCollection extends Collection
         });
     }
 
+    public function filterByTypeType($typeType)
+    {
+        return $this->filterByTypeTypes(array($typeType));
+    }
+
+    public function filterByTypeTypes($typeTypes)
+    {
+      return $this->filter(function($field) use ($typeTypes) {
+        return in_array($field->getType()->getType(), $typeTypes);
+      });
+    }
+
     public function filterByOption($key, $value)
     {
         return $this->filter(function($field) use ($key, $value) {

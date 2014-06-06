@@ -202,6 +202,7 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
         if ($model) {
             $model->fill($attributes);
             $result = $model->save();
+
             if ($result) {
                 return $model->toArray();
             }

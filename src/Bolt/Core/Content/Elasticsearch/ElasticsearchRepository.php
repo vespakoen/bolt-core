@@ -113,8 +113,12 @@ class ElasticsearchRepository implements WriteRepositoryInterface
             foreach ($field->get('cutouts', array()) as $key => $dimensions) {
                 $w = $dimensions['w'];
                 $h = $dimensions['h'];
-                $attributes[$field->getKey().'_'.$key] = empty($attributes[$field->getKey()]) ? '' : $attributes[$field->getKey()].'-/scale_crop/'.round($w).'x'.round($h).'/center/img.jpg';
+                $attributes[$field->getKey().'_'.$key] = empty($attributes[$field->getKey()]) ? '' : $attributes[$field->getKey()].'-/scale_crop/'.round($w).'x'.round($h).'/center/';
             }
+        }
+
+        foreach ($fields->filterByTypeType('boolean') as $field) {
+            $attributes[$field->getKey()] = (bool) $attributes[$field->getKey()];
         }
 
         foreach ($attributes as $key => $value) {
