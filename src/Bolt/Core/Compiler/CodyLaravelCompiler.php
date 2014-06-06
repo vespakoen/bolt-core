@@ -187,6 +187,9 @@ class CodyLaravelCompiler
         foreach($contentType->getRelations() as $relation)
         {
             $relationKey = $relation->getKey();
+            if($relationKey !== "otherOutgoing" && $relationKey !== "otherIncoming") {
+                continue;
+            }
             $otherKey = $relation->getOther();
             $otherContentType = $this->app['contenttypes']->get($otherKey);
             $relations[$relationKey] = array_merge($relation->getOptions(), array(
