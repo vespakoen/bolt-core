@@ -101,12 +101,24 @@ class ElasticsearchManager
             return false;
         }
 
+        $projectKey = $this->app['config']->get('app/project/contenttype');
+
+        $projectNamespaceToIdMap = $this->app['user']->getProjects()
+            ->lists('id', 'namespace');
+
         // remember the original namespace so we can put it back later
         $originalProjectNamespace = $this->app['session']->get('project_namespace');
         $this->app['session']->set('project_namespace', $namespace);
 
         $contentTypeKey = $contentType->getKey();
-        $contents = $this->app['repository.eloquent.' . $contentTypeKey]->get(array(), true, $namespace !== "trapps");
+
+        $wheres = array();
+        if ($namespace !== "trapps") {
+            $projectId = $projectNamespaceToIdMap[$namespace];
+            $wheres = array('incoming.to_id' => $projectId);
+        }
+
+        $contents = $this->app['repository.eloquent.' . $contentTypeKey]->get($wheres, true);
         foreach ($contents as $content) {
             $attributes = $content->toArray();
 

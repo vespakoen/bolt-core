@@ -137,6 +137,18 @@ class FieldCollection extends Collection
         });
     }
 
+    public function filterByGroup()
+    {
+        $groups = array_unique($this->listsOption('group'));
+
+        $results = array();
+        foreach($groups as $group) {
+            $results[$group] = $this->filterByOption('group', $group);
+        }
+
+        return new Collection($results);
+    }
+
     public function forPurpose($purpose)
     {
         return $this->filterByOption('purpose', $purpose)

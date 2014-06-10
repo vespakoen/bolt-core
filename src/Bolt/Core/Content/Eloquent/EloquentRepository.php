@@ -20,7 +20,7 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
     /**
      * @return \Bolt\Core\Content\ContentCollection
      */
-    public function get($wheres = array(), $loadRelated = true, $filtered = true, $sort = null, $order = 'asc', $offset = null, $limit = null, $search = null)
+    public function get($wheres = array(), $loadRelated = true, $sort = null, $order = 'asc', $offset = null, $limit = null, $search = null)
     {
         $selects = $this->getSelects();
 
@@ -31,7 +31,6 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
         }
 
         $recordsQuery = $recordsQuery->select($selects);
-
         foreach ($wheres as $key => $value) {
             if (is_array($value) && count($value) > 0) {
                 $recordsQuery = $recordsQuery->whereIn($key, $value);
@@ -48,17 +47,8 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
             $recordsQuery = $recordsQuery->take($limit);
         }
 
-        if ($this->app['user'] && $filtered && empty($wheres)) {
-            $projectKey = $this->app['config']->get('app/project/contenttype');
-            if($this->contentType->getKey() == $projectKey) {
-                $projectIds = $this->app['user']->getProjects()->keys();
-                return $this->get(array($projectKey . '.id' => $projectIds), true, false);
-            } else {
-                $otherId = $this->app['session']->get('project_id');
-                $recordsQuery
-                    ->join('relations', $this->contentType->getTableName().'.id', '=', 'relations.from_id')
-                    ->where('relations.to_id', '=', $otherId);
-            }
+        foreach ($this->getRelationTableJoin($wheres) as $join) {
+            $recordsQuery->join($join['table'], $join['left'], '=', $join['right']);
         }
 
         if ( ! is_null($search)) {
@@ -90,6 +80,43 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
         }
 
         return $this->app['contents.factory']->create($records, $this->contentType);
+    }
+
+    /**
+     * This method checks for the presence of 'incoming' or 'outgoing'
+     * table names in the provided where clauses and returns an array
+     * of joins that should be made
+     *
+     * @param  array $wheres  An array of where clauses
+     * @return array          An array of joins that need to be made for the where clauses
+     */
+    protected function getRelationTableJoin($wheres)
+    {
+        $joins = array();
+        foreach($wheres as $tableAndColumn => $value) {
+            // split the table and the column name
+            list($table, $column) = explode('.', $tableAndColumn);
+
+            // join relations (AS "incoming") on from_id if the table name is incoming
+            if ($table == 'incoming') {
+                $joins[] = array(
+                    'table' => 'relations AS incoming',
+                    'left' => $this->contentType->getTableName().'.id',
+                    'right' => 'incoming.from_id'
+                );
+            }
+
+            // join relations (AS "outgoing") on to_id if the table name is outgoing
+            if ($table == 'outgoing') {
+                $joins[] = array(
+                    'table' => 'relations AS outgoing',
+                    'left' => $this->contentType->getTableName().'.id',
+                    'right' => 'outgoing.to_id'
+                );
+            }
+        }
+
+        return $joins;
     }
 
     /**

@@ -118,7 +118,7 @@ class ElasticsearchRepository implements WriteRepositoryInterface
         }
 
         foreach ($fields->filterByTypeType('boolean') as $field) {
-            $attributes[$field->getKey()] = (bool) $attributes[$field->getKey()];
+            $attributes[$field->getKey()] = (bool) array_get($attributes, $field->getKey());
         }
 
         foreach ($attributes as $key => $value) {

@@ -9,7 +9,7 @@
         data-path-value="true"
         data-preview-step="true"
         data-clearable="{{ 'required' in field.get('rules', []) }}"
-        data-multiple="false"
+        data-multiple="{{ field.get('multiple', 'false') }}"
         data-crop="{{field.get('crop/w', 1) }}:{{ field.get('crop/h', 1) }} minimum">
 
     {% for error in errors %}

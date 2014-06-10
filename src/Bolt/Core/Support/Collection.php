@@ -18,4 +18,26 @@ class Collection extends IlluminateCollection
         });
     }
 
+    /**
+     * Get an array with the values of a given key.
+     *
+     * @param  string  $value
+     * @param  string  $key
+     * @return array
+     */
+    public function listsOption($value, $key = null)
+    {
+        $results = array();
+
+        $counter = 0;
+        foreach ($this as $item) {
+            $resultKey = $key == null ? $counter : $item->get($key);
+            $resultValue = $item->get($value);
+            $results[$resultKey] = $resultValue;
+            $counter++;
+        }
+
+        return $results;
+    }
+
 }

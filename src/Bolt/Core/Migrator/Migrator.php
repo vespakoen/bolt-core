@@ -35,7 +35,7 @@ class Migrator
            try {
                 $db->query($query);
             } catch(\Exception $e) {
-                var_dump($e);
+                // var_dump($e);
             }
         }
     }
