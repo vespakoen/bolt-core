@@ -35,7 +35,7 @@
         searchField: 'title',
         options: {{ options|json_encode()|raw }},
         load: function(query, callback) {
-            $.get('{{ path('async.content', {contentTypeKey: relation.getOther}) }}', function(results) {
+            $.get('{{ path('async.content', {contentTypeKey: relation.getOther, originatorContentTypeKey: content.contentType.getKey}) }}', function(results) {
                 var data = [];
                 _.each(results, function(result) {
                     data.push({
