@@ -16,12 +16,12 @@ class FieldType
         return new $fieldTypeClass($this->app, $key, $type, $options);
     }
 
-    public function fromConfig($key, $config = array())
+    public function fromConfig($key, $options = array())
     {
         $fieldTypeClass = $this->getFieldTypeClass();
 
-        $type = array_get($config, 'doctrine.type');
-        $options = array_except(array_get($config, 'doctrine'), array('type'));
+        $type = array_get($options, 'doctrine.type');
+        $options = array_except($options, array('type'));
 
         return new $fieldTypeClass($this->app, $key, $type, $options);
     }

@@ -6,25 +6,26 @@
         <tr>
             {% if listingColumns %}
             {% for fieldKey in listingColumns %}
-            <td style="vertical-align: middle">
-                {{ fields.get(fieldKey).getViewForListing(content)|raw }}
+            {% set field = fields.get(fieldKey) %}
+            <td style="vertical-align: middle{% if field.getPurpose == "image" and loop.index == 1 %}; width: 70px{% endif %}">
+                {{ field.getViewForListing(content)|raw }}
             </td>
             {% endfor %}
             {% else %}
             {% set imageField = contentType.getImageField %}
             {% if imageField %}
-            <td style="vertical-align: middle">
+            <td style="vertical-align: middle; width: 70px">
                 {{ imageField.getViewForListing(content)|raw }}
             </td>
             {% endif %}
             {% set titleField = contentType.getTitleField %}
             {% if titleField %}
-            <td style="vertical-align: middle">
+            <td style="vertical-align: middle;">
                 <span class="h4">{{ titleField.getViewForListing(content)|raw }}</span>
             </td>
             {% endif %}
             {% endif %}
-            <td class="actions" style="text-align: right">
+            <td class="actions" style="vertical-align: middle; text-align: right; width: 190px;">
                 <div style="" class="btn-group">
                     <a class="btn btn-primary btn-mini" href="{{ path('manage', { 'contentTypeKey': content.contentType.key, 'id': content.id }) }}">
                         <i class="icon-edit"></i> {{ __('Edit') }}

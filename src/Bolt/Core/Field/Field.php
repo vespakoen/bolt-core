@@ -78,10 +78,17 @@ class Field extends ConfigObject implements ArrayableInterface
         return array($this->getKey() => $rules);
     }
 
+    public function getPurpose()
+    {
+        $type = $this->getType();
+
+        return $type->get('purpose');
+    }
+
     public function addColumnTo($table, $key)
     {
         $type = $this->getType();
-        $table->addColumn($key, $type->getType(), $type->getOptions());
+        $table->addColumn($key, $type->getType(), array_except($type->get('doctrine'), array('type')));
 
         if($this->hasIndex()) {
             $table->addIndex($key);
