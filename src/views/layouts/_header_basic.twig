@@ -17,6 +17,7 @@
         UPLOADCARE_PUBLIC_KEY = 'ccc0b7396e7fd4654e6e';
         UPLOADCARE_PATH_VALUE = true;
         UPLOADCARE_PREVIEW_STEP = true;
+        UPLOADCARE_AUTOSTORE = true;
 
         var leaflet_path="/leaflet";
         var ckeditor_lang="{{ app.locale|default('en') }}";
@@ -36,7 +37,7 @@
            {%  if app.config.get('general/wysiwyg/filebrowser') is iterable %}filebrowser: {{ app.config.get('general/wysiwyg/filebrowser')|json_encode()|raw }}{% else %}filebrowser: false{% endif %}
         };
     </script>
-    <script src="https://ucarecdn.com/widget/1.0.1/uploadcare/uploadcare-1.0.1.min.js"></script>
+    <script src="https://ucarecdn.com/widget/1.2.3/uploadcare/uploadcare-1.2.3.min.js"></script>
     <script src="/js/admin.js"></script>
     <script>
         L.Icon.Default.imagePath = leaflet_path;
