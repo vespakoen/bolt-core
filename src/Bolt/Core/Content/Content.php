@@ -18,6 +18,11 @@ class Content implements ArrayableInterface
         return array_get($this->attributes, $key, $default);
     }
 
+    public function setAttribute($key, $value)
+    {
+        array_set($this->attributes, $key, $value);
+    }
+
     public function get($key = null, $default = null)
     {
         if (is_null($key)) {
