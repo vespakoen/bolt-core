@@ -1,29 +1,57 @@
 <?php
 
-// Autoloading
-require 'vendor/autoload.php';
+$paths = array(
+    'app' => __DIR__.'/../app',
+    'public' => __DIR__.'/../public',
+    'base' => __DIR__.'/..',
+    'storage' => __DIR__.'/../app/storage',
+    'vendor' => __DIR__.'/../vendor'
+);
 
-// We need some helper methods from Laravel for convenience.
-// At the time of writing this, I have only used "array_get" and, sorry to admit "dd" so far.
-require 'vendor/illuminate/support/Illuminate/Support/helpers.php';
+require $paths['vendor'].'/autoload.php';
 
-// Use some stuff
-use Bolt\Core\App;
+if ( ! isset($_SERVER['BOLT_ENV'])) {
+    $_SERVER['BOLT_ENV'] = 'development';
+}
 
-// Create the app instance
-$app = new App;
+$app = new Bolt\Core\App(array(
+    'debug' => true,
+    'env' => $_SERVER['BOLT_ENV'],
+    'paths' => $paths,
+    'locale' => 'nl',
+    'config.files' => array(
+        'app',
+        'contenttypes',
+        'defaultfields',
+        'fieldtypes'
+    ),
+));
 
-dd(App::make('config')->getData(), App::make('config')->get());
+$needsRecompile = $app['env'] == "development";
+if ($needsRecompile) {
+    $app['compiler.cody.laravel']->compile();
+    $app['compiler.cody.elasticsearch']->compile();
+} else {
+    $app['compiler.cody.laravel']->register();
+    $app['compiler.cody.elasticsearch']->register();
+}
 
-// $db = App::make('db');
+$app->register(new Bolt\Provider\Silex\ControllerProvider);
+$app->register(new Bolt\Provider\Silex\AuthProvider);
 
-// $schemaManager = $db->getSchemaManager();
-// $fromSchema = $schemaManager->createSchema();
+$app->boot();
 
-// $toSchema = clone $fromSchema;
-// $toSchema->createTable('users')
-// 	->addColumn("id", "integer");
+$app['twig']->addGlobal('paths', $app['paths']);
+$app['twig']->addExtension(new \Bolt\TwigExtension($app));
 
-// $sql = $fromSchema->getMigrateToSql($toSchema, $db->getDatabasePlatform());
+$app->mount('/', $app['controller.frontend']);
+$app->mount($app['config']->get('app/branding/path'), $app['controller.admin']);
+$app->mount($app['config']->get('app/branding/path').'/async', $app['controller.async']);
 
-// dd($sql);
+// maybe add some custom types
+use Doctrine\DBAL\Types\Type;
+Type::addType('point', 'CrEOF\Spatial\DBAL\Types\Geometry\PointType');
+Type::addType('linestring', 'CrEOF\Spatial\DBAL\Types\Geometry\LineStringType');
+Type::addType('geometry', 'CrEOF\Spatial\DBAL\Types\GeometryType');
+
+$app->run();
