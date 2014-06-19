@@ -2,22 +2,21 @@
 <input type="hidden" name="{{key}}" class="form-control" id="field-{{key}}" value="{{ value }}">
 <script>
     $(document).ready(function() {
-        var map = L.map('map')
+        window.pointLeafletMap = L.map('map')
             .setView([50.505, 5.09], 7);
 
         // add an OpenStreetMap tile layer
         L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+        }).addTo(window.pointLeafletMap);
 
         {% if value %}
         var point = {{value|raw}};
-        var featureGroup = L.geoJson(point).addTo(map);
-        map.fitBounds(featureGroup.getBounds());
+        var featureGroup = L.geoJson(point).addTo(window.pointLeafletMap);
+        window.pointLeafletMap.fitBounds(featureGroup.getBounds());
         {% else %}
-        var featureGroup = L.featureGroup().addTo(map);
+        var featureGroup = L.featureGroup().addTo(window.pointLeafletMap);
         {% endif %}
-
 
         var editControl = new L.Control.Draw({
             edit: {
@@ -44,20 +43,24 @@
         });
 
         {% if value %}
-        map.addControl(editControl);
+        window.pointLeafletMap.addControl(editControl);
         {% else %}
-        map.addControl(drawControl);
+        window.pointLeafletMap.addControl(drawControl);
         {% endif %}
 
-        map.on('draw:created', function(e) {
-            map.removeControl(drawControl);
-            map.addControl(editControl);
+        window.pointLeafletMap.on('draw:created', function(e) {
+            window.pointLeafletMap.removeControl(drawControl);
+            window.pointLeafletMap.addControl(editControl);
             featureGroup.addLayer(e.layer);
-            var layer = e.layer;
-            $('#field-{{key}}').val(JSON.stringify(layer.toGeoJSON().geometry));
+            var geoJson = e.layer.toGeoJSON();
+            if(geoJson.features) {
+                $('#field-{{key}}').val(JSON.stringify(geoJson.features[0].geometry));
+            } else {
+                $('#field-{{key}}').val(JSON.stringify(geoJson.geometry));
+            }
         });
 
-        map.on('draw:edited', function(e) {
+        window.pointLeafletMap.on('draw:edited', function(e) {
             var layers = e.layers;
             layers.eachLayer(function(layer) {
                 $('#field-{{key}}').val(JSON.stringify(layer.toGeoJSON().geometry));

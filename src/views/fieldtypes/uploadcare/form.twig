@@ -1,5 +1,5 @@
 <div class="form-group{% if errors|length > 0 %} has-error{% endif %}">
-    <img class="img-rounded" id="uploadcare-preview-{{ key }}" src="{% if value %}{{ value }}-/scale_crop/200x200/center/img.jpg{% endif %}" style="max-width: 30%; float: right;">
+    <img class="img-rounded" id="uploadcare-preview-{{ key }}" src="{% if value %}{{ value }}-/scale_crop/200x200/center/{% endif %}" style="max-width: 30%; float: right;">
 
     <input type="hidden" role="uploadcare-uploader" class="form-control" name="{{ key }}" id="field-{{ key }}"
         value="{{ value }}"
@@ -21,7 +21,22 @@
     var widget = uploadcare.Widget('#field-{{ key }}');
     widget.onUploadComplete(function(info) {
         if(info.cdnUrl) {
-            document.getElementById('uploadcare-preview-{{ key }}').setAttribute('src', info.cdnUrl + '-/scale_crop/200x200/center/img.jpg');
+            if (window.pointLeafletMap && info.originalImageInfo.geo_location) {
+                var feature = L.geoJson({
+                    "type": "Point",
+                    "coordinates": [
+                        info.originalImageInfo.geo_location.longitude,
+                        info.originalImageInfo.geo_location.latitude
+                    ]
+                });
+
+                feature.addTo(window.pointLeafletMap)
+                window.pointLeafletMap.fire('draw:created', {layer: feature});
+                setTimeout(function() {
+                    window.pointLeafletMap.fitBounds(feature.getBounds());
+                }, 0);
+            }
+            document.getElementById('uploadcare-preview-{{ key }}').setAttribute('src', info.cdnUrl + '-/scale_crop/200x200/center/');
         }
     });
 </script>

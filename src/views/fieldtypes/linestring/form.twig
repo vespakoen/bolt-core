@@ -9,20 +9,20 @@
 
 <script>
     $(document).ready(function() {
-        var map = L.map('map')
+        window.lineStringLeafletMap = L.map('map')
             .setView([50.8502, 5.699], 13);
 
         // add an OpenStreetMap tile layer
         L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+        }).addTo(window.lineStringLeafletMap);
 
         {% if value %}
         var line = {{value|raw}};
         var feature = L.geoJson(line);
-        feature.addTo(map);
+        feature.addTo(window.lineStringLeafletMap);
         setTimeout(function() {
-            map.fitBounds(feature.getBounds());
+            window.lineStringLeafletMap.fitBounds(feature.getBounds());
         }, 0);
 
         var drawControl = new L.Control.Draw({
@@ -32,9 +32,9 @@
             },
             draw: false
         });
-        map.addControl(drawControl);
+        window.lineStringLeafletMap.addControl(drawControl);
         {% else %}
-        var featureGroup = L.featureGroup().addTo(map);
+        var featureGroup = L.featureGroup().addTo(window.lineStringLeafletMap);
         var drawControl = new L.Control.Draw({
             draw: {
                 polyline: true,
@@ -48,17 +48,16 @@
                 remove: false
             }
         });
-        map.addControl(drawControl);
+        window.lineStringLeafletMap.addControl(drawControl);
 
-        map.on('draw:created', function(e) {
-            console.log(e);
+        window.lineStringLeafletMap.on('draw:created', function(e) {
             featureGroup.addLayer(e.layer)
             var layer = e.layer;
             $('#field-{{key}}').val(JSON.stringify(layer.toGeoJSON().geometry));
         });
         {% endif %}
 
-        map.on('draw:edited', function(e) {
+        window.lineStringLeafletMap.on('draw:edited', function(e) {
             var layers = e.layers;
             layers.eachLayer(function(layer) {
                 $('#field-{{key}}').val(JSON.stringify(layer.toGeoJSON().geometry));
