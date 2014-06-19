@@ -247,6 +247,13 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
             return false;
         }
 
+        // clean up relationships
+        $relationModel = $this->app['model.eloquent.relations'];
+        $relationModel
+            ->where('to_id', '=', $id)
+            ->orWhere('from_id', '=', $id)
+            ->delete();
+
         return $model->delete();
     }
 
