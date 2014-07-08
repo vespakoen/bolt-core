@@ -2,8 +2,9 @@
 
 namespace Bolt\Core\Providers\Silex;
 
-use Bolt\Controller\Admin;
-use Bolt\Controller\Async;
+use Bolt\Core\Controller\Admin;
+use Bolt\Core\Controller\Frontend;
+use Bolt\Core\Controller\Async;
 
 use Silex\Application;
 use Silex\ServiceProviderInterface;
@@ -12,13 +13,12 @@ class ControllerServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        $this->registerAdminController($app);
-    }
-
-    protected function registerAdminController(Application $app)
-    {
         $app['controller.admin'] = $app->share(function($app) {
             return new Admin($app);
+        });
+
+        $app['controller.frontend'] = $app->share(function($app) {
+            return new Frontend($app);
         });
 
         $app['controller.async'] = $app->share(function($app) {
@@ -29,9 +29,4 @@ class ControllerServiceProvider implements ServiceProviderInterface
     public function boot(Application $app)
     {
     }
-
 }
-
-
-
-
