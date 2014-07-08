@@ -18,6 +18,7 @@ use Bolt\Core\Providers\Silex\EloquentServiceProvider;
 use Bolt\Core\Providers\Silex\MigratorServiceProvider;
 use Bolt\Core\Providers\Silex\IlluminateServiceProvider;
 use Bolt\Core\Providers\Silex\ElasticsearchServiceProvider;
+use Bolt\Core\Providers\Silex\ControllerServiceProvider;
 
 use Silex\Application;
 use Silex\Provider\TwigServiceProvider;
@@ -48,7 +49,6 @@ class App extends Application
 
         $this->register(new WhoopsServiceProvider);
         $this->register(new NotifyServiceProvider);
-        //$this->register(new PathsServiceProvider);
         $this->register(new TwigServiceProvider);
         $this->register(new SessionServiceProvider);
         $this->register(new IlluminateServiceProvider);
@@ -69,6 +69,7 @@ class App extends Application
         $this->register(new UrlGeneratorServiceProvider);
         $this->register(new ServiceControllerServiceProvider);
         $this->register(new ElasticsearchServiceProvider);
+        $this->register(new ControllerServiceProvider);
 
         $this->after(function() {
         });
