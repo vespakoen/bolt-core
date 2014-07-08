@@ -40,11 +40,16 @@ class ConfigServiceProvider implements ServiceProviderInterface
         $app['config.directories'] = $app->share(function ($app) {
             $paths = array();
 
-            if (isset($app['env'])) {
+            if (isset($app['env']) && ! is_null($app['env'])) {
                 $paths[] = $app['paths']['app'].'/config/'.$app['env'];
             }
 
+            if (isset($app['project']) && ! is_null($app['project'])) {
+                $paths[] = $app['paths']['app'].'/config/'.$app['project'];
+            }
+
             $paths[] = $app['paths']['app'].'/config/';
+
             return $paths;
         });
     }
