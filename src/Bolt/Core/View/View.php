@@ -4,10 +4,9 @@ namespace Bolt\Core\View;
 
 class View
 {
-    public function __construct($twig, $env, $file, $context = array())
+    public function __construct($twig, $file, $context = array())
     {
         $this->twig = $twig;
-        $this->env = $env;
         $this->file = $file;
         $this->context = $context;
     }

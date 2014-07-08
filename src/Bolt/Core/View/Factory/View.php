@@ -4,21 +4,22 @@ namespace Bolt\Core\View\Factory;
 
 class View
 {
-    public function __construct($app)
+    public function __construct($twig, $config)
     {
-        $this->app = $app;
+        $this->twig = $twig;
+        $this->config = $config;
     }
 
     public function create($file, $context = array())
     {
         $viewClass = $this->getViewClass();
 
-        return new $viewClass($this->app['twig'], $this->app['env'], $file, $context);
+        return new $viewClass($this->twig, $file, $context);
     }
 
     protected function getViewClass()
     {
-        return $this->app['config']->get('app/classes/view', 'Bolt\Core\View\View');
+        return $this->config->get('app/classes/view', 'Bolt\Core\View\View');
     }
 
 }

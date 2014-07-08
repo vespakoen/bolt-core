@@ -18,7 +18,7 @@ class ViewServiceProvider implements ServiceProviderInterface
     protected function registerViewFactories(Application $app)
     {
         $app['view.factory'] = $app->share(function ($app) {
-            return new View($app);
+            return new View($app['twig'], $app['config']);
         });
 
         $app['twig.loader'] = $app->share(function ($app) {
