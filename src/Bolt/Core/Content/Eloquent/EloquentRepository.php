@@ -2,13 +2,14 @@
 
 namespace Bolt\Core\Content\Eloquent;
 
+use Bolt\Core\Content\Repository;
 use Bolt\Core\ContentType\ContentType;
 use Bolt\Core\Content\ReadRepositoryInterface;
 use Bolt\Core\Content\WriteRepositoryInterface;
 
 use Illuminate\Database\Query\Expression;
 
-class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInterface
+class EloquentRepository extends Repository implements ReadRepositoryInterface, WriteRepositoryInterface
 {
     public function __construct($app, $model, ContentType $contentType)
     {
@@ -119,27 +120,6 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
         return $joins;
     }
 
-    /**
-     * @return \Bolt\Core\Content\ContentCollection
-     */
-    public function all($loadRelated = true)
-    {
-        return $this->get(array(), $loadRelated, null, null, null, null);
-    }
-
-    public function find($id, $loadRelated = true)
-    {
-        $wheres = array($this->contentType->getKey() . '.id' => $id);
-
-        return $this->findBy($wheres, $loadRelated);
-    }
-
-    public function findBy($wheres, $loadRelated = true)
-    {
-        return $this->get($wheres, $loadRelated)
-            ->first();
-    }
-
     public function count()
     {
         $model = $this->model;
@@ -202,16 +182,20 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
     /**
      * @return bool
      */
-    public function store($attributes)
+    public function store($input)
     {
-        if( ! array_key_exists('id', $attributes)) {
-            $attributes['id'] = $this->uuid();
+        if( ! array_key_exists('id', $input)) {
+            $input['id'] = $this->uuid();
         }
 
         $result = $this->model
-            ->create($attributes);
+            ->create($input);
 
         if ($result) {
+            if (array_key_exists('links', $input) && ! empty($input['links'])) {
+                $this->updateRelations($input['id'], $input['links']);
+            }
+
             return $result->toArray();
         }
 
@@ -221,16 +205,20 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
     /**
      * @return bool
      */
-    public function update($id, $attributes)
+    public function update($id, $input)
     {
         $model = $this->model
             ->find($id);
 
         if ($model) {
-            $model->fill($attributes);
+            $model->fill($input);
             $result = $model->save();
 
             if ($result) {
+                if (array_key_exists('links', $input) && ! empty($input['links'])) {
+                    $this->updateRelations($id, $input['links']);
+                }
+
                 return $model->toArray();
             }
         }
@@ -304,11 +292,6 @@ class EloquentRepository implements ReadRepositoryInterface, WriteRepositoryInte
         if(count($newRelations) > 0) {
             $relationModel->insert($newRelations);
         }
-    }
-
-    protected function findMany($ids)
-    {
-        return $this->get(array($this->contentType->getKey() . '.id' => $ids), false);
     }
 
     protected function getSelects()
