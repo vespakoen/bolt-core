@@ -1,6 +1,6 @@
 <?php
 
-namespace Bolt\Core\Content\Factory;
+namespace Bolt\Core\Config\Object\Collection\Factory;
 
 class ContentCollection
 {
@@ -30,7 +30,7 @@ class ContentCollection
 
     protected function getContentCollectionClass()
     {
-        return $this->app['config']->get('app/classes/contentcollection', 'Bolt\Core\Content\ContentCollection');
+        return $this->app['config']->get('app/classes/contentcollection', 'Bolt\Core\Config\Object\Collection\ContentCollection');
     }
 
 }

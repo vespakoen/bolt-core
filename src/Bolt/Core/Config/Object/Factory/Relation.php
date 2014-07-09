@@ -1,6 +1,6 @@
 <?php
 
-namespace Bolt\Core\Relation\Factory;
+namespace Bolt\Core\Config\Object\Factory;
 
 use Bolt\Core\App;
 
@@ -45,7 +45,7 @@ class Relation
 
     protected function getRelationClass()
     {
-        return $this->app['config']->get('app/classes/relation', 'Bolt\Core\Relation\Relation');
+        return $this->app['config']->get('app/classes/relation', 'Bolt\Core\Config\Object\Relation');
     }
 
 }

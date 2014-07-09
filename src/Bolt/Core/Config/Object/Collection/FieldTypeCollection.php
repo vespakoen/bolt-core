@@ -1,13 +1,14 @@
 <?php
 
-namespace Bolt\Core\FieldType;
+namespace Bolt\Core\Config\Object\Collection;
 
+use Bolt\Core\App;
 use Bolt\Core\Support\Collection;
-use Bolt\Core\Support\Facades\FieldType;
+use Bolt\Core\Config\Object\FieldType;
 
 class FieldTypeCollection extends Collection
 {
-    public function addFieldType($key, $field)
+    public function addFieldType($key, FieldType $field)
     {
         $this->items[$key] = $field;
 
@@ -16,7 +17,9 @@ class FieldTypeCollection extends Collection
 
     public function add($key, $config)
     {
-        $this->items[$key] = FieldType::fromConfig($key, $config);
+        $fieldTypeFactory = App::make('fieldtype.factory');
+
+        $this->items[$key] = $fieldTypeFactory->fromConfig($key, $config);
 
         return $this;
     }

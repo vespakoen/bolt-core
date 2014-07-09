@@ -1,6 +1,6 @@
 <?php
 
-namespace Bolt\Core\ContentType\Factory;
+namespace Bolt\Core\Config\Object\Collection\Factory;
 
 class ContentTypeCollection
 {
@@ -40,7 +40,7 @@ class ContentTypeCollection
 
     protected function getContentTypeCollectionClass()
     {
-        return $this->app['config']->get('app/classes/contenttypecollection', 'Bolt\Core\ContentType\ContentTypeCollection');
+        return $this->app['config']->get('app/classes/contenttypecollection', 'Bolt\Core\Config\Object\Collection\ContentTypeCollection');
     }
 
 }

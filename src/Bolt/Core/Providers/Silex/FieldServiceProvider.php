@@ -17,13 +17,7 @@ class FieldServiceProvider implements ServiceProviderInterface
 
     protected function registerFieldFactories(Application $app)
     {
-        $app['field.factory'] = $app->share(function ($app) {
-            return new Field($app);
-        });
 
-        $app['fields.factory'] = $app->share(function ($app) {
-            return new FieldCollection($app);
-        });
     }
 
     public function boot(Application $app)

@@ -1,6 +1,6 @@
 <?php
 
-namespace Bolt\Core\FieldType\Factory;
+namespace Bolt\Core\Config\Object\Factory;
 
 class FieldType
 {
@@ -21,14 +21,13 @@ class FieldType
         $fieldTypeClass = $this->getFieldTypeClass();
 
         $type = array_get($options, 'doctrine.type');
-        $options = array_except($options, array('type'));
 
-        return new $fieldTypeClass($this->app, $key, $type, $options);
+        return $this->create($key, $type, $options);
     }
 
     protected function getFieldTypeClass()
     {
-        return $this->app['config']->get('app/classes/fieldtype', 'Bolt\Core\FieldType\FieldType');
+        return $this->app['config']->get('app/classes/fieldtype', 'Bolt\Core\Config\Object\FieldType');
     }
 
 }

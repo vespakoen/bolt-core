@@ -115,7 +115,7 @@
               <div class="nav-user nav-primary hidden-xs pos-rlt">
                 <div class="nav-avatar pos-rlt">
                   <a href="#" class="thumb-sm avatar animated rollIn" data-toggle="dropdown">
-                    <img src="{{ currentProject.get('image_icon') ~ '-/scale_crop/150x150/center/img.jpg' }}" alt=""> <span class="caret caret-white"></span>
+                    <img src="{{ currentProject.get('image_icon') ~ '-/scale_crop/150x150/center/' }}" alt=""> <span class="caret caret-white"></span>
                   </a>
                   <ul class="dropdown-menu m-t-sm animated fadeInLeft">
                     <span class="arrow top"></span>
@@ -140,7 +140,7 @@
                   <li class="{% if false %}active{% endif %}">
                     <a href="{{ url }}">
                       <i class="fa fa-{{contentType.get('icon')}}"></i>
-                      <span>{{ __('%contenttypes%', {'%contenttypes%': contentType.getName})|ucfirst }}</span>
+                      <span>{{ __('%contenttypes%', {'%contenttypes%': contentType.get('name')})|ucfirst }}</span>
                     </a>
                   </li>
                   {% endif %}

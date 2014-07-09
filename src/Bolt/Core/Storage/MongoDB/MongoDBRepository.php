@@ -1,10 +1,10 @@
 <?php
 
-namespace Bolt\Core\Content\Eloquent;
+namespace Bolt\Core\Storage\MongoDB;
 
-use Bolt\Core\ContentType\ContentType;
-use Bolt\Core\Content\ReadRepositoryInterface;
-use Bolt\Core\Content\WriteRepositoryInterface;
+use Bolt\Core\Config\Object\ContentType;
+use Bolt\Core\Storage\ReadRepositoryInterface;
+use Bolt\Core\Storage\WriteRepositoryInterface;
 
 use Illuminate\Database\Query\Expression;
 
@@ -17,7 +17,7 @@ class MongoDBRepository extends Repository implements ReadRepositoryInterface, W
     }
 
     /**
-     * @return \Bolt\Core\Content\ContentCollection
+     * @return \Bolt\Core\Config\Object\Collection\ContentCollection
      */
     public function get($wheres = array(), $loadRelated = true, $sort = null, $order = 'asc', $offset = null, $limit = null, $search = null)
     {
@@ -25,7 +25,7 @@ class MongoDBRepository extends Repository implements ReadRepositoryInterface, W
     }
 
     /**
-     * @return \Bolt\Core\Content\ContentCollection
+     * @return \Bolt\Core\Config\Object\Collection\ContentCollection
      */
     public function all($loadRelated = true)
     {

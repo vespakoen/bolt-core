@@ -1,9 +1,9 @@
 <?php
 
-namespace Bolt\Core\Content;
+namespace Bolt\Core\Config\Object\Collection;
 
 use Bolt\Core\Support\Collection;
-use Bolt\Core\Support\Facades\Content;
+use Bolt\Core\Config\Object\Content;
 
 class ContentCollection extends Collection
 {

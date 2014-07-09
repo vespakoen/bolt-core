@@ -1,57 +1,70 @@
 <?php
 
-namespace Bolt\Core\ContentType\Factory;
+namespace Bolt\Core\Config\Object\Factory;
 
-use Bolt\Core\Field\FieldCollection;
-use Bolt\Core\Relation\RelationCollection;
+use Bolt\Core\Config\Object\Collection\FieldCollection;
+use Bolt\Core\Config\Object\Collection\RelationCollection;
+
+use Illuminate\Support\Str;
 
 class ContentType
 {
+
     public function __construct($app)
     {
         $this->app = $app;
     }
 
-    public function create($key, $name, FieldCollection $fields = null, RelationCollection $relations = null, $slug = null, $singularName = null, $singularSlug = null, $showOnDashboard = null, $sort = null, $defaultStatus = null, $options = array())
+    public function create($key, $fields, $relations, $options)
     {
         $contentTypeClass = $this->getContentTypeClass();
 
-        return new $contentTypeClass($this->app, $key, $name, $fields, $relations, $slug, $singularName, $singularSlug, $showOnDashboard, $sort, $defaultStatus, $options);
+        $options = $this->getDefaultOptions($key, $options);
+
+        return new $contentTypeClass($this->app, $key, $fields, $relations, $options);
     }
 
-    public function fromConfig($key, $config = array())
+    public function fromConfig($key, $config)
     {
-        $contentTypeClass = $this->getContentTypeClass();
+        $fieldsConfig = array_get($config, 'fields', array());
+        $fields = $this->app['fields.factory']->fromConfig($fieldsConfig);
 
-        if (is_string($config)) {
-            $contentTypeClass = $config;
+        $relationsConfig = array_get($config, 'relations', array());
+        $relations = $this->app['relations.factory']->fromConfig($relationsConfig);
 
-            if ( ! class_exists($contentTypeClass)) {
-                $this->app['notify']->error('Unknown class for contenttype: '.$contentTypeClass);
-            }
+        return $this->create($key, $fields, $relations, $config);
+    }
 
-            return new $contentTypeClass($this->app);
+    protected function getDefaultOptions($key, $options)
+    {
+        $defaults = $this->app['config']->get('defaults/contenttype', array());
+
+        $options = array_merge($defaults, $options);
+
+        if ( ! array_key_exists('slug', $options)) {
+            $options['slug'] = $key;
         }
 
-        $name = $config['name'];
-        $slug = array_get($config, 'slug');
-        $singularName = array_get($config, 'singular_name');
-        $singularSlug = array_get($config, 'singular_slug');
-        $showOnDashboard = array_get($config, 'show_on_dashboard');
-        $sort = array_get($config, 'sort');
-        $defaultStatus = array_get($config, 'default_status');
-        $options = array_except($config, array('fields', 'relations', 'name', 'slug', 'singular_name', 'singular_slug', 'show_on_dashboard', 'sort', 'default_status'));
+        if ( ! array_key_exists('name', $options)) {
+            $options['name'] = ucfirst($key);
+        }
 
-        $fields = $this->app['fields.factory']->fromConfig($config['fields']);
-        $relations = $this->app['relations.factory']->fromConfig(array_get($config, 'relations', array()));
-        // $taxonomy = TaxonomyCollection::fromConfig(array_get($config, 'taxonomy', array()));
+        if ( ! array_key_exists('singular_name', $options)) {
+            $singularName = Str::singular($options['name']);
+            $options['singular_name'] = $singularName;
+        }
 
-        return new $contentTypeClass($this->app, $key, $name, $fields, $relations, $slug, $singularName, $singularSlug, $showOnDashboard, $sort, $defaultStatus, $options);
+        if ( ! array_key_exists('singular_slug', $options)) {
+            $singularSlug = Str::slug($options['singular_name']);
+            $options['singular_slug'] = $singularSlug;
+        }
+
+        return $options;
     }
 
     protected function getContentTypeClass()
     {
-        return $this->app['config']->get('app/classes/contenttype', 'Bolt\Core\ContentType\ContentType');
+        return $this->app['config']->get('app/classes/contenttype', 'Bolt\Core\Config\Object\ContentType');
     }
 
 }

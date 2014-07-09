@@ -1,10 +1,10 @@
 <?php
 
-namespace Bolt\Core\Field;
+namespace Bolt\Core\Config\Object;
 
 use Bolt\Core\App;
-use Bolt\Core\Content\Content;
-use Bolt\Core\FieldType\FieldType;
+use Bolt\Core\Config\Object\Content;
+use Bolt\Core\Config\Object\FieldType;
 use Bolt\Core\Config\ConfigObject;
 
 use Illuminate\Support\Contracts\ArrayableInterface;
@@ -17,11 +17,11 @@ class Field extends ConfigObject implements ArrayableInterface
 
     protected $options;
 
-    public function __construct($app, $key, FieldType $type = null, $options = array())
+    public function __construct($app, $key, FieldType $type, $options = array())
     {
         $this->app = $app;
         $this->key = $key;
-        $this->type = is_null($type) ? $this->getDefaultType() : $type;
+        $this->type = $type;
         $this->options = array_merge($this->getDefaultOptions(), $options);
 
         $this->validate();
@@ -183,11 +183,6 @@ class Field extends ConfigObject implements ArrayableInterface
         );
 
         return $this->app['view.factory']->create($view, $context);
-    }
-
-    protected function getDefaultType()
-    {
-        return $this->app['fieldtypes']->get('string');
     }
 
     protected function getDefaultOptions()

@@ -26,6 +26,11 @@ class ConfigObject
         return array_key_exists($option, $this->options);
     }
 
+    public function setOption($key, $value)
+    {
+        $this->options[$key] = $value;
+    }
+
     public function get($key, $default = null)
     {
         $key = str_replace('/', '.', $key);

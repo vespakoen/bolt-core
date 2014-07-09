@@ -1,11 +1,12 @@
 <?php
 
-namespace Bolt\Core\Relation;
+namespace Bolt\Core\Config\Object\Collection;
 
 use InvalidArgumentException;
 
+use Bolt\Core\App;
 use Bolt\Core\Support\Collection;
-use Bolt\Core\Support\Facades\Relation;
+use Bolt\Core\Config\Object\Relation;
 
 class RelationCollection extends Collection
 {
@@ -16,7 +17,7 @@ class RelationCollection extends Collection
         $this->items = $items;
     }
 
-    public function addRelation($key, $relation)
+    public function addRelation($key, Relation $relation)
     {
         $this->items[$key] = $relation;
 
@@ -25,7 +26,9 @@ class RelationCollection extends Collection
 
     public function add($key, $config)
     {
-        $this->items[$key] = Relation::fromConfig($key, $config);
+        $relationFactory = App::make('relation.factory');
+
+        $this->items[$key] = $relationFactory->fromConfig($key, $config);
 
         return $this;
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Bolt\Core\Relation\Factory;
+namespace Bolt\Core\Config\Object\Collection\Factory;
 
 class RelationCollection
 {
@@ -59,7 +59,7 @@ class RelationCollection
 
     protected function getRelationCollectionClass()
     {
-        return $this->app['config']->get('app/classes/relationcollection', 'Bolt\Core\Relation\RelationCollection');
+        return $this->app['config']->get('app/classes/relationcollection', 'Bolt\Core\Config\Object\Collection\RelationCollection');
     }
 
 }

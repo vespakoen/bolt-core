@@ -1,6 +1,6 @@
 <?php
 
-namespace Bolt\Core\FieldType;
+namespace Bolt\Core\Config\Object;
 
 use Bolt\Core\App;
 use Bolt\Core\Field\Field;

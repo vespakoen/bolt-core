@@ -1,6 +1,6 @@
 <?php
 
-namespace Bolt\Core\Content\Eloquent;
+namespace Bolt\Core\Storage\Eloquent;
 
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Eloquent\Model as Eloquent;

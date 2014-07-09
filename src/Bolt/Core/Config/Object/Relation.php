@@ -1,9 +1,9 @@
 <?php
 
-namespace Bolt\Core\Relation;
+namespace Bolt\Core\Config\Object;
 
 use Bolt\Core\App;
-use Bolt\Core\Content\Content;
+use Bolt\Core\Config\Object\Content;
 use Bolt\Core\Config\ConfigObject;
 use Bolt\Core\Support\Facades\View;
 

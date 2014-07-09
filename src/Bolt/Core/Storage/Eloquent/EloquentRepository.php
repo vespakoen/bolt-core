@@ -1,11 +1,11 @@
 <?php
 
-namespace Bolt\Core\Content\Eloquent;
+namespace Bolt\Core\Storage\Eloquent;
 
-use Bolt\Core\Content\Repository;
-use Bolt\Core\ContentType\ContentType;
-use Bolt\Core\Content\ReadRepositoryInterface;
-use Bolt\Core\Content\WriteRepositoryInterface;
+use Bolt\Core\Storage\Repository;
+use Bolt\Core\Config\Object\ContentType;
+use Bolt\Core\Storage\ReadRepositoryInterface;
+use Bolt\Core\Storage\WriteRepositoryInterface;
 
 use Illuminate\Database\Query\Expression;
 
@@ -19,7 +19,7 @@ class EloquentRepository extends Repository implements ReadRepositoryInterface, 
     }
 
     /**
-     * @return \Bolt\Core\Content\ContentCollection
+     * @return \Bolt\Core\Storage\ContentCollection
      */
     public function get($wheres = array(), $loadRelated = true, $sort = null, $order = 'asc', $offset = null, $limit = null, $search = null)
     {

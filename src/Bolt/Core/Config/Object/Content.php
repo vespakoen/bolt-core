@@ -1,6 +1,6 @@
 <?php
 
-namespace Bolt\Core\Content;
+namespace Bolt\Core\Config\Object;
 
 use Illuminate\Support\Contracts\ArrayableInterface;
 

@@ -1,8 +1,9 @@
 <?php
 
-namespace Bolt\Core\Extension;
+namespace Bolt\Core\Config\Object\Collection;
 
-use Bolt\Core\Support\Collection;
+use Bolt\Core\App;
+use Bolt\Core\Config\Object\Relation;
 
 class ExtensionCollection extends Collection
 {
@@ -17,16 +18,18 @@ class ExtensionCollection extends Collection
         return $collection;
     }
 
-    public function addExtension($key, Extension $contentType)
+    public function addExtension($key, Extension $extension)
     {
-        $this->items[$key] = $contentType;
+        $this->items[$key] = $extension;
 
         return $this;
     }
 
     public function add($key, $config)
     {
-        $this->items[$key] = Extension::fromConfig($key, $config);
+        $extensionFactory = App::make('extension.factory');
+
+        $this->items[$key] = $extensionFactory->fromConfig($key, $config);
 
         return $this;
     }

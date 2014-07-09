@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 use Illuminate\Support\Collection;
 
-use Bolt\Core\Content\ContentCollection;
+use Bolt\Core\Config\Object\Collection\ContentCollection;
 use Bolt\Core\Controller\ControllerEvents;
 use Bolt\Core\Controller\Event\AfterDeleteEvent;
 use Bolt\Core\Controller\Event\AfterInsertEvent;

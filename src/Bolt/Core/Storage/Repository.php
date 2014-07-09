@@ -1,11 +1,11 @@
 <?php
 
-namespace Bolt\Core\Content;
+namespace Bolt\Core\Storage;
 
 class Repository {
 
     /**
-     * @return \Bolt\Core\Content\ContentCollection
+     * @return \Bolt\Core\Config\Object\Collection\ContentCollection
      */
     public function all($loadRelated = true)
     {

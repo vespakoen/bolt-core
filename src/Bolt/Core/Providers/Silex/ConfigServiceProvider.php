@@ -8,6 +8,17 @@ use Bolt\Core\Config\ConfigLoaderResolver;
 use Bolt\Core\Config\Loader\YamlConfigLoader;
 use Bolt\Core\Config\Loader\YamlSerializerLoader;
 
+use Bolt\Core\Config\Object\Collection\Factory\ContentTypeCollection;
+use Bolt\Core\Config\Object\Factory\ContentType;
+use Bolt\Core\Config\Object\Collection\Factory\FieldCollection;
+use Bolt\Core\Config\Object\Factory\Field;
+use Bolt\Core\Config\Object\Collection\Factory\FieldTypeCollection;
+use Bolt\Core\Config\Object\Factory\FieldType;
+use Bolt\Core\Config\Object\Collection\Factory\RelationCollection;
+use Bolt\Core\Config\Object\Factory\Relation;
+use Bolt\Core\Config\Object\Collection\Factory\ContentCollection;
+use Bolt\Core\Config\Object\Factory\Content;
+
 use Bolt\Core\App\Loader\YamlAppLoader;
 use Bolt\Core\FieldType\Loader\YamlFieldTypeLoader;
 use Bolt\Core\ContentType\Loader\YamlContentTypeLoader;
@@ -28,6 +39,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
         $this->registerLocator($app);
         $this->registerLoader($app);
         $this->registerConfig($app);
+        $this->registerConfigObjectFactories($app);
     }
 
     protected function registerConfigData(Application $app)
@@ -76,6 +88,49 @@ class ConfigServiceProvider implements ServiceProviderInterface
     {
         $app['config'] = $app->share(function ($app) {
             return new Config($app['config.loader'], $app['config.files'], $app['config.data']);
+        });
+    }
+
+    protected function registerConfigObjectFactories(Application $app)
+    {
+        $app['contenttype.factory'] = $app->share(function ($app) {
+            return new ContentType($app);
+        });
+
+        $app['contenttypes.factory'] = $app->share(function ($app) {
+            return new ContentTypeCollection($app);
+        });
+
+        $app['field.factory'] = $app->share(function ($app) {
+            return new Field($app);
+        });
+
+        $app['fields.factory'] = $app->share(function ($app) {
+            return new FieldCollection($app);
+        });
+
+        $app['fieldtype.factory'] = $app->share(function ($app) {
+            return new FieldType($app);
+        });
+
+        $app['fieldtypes.factory'] = $app->share(function ($app) {
+            return new FieldTypeCollection($app);
+        });
+
+        $app['relation.factory'] = $app->share(function ($app) {
+            return new Relation($app);
+        });
+
+        $app['relations.factory'] = $app->share(function ($app) {
+            return new RelationCollection($app);
+        });
+
+        $app['content.factory'] = $app->share(function ($app) {
+            return new Content($app);
+        });
+
+        $app['contents.factory'] = $app->share(function ($app) {
+            return new ContentCollection($app);
         });
     }
 

@@ -17,13 +17,6 @@ class RelationServiceProvider implements ServiceProviderInterface
 
     protected function registerRelationFactories(Application $app)
     {
-        $app['relation.factory'] = $app->share(function ($app) {
-            return new Relation($app);
-        });
-
-        $app['relations.factory'] = $app->share(function ($app) {
-            return new RelationCollection($app);
-        });
     }
 
     public function boot(Application $app)

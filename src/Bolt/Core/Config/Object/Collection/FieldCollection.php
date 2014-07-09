@@ -1,11 +1,12 @@
 <?php
 
-namespace Bolt\Core\Field;
+namespace Bolt\Core\Config\Object\Collection;
 
 use InvalidArgumentException;
 
+use Bolt\Core\App;
 use Bolt\Core\Support\Collection;
-use Bolt\Core\Support\Facades\Field;
+use Bolt\Core\Config\Object\Field;
 use Bolt\Core\Support\Facades\Config;
 
 class FieldCollection extends Collection
@@ -17,20 +18,7 @@ class FieldCollection extends Collection
         $this->items = $items;
     }
 
-    public static function fromConfig($config)
-    {
-        static::validate($config);
-
-        $collection = new static;
-
-        foreach ($config as $key => $config) {
-            $collection->add($key, $config);
-        }
-
-        return $collection;
-    }
-
-    public function addField($key, $field)
+    public function addField($key, Field $field)
     {
         $this->items[$key] = $field;
 
@@ -39,7 +27,9 @@ class FieldCollection extends Collection
 
     public function add($key, $config)
     {
-        $this->items[$key] = Field::fromConfig($key, $config);
+        $fieldFactory = App::make('field.factory');
+
+        $this->items[$key] = $fieldFactory->fromConfig($key, $config);
 
         return $this;
     }

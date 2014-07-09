@@ -1,6 +1,6 @@
 <?php
 
-namespace Bolt\Core\Content\Factory;
+namespace Bolt\Core\Config\Object\Factory;
 
 class Content
 {
@@ -13,17 +13,16 @@ class Content
     {
         $contentClass = $this->getContentClass();
 
-        return new $contentClass($this->app, $attributes, $contentType);
-    }
+        if (is_string($contentType)) {
+            $contentType = $this->app['contenttypes']->get($contentType);
+        }
 
-    public function validateConfig($key, $config)
-    {
-        // @todo implement
+        return new $contentClass($this->app, $attributes, $contentType);
     }
 
     protected function getContentClass()
     {
-        return $this->app['config']->get('app/classes/content', 'Bolt\Core\Content\Content');
+        return $this->app['config']->get('app/classes/content', 'Bolt\Core\Config\Object\Content');
     }
 
 }

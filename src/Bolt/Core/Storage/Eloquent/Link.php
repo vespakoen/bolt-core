@@ -1,6 +1,6 @@
 <?php
 
-namespace Bolt\Core\Content\Eloquent;
+namespace Bolt\Core\Storage\Eloquent;
 
 class Link extends Model
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Bolt\Core\Field\Factory;
+namespace Bolt\Core\Config\Object\Collection\Factory;
 
 class FieldCollection
 {
@@ -39,7 +39,7 @@ class FieldCollection
 
     protected function getFieldCollectionClass()
     {
-        return $this->app['config']->get('app/classes/fieldcollection', 'Bolt\Core\Field\FieldCollection');
+        return $this->app['config']->get('app/classes/fieldcollection', 'Bolt\Core\Config\Object\Collection\FieldCollection');
     }
 
 }

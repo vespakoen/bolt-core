@@ -17,13 +17,6 @@ class ContentServiceProvider implements ServiceProviderInterface
 
     protected function registerContentFactories(Application $app)
     {
-        $app['content.factory'] = $app->share(function ($app) {
-            return new Content($app);
-        });
-
-        $app['contents.factory'] = $app->share(function ($app) {
-            return new ContentCollection($app);
-        });
     }
 
     public function boot(Application $app)

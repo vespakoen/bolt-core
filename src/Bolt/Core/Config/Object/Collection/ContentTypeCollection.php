@@ -1,16 +1,16 @@
 <?php
 
-namespace Bolt\Core\ContentType;
+namespace Bolt\Core\Config\Object\Collection;
 
 use Bolt\Core\App;
 use Bolt\Core\Support\Collection;
-use Bolt\Core\Support\Facades\ContentType;
+use Bolt\Core\Config\Object\ContentType;
 
 use Doctrine\DBAL\Schema\Schema;
 
 class ContentTypeCollection extends Collection
 {
-    public function addContentType($key, $contentType)
+    public function addContentType($key, ContentType $contentType)
     {
         $this->items[$key] = $contentType;
 
@@ -19,7 +19,9 @@ class ContentTypeCollection extends Collection
 
     public function add($key, $config)
     {
-        $this->items[$key] = ContentType::fromConfig($key, $config);
+        $contentTypeFactory = App::make('contenttype.factory');
+
+        $this->items[$key] = $contentTypeFactory->fromConfig($key, $config);
 
         return $this;
     }

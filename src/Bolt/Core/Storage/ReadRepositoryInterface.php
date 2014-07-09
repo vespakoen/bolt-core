@@ -1,8 +1,8 @@
 <?php
 
-namespace Bolt\Core\Content;
+namespace Bolt\Core\Storage;
 
-use Bolt\Core\ContentType\ContentType;
+use Bolt\Core\Config\Object\ContentType;
 
 interface ReadRepositoryInterface {
 
