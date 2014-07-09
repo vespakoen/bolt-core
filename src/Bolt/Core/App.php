@@ -2,23 +2,23 @@
 
 namespace Bolt\Core;
 
-use Bolt\Core\Providers\Silex\TwigPathServiceProvider;
-use Bolt\Core\Providers\Silex\ConfigServiceProvider;
-use Bolt\Core\Providers\Silex\FieldTypeServiceProvider;
-use Bolt\Core\Providers\Silex\FieldServiceProvider;
-use Bolt\Core\Providers\Silex\RelationServiceProvider;
-use Bolt\Core\Providers\Silex\ContentTypeServiceProvider;
-use Bolt\Core\Providers\Silex\ContentServiceProvider;
-use Bolt\Core\Providers\Silex\PathsServiceProvider;
-use Bolt\Core\Providers\Silex\DatabaseServiceProvider;
-use Bolt\Core\Providers\Silex\NotifyServiceProvider;
-use Bolt\Core\Providers\Silex\CompilerServiceProvider;
-use Bolt\Core\Providers\Silex\ViewServiceProvider;
-use Bolt\Core\Providers\Silex\EloquentServiceProvider;
-use Bolt\Core\Providers\Silex\MigratorServiceProvider;
-use Bolt\Core\Providers\Silex\IlluminateServiceProvider;
-use Bolt\Core\Providers\Silex\ElasticsearchServiceProvider;
-use Bolt\Core\Providers\Silex\ControllerServiceProvider;
+use Bolt\Core\Provider\Silex\TwigPathServiceProvider;
+use Bolt\Core\Provider\Silex\ConfigServiceProvider;
+use Bolt\Core\Provider\Silex\FieldTypeServiceProvider;
+use Bolt\Core\Provider\Silex\FieldServiceProvider;
+use Bolt\Core\Provider\Silex\RelationServiceProvider;
+use Bolt\Core\Provider\Silex\ContentTypeServiceProvider;
+use Bolt\Core\Provider\Silex\ContentServiceProvider;
+use Bolt\Core\Provider\Silex\PathsServiceProvider;
+use Bolt\Core\Provider\Silex\DatabaseServiceProvider;
+use Bolt\Core\Provider\Silex\NotifyServiceProvider;
+use Bolt\Core\Provider\Silex\CompilerServiceProvider;
+use Bolt\Core\Provider\Silex\ViewServiceProvider;
+use Bolt\Core\Provider\Silex\EloquentServiceProvider;
+use Bolt\Core\Provider\Silex\MigratorServiceProvider;
+use Bolt\Core\Provider\Silex\IlluminateServiceProvider;
+use Bolt\Core\Provider\Silex\ElasticsearchServiceProvider;
+use Bolt\Core\Provider\Silex\ControllerServiceProvider;
 
 use Silex\Application;
 use Silex\Provider\TwigServiceProvider;

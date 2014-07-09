@@ -2,7 +2,7 @@
 
 use Silex\Application;
 
-use Bolt\Core\Providers\Silex\ConfigServiceProvider;
+use Bolt\Core\Provider\Silex\ConfigServiceProvider;
 
 class ConfigTest extends PHPUnit_Framework_TestCase {
 

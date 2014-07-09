@@ -2,9 +2,9 @@
 
 use Silex\Application;
 
-use Bolt\Core\Providers\Silex\PathsServiceProvider;
-use Bolt\Core\Providers\Silex\ConfigServiceProvider;
-use Bolt\Core\Providers\Silex\FieldTypeServiceProvider;
+use Bolt\Core\Provider\Silex\PathsServiceProvider;
+use Bolt\Core\Provider\Silex\ConfigServiceProvider;
+use Bolt\Core\Provider\Silex\FieldTypeServiceProvider;
 
 class FieldTypeTest extends PHPUnit_Framework_TestCase {
 

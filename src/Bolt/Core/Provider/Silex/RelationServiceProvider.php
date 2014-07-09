@@ -1,6 +1,6 @@
 <?php
 
-namespace Bolt\Core\Providers\Silex;
+namespace Bolt\Core\Provider\Silex;
 
 use Bolt\Core\Relation\Factory\RelationCollection;
 use Bolt\Core\Relation\Factory\Relation;

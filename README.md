@@ -68,7 +68,7 @@ there is also `FieldTypeCollection::addFieldType` and `ExtensionCollection::addE
 It's very easy to remember where to find the core objects, since they are all accessible via their Facade, which are located in the following namespace:
 `Bolt\Core\Support\Facades\NameOfTheObject`
 
-You can also take a look in the facade class to see with what key the service is registered on the container, or browse through the serviceproviders (in `src/Bolt\Core\Providers\Silex`)
+You can also take a look in the facade class to see with what key the service is registered on the container, or browse through the serviceproviders (in `src/Bolt\Core\Provider\Silex`)
 
 Presented below is a table of the available facades and their `key` with which they are registered on the `$app` container.
 
