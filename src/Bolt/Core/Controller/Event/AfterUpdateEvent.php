@@ -10,12 +10,15 @@ class AfterUpdateEvent extends Event
 
     protected $contentType;
 
+    protected $id;
+
     protected $isSuccessful;
 
-    public function __construct($request, $contentType, $isSuccessful)
+    public function __construct($request, $contentType, $id, $isSuccessful)
     {
         $this->request = $request;
         $this->contentType = $contentType;
+        $this->id = $id;
         $this->isSuccessful = $isSuccessful;
     }
 
@@ -27,6 +30,11 @@ class AfterUpdateEvent extends Event
     public function getContentType()
     {
         return $this->contentType;
+    }
+
+    public function getId()
+    {
+        return $this->id;
     }
 
     public function isSuccessful()

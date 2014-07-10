@@ -226,7 +226,7 @@ class Admin extends Controller implements ControllerProviderInterface
                 }
             }
 
-            $this->fireAfterUpdateEvent($request, $contentType, $isSuccessful);
+            $this->fireAfterUpdateEvent($request, $contentType, $id, $isSuccessful);
         }
 
         if ($isSuccessful) {
@@ -380,9 +380,9 @@ class Admin extends Controller implements ControllerProviderInterface
         $this->app['dispatcher']->dispatch(ControllerEvents::AFTER_INSERT, $event);
     }
 
-    protected function fireAfterUpdateEvent($request, $contentType, $isSuccessful)
+    protected function fireAfterUpdateEvent($request, $contentType, $id, $isSuccessful)
     {
-        $event = new AfterUpdateEvent($request, $contentType, $isSuccessful);
+        $event = new AfterUpdateEvent($request, $contentType, $id, $isSuccessful);
         $this->app['dispatcher']->dispatch(ControllerEvents::AFTER_UPDATE, $event);
     }
 
