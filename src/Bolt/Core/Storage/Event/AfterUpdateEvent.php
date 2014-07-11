@@ -1,21 +1,24 @@
 <?php
 
-namespace Bolt\Core\Controller\Event;
+namespace Bolt\Core\Storage\Event;
 
 use Symfony\Component\EventDispatcher\Event;
 
-class AfterInsertEvent extends Event
+class AfterUpdateEvent extends Event
 {
     protected $request;
 
     protected $contentType;
 
+    protected $id;
+
     protected $isSuccessful;
 
-    public function __construct($request, $contentType, $isSuccessful)
+    public function __construct($request, $contentType, $id, $isSuccessful)
     {
         $this->request = $request;
         $this->contentType = $contentType;
+        $this->id = $id;
         $this->isSuccessful = $isSuccessful;
     }
 
@@ -27,6 +30,11 @@ class AfterInsertEvent extends Event
     public function getContentType()
     {
         return $this->contentType;
+    }
+
+    public function getId()
+    {
+        return $this->id;
     }
 
     public function isSuccessful()

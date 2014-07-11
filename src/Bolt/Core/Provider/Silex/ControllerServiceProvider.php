@@ -14,7 +14,7 @@ class ControllerServiceProvider implements ServiceProviderInterface
     public function register(Application $app)
     {
         $app['controller.admin'] = $app->share(function($app) {
-            return new Admin($app);
+            return new Admin($app, $app['storage.service']);
         });
 
         $app['controller.frontend'] = $app->share(function($app) {

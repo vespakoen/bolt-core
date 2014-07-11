@@ -15,6 +15,11 @@ use DateTime;
 
 class Async extends Controller implements ControllerProviderInterface
 {
+    public function __construct($app)
+    {
+        $this->app = $app;
+    }
+
     public function connect(Application $app)
     {
         $controllers = $app['controllers_factory'];

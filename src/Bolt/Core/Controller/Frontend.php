@@ -9,6 +9,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Frontend extends Controller implements ControllerProviderInterface
 {
+    public function __construct($app)
+    {
+        $this->app = $app;
+    }
+
     public function connect(Application $app)
     {
         $controllers = $app['controllers_factory'];

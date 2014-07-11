@@ -2,17 +2,17 @@
 
 namespace Bolt\Core\Provider\Silex;
 
-use Bolt\Core\Migrator\Migrator;
-
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 
-class MigratorServiceProvider implements ServiceProviderInterface
+use Bolt\Core\Storage\StorageService;
+
+class StorageServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        $app['migrator'] = $app->share(function($app) {
-            return new Migrator($app['db']);
+        $app['storage.service'] = $app->share(function($app) {
+            return new StorageService($app, $app['dispatcher']);
         });
     }
 

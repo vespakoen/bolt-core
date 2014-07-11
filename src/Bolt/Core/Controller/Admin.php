@@ -11,18 +11,15 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Illuminate\Support\Collection;
 
 use Bolt\Core\Config\Object\Collection\ContentCollection;
-use Bolt\Core\Controller\ControllerEvents;
-use Bolt\Core\Controller\Event\AfterDeleteEvent;
-use Bolt\Core\Controller\Event\AfterInsertEvent;
-use Bolt\Core\Controller\Event\AfterUpdateEvent;
-use Bolt\Core\Controller\Event\BeforeDeleteEvent;
-use Bolt\Core\Controller\Event\BeforeInsertEvent;
-use Bolt\Core\Controller\Event\BeforeUpdateEvent;
-
-use DateTime;
 
 class Admin extends Controller implements ControllerProviderInterface
 {
+    public function __construct($app, $storageService)
+    {
+        $this->app = $app;
+        $this->storageService = $storageService;
+    }
+
     public function connect(Application $app)
     {
         $controllers = $app['controllers_factory'];
@@ -54,20 +51,8 @@ class Admin extends Controller implements ControllerProviderInterface
         });
 
         $controllers->get('/', 'controller.admin:getDashboard');
-        $controllers->get('login', 'controller.admin:getLogin')->bind('login');
-        $controllers->get('logout', 'controller.admin:getLogout')->bind('logout');
         $controllers->get('dashboard', 'controller.admin:getDashboard')->bind('admin.dashboard');
         $controllers->get('graph', 'controller.admin:getGraph')->bind('admin.graph');
-        $controllers->get('users', 'controller.admin:getUsers')->bind('users');
-        $controllers->get('fileedit', 'controller.admin:getFileedit')->bind('fileedit');
-        $controllers->get('extensions', 'controller.admin:getExtensions')->bind('extensions');
-        $controllers->get('dbcheck', 'controller.admin:getDbcheck')->bind('dbcheck');
-        $controllers->get('clearcache', 'controller.admin:getClearcache')->bind('clearcache');
-        $controllers->get('activitylog', 'controller.admin:getActivitylog')->bind('activitylog');
-        $controllers->get('files', 'controller.admin:getFiles')->bind('files');
-        $controllers->get('translation', 'controller.admin:getTranslation')->bind('translation');
-        $controllers->get('lastmodified', 'controller.admin:getLastmodified')->bind('lastmodified');
-        $controllers->get('contentaction', 'controller.admin:getContentaction')->bind('contentaction');
         $controllers->get('setproject/{projectId}', 'controller.admin:getSetproject')->bind('setproject');
         $controllers->get('{contentTypeKey}/', 'controller.admin:getOverview')->bind('overview');
         $controllers->get('{contentTypeKey}/manage', 'controller.admin:getManage')->bind('manage.new');
@@ -79,16 +64,6 @@ class Admin extends Controller implements ControllerProviderInterface
         $controllers->get('reset-elasticsearch', 'controller.admin:getResetElasticsearch');
 
         return $controllers;
-    }
-
-    public function getLogin(Request $request, Application $app)
-    {
-        return 'login';
-    }
-
-    public function getLogout(Request $request, Application $app)
-    {
-        return 'logout';
     }
 
     public function getDashboard(Request $request, Application $app)
@@ -177,57 +152,28 @@ class Admin extends Controller implements ControllerProviderInterface
             $app->abort(404, "Contenttype $contentTypeKey does not exist.");
         }
 
-        $this->fireBeforePostManageEvents($request, $contentType, $id);
-
-        $parameters = $request->request;
-        $defaultFields = $contentType->getDefaultFields();
-        $dateCreatedKey = $defaultFields->forPurpose('datecreated')->getKey();
-        $dateUpdatedKey = $defaultFields->forPurpose('datechanged')->getKey();
         if (is_null($id)) {
-            $isNew = true;
-            // give the new record an id
-            $id = $this->getNewId();
-
-            // give it a created and updated datetime
-            $parameters->set($dateCreatedKey, new DateTime());
-            $parameters->set($dateUpdatedKey, new DateTime());
+            $isSuccessful = $this->storageService->insert($contentType, $request);
         } else {
-            $isNew = false;
-            // unset the created datetime so it will not be updated
-            $parameters->remove($dateCreatedKey);
-            // update the updated datetime
-            $parameters->set($dateUpdatedKey, new DateTime());
+            $isSuccessful = $this->storageService->update($contentType, $request, $id);
         }
 
-        $parameters->set('id', $id);
-
-        $input = $parameters->all();
-
-        if ( ! $contentType->validateInput($input)) {
+        if ($isSuccessful) {
+            return $this->to('overview', array(
+                'contentTypeKey' => $contentTypeKey
+            ));
+        } else {
             return $this->back();
         }
+    }
 
-        $repositories = $this->getWriteRepositories($contentType);
-
-        if ($isNew) {
-            foreach ($repositories as $repository) {
-                $isSuccessful = $repository->store($input);
-                if ( ! $isSuccessful) {
-                    break;
-                }
-            }
-
-            $this->fireAfterInsertEvent($request, $contentType, $isSuccessful);
-        } else {
-            foreach ($repositories as $repository) {
-                $isSuccessful = $repository->update($id, $input);
-                if ( ! $isSuccessful) {
-                    break;
-                }
-            }
-
-            $this->fireAfterUpdateEvent($request, $contentType, $id, $isSuccessful);
+    public function getDeletecontent(Request $request, Application $app, $contentTypeKey, $id = null)
+    {
+        if ( ! $contentType = $app['contenttypes']->get($contentTypeKey)) {
+            $app->abort(404, "Contenttype $contentTypeKey does not exist.");
         }
+
+        $isSuccessful = $this->storageService->delete($contentType, $request, $id);
 
         if ($isSuccessful) {
             return $this->to('overview', array(
@@ -290,26 +236,6 @@ class Admin extends Controller implements ControllerProviderInterface
         return $this->back();
     }
 
-    public function getDeletecontent(Request $request, Application $app, $contentTypeKey, $id = null)
-    {
-        if ( ! $contentType = $app['contenttypes']->get($contentTypeKey)) {
-            $app->abort(404, "Contenttype $contentTypeKey does not exist.");
-        }
-
-        $this->fireBeforeDeleteEvent($request, $contentType, $id);
-
-        $repositories = $this->getWriteRepositories($contentType);
-        foreach ($repositories as $repository) {
-            $repository->delete($id);
-        }
-
-        $this->fireAfterDeleteEvent($request, $contentType, $id);
-
-        return $this->to('overview', array(
-            'contentTypeKey' => $contentTypeKey
-        ));
-    }
-
     public function getResetElasticsearch(Request $request, Application $app)
     {
         $namespaces = $app['projects']->lists('namespace');
@@ -317,11 +243,8 @@ class Admin extends Controller implements ControllerProviderInterface
 
         foreach ($namespaces as $namespace) {
             $namespace = str_replace('.', '', $namespace);
-            echo "dropping index<br>";
             $app['elasticsearch.manager']->dropIndex($namespace);
-            echo "createing index<br>";
             $app['elasticsearch.manager']->createIndex($namespace);
-            echo "syncing<br>";
             $app['elasticsearch.manager']->syncAll($namespace);
         }
 
@@ -359,43 +282,6 @@ class Admin extends Controller implements ControllerProviderInterface
         }
 
         return $this->to('admin.dashboard');
-    }
-
-    protected function fireBeforePostManageEvents($request, $contentType, $id)
-    {
-        if (is_null($id)) {
-            $eventName = ControllerEvents::BEFORE_INSERT;
-            $event = new BeforeInsertEvent($request, $contentType);
-        } else {
-            $eventName = ControllerEvents::BEFORE_UPDATE;
-            $event = new BeforeUpdateEvent($request, $contentType, $id);
-        }
-
-        $this->app['dispatcher']->dispatch($eventName, $event);
-    }
-
-    protected function fireAfterInsertEvent($request, $contentType, $isSuccessful)
-    {
-        $event = new AfterInsertEvent($request, $contentType, $isSuccessful);
-        $this->app['dispatcher']->dispatch(ControllerEvents::AFTER_INSERT, $event);
-    }
-
-    protected function fireAfterUpdateEvent($request, $contentType, $id, $isSuccessful)
-    {
-        $event = new AfterUpdateEvent($request, $contentType, $id, $isSuccessful);
-        $this->app['dispatcher']->dispatch(ControllerEvents::AFTER_UPDATE, $event);
-    }
-
-    protected function fireBeforeDeleteEvent($request, $contentType, $id)
-    {
-        $event = new BeforeDeleteEvent($request, $contentType, $id);
-        $this->app['dispatcher']->dispatch(ControllerEvents::BEFORE_DELETE, $event);
-    }
-
-    protected function fireAfterDeleteEvent($request, $contentType, $id)
-    {
-        $event = new AfterDeleteEvent($request, $contentType, $id);
-        $this->app['dispatcher']->dispatch(ControllerEvents::AFTER_DELETE, $event);
     }
 
 }

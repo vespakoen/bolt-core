@@ -15,11 +15,9 @@ class Config
 
     protected $data;
 
-    public function __construct(LoaderInterface $loader, array $configs = array(), array $data = array())
+    public function __construct($data)
     {
-        $this->loader = $loader;
-        $this->configs = $configs;
-        $this->data = $this->getData();
+        $this->data = $data;
     }
 
     public function get($key = null, $default = null)
@@ -31,17 +29,6 @@ class Config
         }
 
         return array_get($this->data, $key, $default);
-    }
-
-    public function getData()
-    {
-        $data = array();
-
-        foreach ($this->configs as $as => $key) {
-            $data[is_string($as) ? $as : $key] = $this->loader->load($key);
-        }
-
-        return $data;
     }
 
 }

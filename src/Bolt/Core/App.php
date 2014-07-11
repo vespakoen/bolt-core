@@ -2,26 +2,9 @@
 
 namespace Bolt\Core;
 
-use Bolt\Core\Provider\Silex\TwigPathServiceProvider;
 use Bolt\Core\Provider\Silex\ConfigServiceProvider;
-use Bolt\Core\Provider\Silex\FieldTypeServiceProvider;
-use Bolt\Core\Provider\Silex\ContentTypeServiceProvider;
-use Bolt\Core\Provider\Silex\PathsServiceProvider;
-use Bolt\Core\Provider\Silex\DatabaseServiceProvider;
-use Bolt\Core\Provider\Silex\NotifyServiceProvider;
-use Bolt\Core\Provider\Silex\CompilerServiceProvider;
-use Bolt\Core\Provider\Silex\ViewServiceProvider;
-use Bolt\Core\Provider\Silex\EloquentServiceProvider;
-use Bolt\Core\Provider\Silex\MigratorServiceProvider;
-use Bolt\Core\Provider\Silex\IlluminateServiceProvider;
-use Bolt\Core\Provider\Silex\ControllerServiceProvider;
 
 use Silex\Application;
-use Silex\Provider\TwigServiceProvider;
-use Silex\Provider\UrlGeneratorServiceProvider;
-use Silex\Provider\TranslationServiceProvider;
-use Silex\Provider\SessionServiceProvider;
-use Silex\Provider\ServiceControllerServiceProvider;
 
 use Illuminate\Support\Facades\Facade;
 
@@ -43,25 +26,26 @@ class App extends Application
 
         Facade::setFacadeApplication($this);
 
-        $this->register(new WhoopsServiceProvider);
-        $this->register(new NotifyServiceProvider);
-        $this->register(new TwigServiceProvider);
-        $this->register(new SessionServiceProvider);
-        $this->register(new IlluminateServiceProvider);
-        $this->register(new UrlGeneratorServiceProvider);
-        $this->register(new TranslationServiceProvider);
-        $this->register(new TwigPathServiceProvider);
+        if (isset($values['debug']) && $values['debug']) {
+            $this->register(new WhoopsServiceProvider);
+        }
+
+        // register the configserviceprovider so we can access the config
         $this->register(new ConfigServiceProvider);
-        $this->register(new FieldTypeServiceProvider);
-        $this->register(new ContentTypeServiceProvider);
-        $this->register(new DatabaseServiceProvider);
-        $this->register(new CompilerServiceProvider);
-        $this->register(new ViewServiceProvider);
-        $this->register(new EloquentServiceProvider);
-        $this->register(new MigratorServiceProvider);
-        $this->register(new UrlGeneratorServiceProvider);
-        $this->register(new ServiceControllerServiceProvider);
-        $this->register(new ControllerServiceProvider);
+
+        // grab the providers from the config and load them
+        $providers = $this['config']->get('app/providers');
+        foreach ($providers as $provider) {
+            $this->register(new $provider);
+        }
+
+        // register fieldtypes from config
+        $fieldTypesConfig = $this['config']->get('fieldtypes');
+        $this['fieldtypes'] = $this['fieldtypes.factory']->fromConfig($fieldTypesConfig);
+
+        // register contenttypes from config
+        $contentTypeConfig = $this['config']->get('contenttypes');
+        $this['contenttypes'] = $this['contenttypes.factory']->fromConfig($contentTypeConfig);
 
         $this->after(function() {
         });

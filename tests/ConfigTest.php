@@ -6,17 +6,6 @@ use Bolt\Core\Provider\Silex\ConfigServiceProvider;
 
 class ConfigTest extends PHPUnit_Framework_TestCase {
 
-	public function testConfigLocator()
-	{
-		$app = $this->getApp();
-
-		// Locate a config file
-		$actual = $app['config.locator']->locate('config');
-		$expected = $app['config.directories'][0].'/config.yml';
-
-		$this->assertEquals($actual, $expected);
-	}
-
 	public function testConfigLoader()
 	{
 		$app = $this->getApp();
@@ -73,19 +62,11 @@ class ConfigTest extends PHPUnit_Framework_TestCase {
 		// Register the config service
 		$app->register(new ConfigServiceProvider);
 
-		// Override some stuff
-		$app['config.data'] = array(
-			'key' => 'default-data',
-			'new' => 'data'
-		);
-
 		$app['config.files'] = array(
 			'config'
 		);
 
-		$app['config.directories'] = $app->share(function ($app) {
-		    return array(__DIR__.'/stubs/config');
-		});
+		$app['config.directories'] = array(__DIR__.'/stubs/config');
 
 		return $app;
 	}

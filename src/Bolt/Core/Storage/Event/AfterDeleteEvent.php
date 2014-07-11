@@ -1,10 +1,10 @@
 <?php
 
-namespace Bolt\Core\Controller\Event;
+namespace Bolt\Core\Storage\Event;
 
 use Symfony\Component\EventDispatcher\Event;
 
-class AfterUpdateEvent extends Event
+class AfterDeleteEvent extends Event
 {
     protected $request;
 
@@ -12,14 +12,11 @@ class AfterUpdateEvent extends Event
 
     protected $id;
 
-    protected $isSuccessful;
-
-    public function __construct($request, $contentType, $id, $isSuccessful)
+    public function __construct($request, $contentType, $id)
     {
         $this->request = $request;
         $this->contentType = $contentType;
         $this->id = $id;
-        $this->isSuccessful = $isSuccessful;
     }
 
     public function getRequest()
@@ -35,11 +32,6 @@ class AfterUpdateEvent extends Event
     public function getId()
     {
         return $this->id;
-    }
-
-    public function isSuccessful()
-    {
-        return $this->isSuccessful;
     }
 
 }

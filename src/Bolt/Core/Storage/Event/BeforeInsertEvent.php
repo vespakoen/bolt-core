@@ -1,6 +1,6 @@
 <?php
 
-namespace Bolt\Core\Controller\Event;
+namespace Bolt\Core\Storage\Event;
 
 use Symfony\Component\EventDispatcher\Event;
 

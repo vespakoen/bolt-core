@@ -87,7 +87,13 @@ class ConfigServiceProvider implements ServiceProviderInterface
     protected function registerConfig(Application $app)
     {
         $app['config'] = $app->share(function ($app) {
-            return new Config($app['config.loader'], $app['config.files'], $app['config.data']);
+            $data = $app['config.data'];
+
+            foreach ($app['config.files'] as $as => $key) {
+                $data[is_string($as) ? $as : $key] = $app['config.loader']->load($key);
+            }
+
+            return new Config($data);
         });
     }
 

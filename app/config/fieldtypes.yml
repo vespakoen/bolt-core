@@ -1,3 +1,0 @@
-geometry:
-    doctrineType: CrEOF\Spatial\DBAL\Types\GeometryType
-    serializer: Bolt\Core\FieldType\Serializer\GeometrySerializer
