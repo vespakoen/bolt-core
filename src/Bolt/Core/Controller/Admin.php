@@ -53,6 +53,7 @@ class Admin extends Controller implements ControllerProviderInterface
         $controllers->get('/', 'controller.admin:getDashboard');
         $controllers->get('dashboard', 'controller.admin:getDashboard')->bind('admin.dashboard');
         $controllers->get('graph', 'controller.admin:getGraph')->bind('admin.graph');
+        $controllers->get('contentaction', 'controller.admin:getContentaction')->bind('contentaction');
         $controllers->get('setproject/{projectId}', 'controller.admin:getSetproject')->bind('setproject');
         $controllers->get('{contentTypeKey}/', 'controller.admin:getOverview')->bind('overview');
         $controllers->get('{contentTypeKey}/manage', 'controller.admin:getManage')->bind('manage.new');
