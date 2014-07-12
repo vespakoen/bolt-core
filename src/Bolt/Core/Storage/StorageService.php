@@ -24,6 +24,30 @@ class StorageService
         $this->eventDispatcher = $eventDispatcher;
     }
 
+    public function getForListing(ContentType $contentType, Request $request)
+    {
+        $defaultFields = $contentType->getDefaultFields();
+        $defaultSort = $defaultFields->forPurpose('datechanged')->getKey();
+        $sort = $request->get('sort', $defaultSort);
+        $order = $request->get('order', 'desc');
+        $offset = (int) $request->get('offset', 0);
+        $limit = (int) $request->get('limit', 100);
+        $search = $request->get('search', null);
+
+        $repository = $this->getReadRepository($contentType);
+
+        $wheres = $this->getWheres($contentType);
+
+        return $repository->get($wheres, false, $sort, $order, $offset, $limit, $search);
+    }
+
+    public function getForManage(ContentType $contentType, $id = null)
+    {
+        $repository = $this->getReadRepository($contentType);
+
+        return $repository->find($id);
+    }
+
     public function insert(ContentType $contentType, Request $request)
     {
         $this->fireBeforeInsertEvent($request, $contentType);
@@ -120,6 +144,12 @@ class StorageService
         return true;
     }
 
+    public function getReadRepository($contentType)
+    {
+        // $this->app['repository.resolver.read']->resolve($contentType);
+        return $this->app['repository.eloquent.' . $contentType->getKey()];
+    }
+
     protected function getWriteRepositories($contentType)
     {
         // $this->app['repository.resolver.write']->resolve($contentType);
@@ -133,6 +163,27 @@ class StorageService
         $connection = $this->app['db'];
         $sql = 'SELECT ' . $connection->getDatabasePlatform()->getGuidExpression();
         return $connection->query($sql)->fetchColumn(0);
+    }
+
+    protected function getWheres($contentType)
+    {
+        // filter if filter=true, only filter when filter=false if the user is an admin
+        if ($contentType->get('filter', true) == false && $this->app['user']->hasRole('ROLE_ADMIN')) {
+            return array();
+        }
+
+        // if we are filtering projects, it cannot be done by the relationship but must be filtered on the id
+        $contentTypeIsCurrentProject = $this->app['project.service']->isProjectsContentType($contentType);
+        if ($contentTypeIsCurrentProject) {
+            return array(
+                $contentType->getTableName() . '.id' => $this->app['project.service']->getCurrentProjectId()
+            );
+        }
+
+        // filter on the relation to a project
+        return array(
+            'incoming.to_id' => $this->app['project.service']->getCurrentProjectId()
+        );
     }
 
     protected function fireBeforeInsertEvent($request, $contentType)

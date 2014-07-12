@@ -2,10 +2,13 @@
 
 namespace Bolt\Core\Controller;
 
+use DateTime;
+
 use Silex\Application;
 use Silex\ControllerProviderInterface;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class Frontend extends Controller implements ControllerProviderInterface
 {
@@ -26,7 +29,10 @@ class Frontend extends Controller implements ControllerProviderInterface
 
     public function getHome(Request $request, Application $app)
     {
-        return $this->view('frontend/home');
+        $expires = with(new \DateTime())->setTimestamp(strtotime('+1 day'));
+
+        return Response::create($this->view('frontend/home'), 200)
+            ->setExpires($expires);
     }
 
     public function getDownload(Request $request, Application $app, $namespace)

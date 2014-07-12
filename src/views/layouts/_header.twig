@@ -111,7 +111,7 @@
           <section class="scrollable">
             <div class="slim-scroll" data-height="auto" data-disable-fade-out="true" data-distance="0" data-size="5px">
               {% set projects = app.user.getProjects %}
-              {% set currentProject = projects.get(app.session.get('project_id')) %}
+              {% set currentProject = app['project.service'].getCurrentProject %}
               <div class="nav-user nav-primary hidden-xs pos-rlt">
                 <div class="nav-avatar pos-rlt">
                   <a href="#" class="thumb-sm avatar animated rollIn" data-toggle="dropdown">

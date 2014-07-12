@@ -15,9 +15,10 @@ use DateTime;
 
 class Async extends Controller implements ControllerProviderInterface
 {
-    public function __construct($app)
+    public function __construct($app, $storageService)
     {
         $this->app = $app;
+        $this->storageService = $storageService;
     }
 
     public function connect(Application $app)
@@ -36,19 +37,7 @@ class Async extends Controller implements ControllerProviderInterface
             $app->abort(404, "Contenttype $contentTypeKey does not exist.");
         }
 
-        $defaultFields = $contentType->getDefaultFields();
-        $defaultSort = $defaultFields->forPurpose('datechanged')->getKey();
-        $sort = $request->get('sort', $defaultSort);
-        $order = $request->get('order', 'asc');
-        $offset = $request->get('offset', null);
-        $limit = $request->get('limit', null);
-        $search = $request->get('search', null);
-
-        $repository = $this->getReadRepository($contentType);
-
-        $getAll = $request->get('originatorContentTypeKey') == $app['config']->get('app/project/contenttype');
-        $wheres = $this->getWheres($contentType, $getAll);
-        $contents = $repository->get($wheres, false, $sort, $order, $offset, $limit, $search);
+        $contents = $this->storageService->getForListing($contentType, $request);
 
         return $this->json(array_values($contents->toArray()));
     }

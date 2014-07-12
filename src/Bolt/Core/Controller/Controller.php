@@ -36,32 +36,4 @@ class Controller
         return new JsonResponse($data);
     }
 
-    public function getReadRepository($contentType)
-    {
-        // $this->app['repository.resolver.read']->resolve($contentType);
-        return $this->app['repository.eloquent.' . $contentType->getKey()];
-    }
-
-    protected function getWheres($contentType, $getAll = false)
-    {
-        if ($getAll && $this->app['user']->hasRole('ROLE_ADMIN')) {
-            return array();
-        }
-
-        $projectKey = $this->app['config']->get('app/project/contenttype');
-        if ($contentType->getKey() == $projectKey) {
-            return array(
-                $projectKey . '.id' => $this->app['session']->get('project_id')
-            );
-        }
-
-        if ($contentType->get('filter', true) == false) {
-            return array();
-        }
-
-        return array(
-            'incoming.to_id' => $this->app['session']->get('project_id')
-        );
-    }
-
 }

@@ -13,6 +13,13 @@ class Content implements ArrayableInterface
         $this->contentType = $contentType;
     }
 
+    public function getId()
+    {
+        $idField = $this->contentType->getDefaultFields()->forPurpose('id');
+
+        return $this->get($idField->getKey());
+    }
+
     public function getAttribute($key, $default = null)
     {
         return array_get($this->attributes, $key, $default);

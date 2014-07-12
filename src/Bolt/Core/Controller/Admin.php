@@ -6,7 +6,6 @@ use Silex\Application;
 use Silex\ControllerProviderInterface;
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 use Illuminate\Support\Collection;
 
@@ -23,32 +22,6 @@ class Admin extends Controller implements ControllerProviderInterface
     public function connect(Application $app)
     {
         $controllers = $app['controllers_factory'];
-
-        $app->before(function($request) use ($app) {
-            $segments = explode('/', trim($request->getPathInfo(), '/'));
-            $segments = array_filter($segments, function($v) { return $v != ''; });
-            $segment = array_get($segments, 0);
-            if($segment !== $app['config']->get('app/branding/path')) {
-                return;
-            }
-
-            // Require login. This should never actually cause access to be denied,
-            // but it causes a login form to be rendered if the viewer is not logged in.
-            if( ! in_array($request->get('_route'), array('user.login', 'user.register', 'user.logout'))) {
-                if (!$app['user']) {
-                    throw new AccessDeniedException();
-                }
-
-                if ($app['config']->get('app/project')) {
-                    $app['projects'] = $app['user']->getProjects();
-                    if ( ! $app['session']->has('project_id') || ! $app['projects']->has($app['session']->get('project_id'))) {
-                        $project = $app['projects']->first();
-                        $app['session']->set('project_id', $project->get('id'));
-                        $app['session']->set('project_namespace', str_replace('.', '', $project->get('namespace')));
-                    }
-                }
-            }
-        });
 
         $controllers->get('/', 'controller.admin:getDashboard');
         $controllers->get('dashboard', 'controller.admin:getDashboard')->bind('admin.dashboard');
@@ -71,22 +44,21 @@ class Admin extends Controller implements ControllerProviderInterface
     {
         $contentTypeContent = new Collection();
 
+        if ( ! $request->query->has('offset')) {
+            $request->query->set('offset', 0);
+        }
+
+        if ( ! $request->query->has('limit')) {
+            $request->query->set('limit', 5);
+        }
+
         $contentTypes = array();
         foreach ($app['contenttypes'] as $contentType) {
             // skip stuff we don't want the user to see
             $role = $contentType->get('role', 'ROLE_USER');
             if ( ! $app['user']->hasRole($role) || $contentType->get('system', false) == true) continue;
 
-            $defaultFields = $contentType->getDefaultFields();
-            $defaultSort = $defaultFields->forPurpose('datechanged')->getKey();
-            $sort = $request->get('sort', $defaultSort);
-            $search = $request->get('search', null);
-
-            $repository = $this->getReadRepository($contentType);
-
-            $wheres = $this->getWheres($contentType);
-            $contents = $repository->get($wheres, true, $sort, 'asc', 0, 5, $search);
-
+            $contents = $this->storageService->getForListing($contentType, $request);
             $contentTypeContent->put($contentType->getKey(), $contents);
             $contentTypes[] = $contentType;
         }
@@ -100,18 +72,7 @@ class Admin extends Controller implements ControllerProviderInterface
             $app->abort(404, "Contenttype $contentTypeKey does not exist.");
         }
 
-        $defaultFields = $contentType->getDefaultFields();
-        $defaultSort = $defaultFields->forPurpose('datechanged')->getKey();
-        $sort = $request->get('sort', $defaultSort);
-        $order = $request->get('order', 'desc');
-        $offset = $request->get('offset', 0);
-        $limit = $request->get('limit', 100);
-        $search = $request->get('search', null);
-
-        $repository = $this->getReadRepository($contentType);
-
-        $wheres = $this->getWheres($contentType);
-        $contents = $repository->get($wheres, false, $sort, $order, $offset, $limit, $search);
+        $contents = $this->storageService->getForListing($contentType, $request);
 
         return $this->view('layouts/overview', compact('contents', 'contentType'));
     }
@@ -125,22 +86,19 @@ class Admin extends Controller implements ControllerProviderInterface
         if (is_null($id)) {
             $content = $app['content.factory']->create(array(), $contentType);
         } else {
-            $repository = $this->getReadRepository($contentType);
-            $content = $repository->find($id);
+            $content = $this->storageService->getForManage($contentType, $id);
 
             if( ! $content) {
                 $app->abort(404);
             }
         }
 
-        // make sure the current project is available in the project relations
-        if ($projectKey = $app['config']->get('app/project/contenttype')) {
-            $projects = $content->getAttribute('outgoing.' . $projectKey, new ContentCollection);
-            $projectId = $app['session']->get('project_id');
-            $currentAppIds = $projects->keys();
-            if ( ! in_array($projectId, $currentAppIds) && $contentType->get('auto_link_to_project', true)) {
-                $projects->put($projectId, $app['projects']->get($projectId));
-                $content->setAttribute('outgoing.' . $projectKey, $projects);
+        if ($autoRelate = $contentType->get('auto_relate')) {
+            foreach ($autoRelate as $relateKey) {
+                $relationKey = $app['config']->get('app/' . $relateKey . '/contenttype');
+                $related = $content->getAttribute('outgoing.' . $relationKey, new ContentCollection);
+                $related->put($app[$relateKey]->getId(), $app[$relateKey]);
+                $content->setAttribute('outgoing.' . $relationKey, $related);
             }
         }
 
@@ -256,16 +214,13 @@ class Admin extends Controller implements ControllerProviderInterface
     {
         $relations = array();
         foreach ($app['contenttypes'] as $contentType) {
-            // echo $contentType->getName().'<br>';
             foreach ($contentType->getRelations() as $i => $relation) {
-                // echo " - " . $relation->getOther().($relation->get('inverted', false) ? ' (inverted)' : '').'<br>';
                 $relations[] = array(
                     'id' => $i,
                     'source' => $contentType->getKey(),
                     'target' => $relation->getOther()
                 );
             }
-            // echo "<br>";
         }
 
         return $this->view('layouts/graph', compact('relations'));
@@ -274,11 +229,9 @@ class Admin extends Controller implements ControllerProviderInterface
     public function getSetproject(Request $request, Application $app, $projectId)
     {
         if ($app['config']->get('app/project')) {
-            $projects = $app['projects']->filterByAttribute('id', $projectId);
-            if( ! $projects->isEmpty()) {
-                $project = $projects->first();
-                $app['session']->set('project_id', $project->get('id'));
-                $app['session']->set('project_namespace', str_replace('.', '', $project->get('namespace')));
+            $project = $app['projects']->findByMethod('getId', $projectId);
+            if($project) {
+                $app['project.service']->setCurrentProject($project);
             }
         }
 

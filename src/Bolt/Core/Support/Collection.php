@@ -18,6 +18,25 @@ class Collection extends IlluminateCollection
         });
     }
 
+    public function findBy($key, $value, $default = null)
+    {
+        return $this->filterBy($key, $value, $default)
+            ->first();
+    }
+
+    public function filterByMethod($method, $value)
+    {
+        return $this->filter(function($item) use ($method, $value) {
+            return $item->$method() == $value;
+        });
+    }
+
+    public function findByMethod($method, $value)
+    {
+        return $this->filterByMethod($method, $value)
+            ->first();
+    }
+
     /**
      * Get an array with the values of a given key.
      *

@@ -22,7 +22,7 @@ class ControllerServiceProvider implements ServiceProviderInterface
         });
 
         $app['controller.async'] = $app->share(function($app) {
-            return new Async($app);
+            return new Async($app, $app['storage.service']);
         });
     }
 
