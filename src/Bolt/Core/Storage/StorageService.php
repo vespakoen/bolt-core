@@ -43,9 +43,13 @@ class StorageService
 
     public function getForManage(ContentType $contentType, $id = null)
     {
-        $repository = $this->getReadRepository($contentType);
+        if (is_null($id)) {
+            return $this->app['content.factory']->create(array(), $contentType);
+        } else {
+            $repository = $this->getReadRepository($contentType);
 
-        return $repository->find($id);
+            return $repository->find($id);
+        }
     }
 
     public function insert(ContentType $contentType, Request $request)

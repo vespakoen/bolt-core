@@ -42,8 +42,6 @@ class Admin extends Controller implements ControllerProviderInterface
 
     public function getDashboard(Request $request, Application $app)
     {
-        $contentTypeContent = new Collection();
-
         if ( ! $request->query->has('offset')) {
             $request->query->set('offset', 0);
         }
@@ -53,6 +51,7 @@ class Admin extends Controller implements ControllerProviderInterface
         }
 
         $contentTypes = array();
+        $contentTypeContent = new Collection();
         foreach ($app['contenttypes'] as $contentType) {
             // skip stuff we don't want the user to see
             $role = $contentType->get('role', 'ROLE_USER');
@@ -83,14 +82,10 @@ class Admin extends Controller implements ControllerProviderInterface
             $app->abort(404, "Contenttype $contentTypeKey does not exist.");
         }
 
-        if (is_null($id)) {
-            $content = $app['content.factory']->create(array(), $contentType);
-        } else {
-            $content = $this->storageService->getForManage($contentType, $id);
+        $content = $this->storageService->getForManage($contentType, $id);
 
-            if( ! $content) {
-                $app->abort(404);
-            }
+        if( ! $content) {
+            $app->abort(404);
         }
 
         if ($autoRelate = $contentType->get('auto_relate')) {
