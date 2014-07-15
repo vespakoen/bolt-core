@@ -46,15 +46,6 @@ class RelationCollection
 
     protected function validateRelations($collection)
     {
-        foreach($collection as $relation) {
-            $other = $relation->getOther();
-            if(is_null($other)) continue;
-
-            if(!$collection->has($other))
-            {
-                $this->app['notify']->error(sprintf('Invalid relation configuration given, the "other" key (%s) for the relation "%s" does not exist.', $other, $relation->getKey()));
-            }
-        }
     }
 
     protected function getRelationCollectionClass()

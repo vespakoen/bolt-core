@@ -11,11 +11,11 @@ class Relation
         $this->app = $app;
     }
 
-    public function create($app, $key, $other, $type, $options = array())
+    public function create($key, $options = array())
     {
         $relationClass = $this->getRelationClass();
 
-        return new $relationClass($this->app, $key, $other, $type, $options);
+        return new $relationClass($this->app, $key, $options);
     }
 
     public function fromConfig($key, $config = array())
@@ -24,14 +24,7 @@ class Relation
 
         $this->validateConfig($key, $config);
 
-        $app = $this->app;
-
-        $other = array_get($config, 'other');
-        $type = array_get($config, 'type');
-
-        $options = array_except($config, array('other', 'type'));
-
-        return new $relationClass($app, $key, $other, $type, $options);
+        return $this->create($key, $config);
     }
 
     public function validateConfig($key, $config)

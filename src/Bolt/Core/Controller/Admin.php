@@ -192,14 +192,12 @@ class Admin extends Controller implements ControllerProviderInterface
 
     public function getResetElasticsearch(Request $request, Application $app)
     {
-        $namespaces = $app['projects']->lists('namespace');
-        $namespaces[] = "trapps";
+        $projects = $app['projects'];
 
-        foreach ($namespaces as $namespace) {
-            $namespace = str_replace('.', '', $namespace);
-            $app['elasticsearch.manager']->dropIndex($namespace);
-            $app['elasticsearch.manager']->createIndex($namespace);
-            $app['elasticsearch.manager']->syncAll($namespace);
+        foreach ($projects as $project) {
+            $app['elasticsearch.manager']->dropIndex($project);
+            $app['elasticsearch.manager']->createIndex($project);
+            $app['elasticsearch.manager']->syncAll($project);
         }
 
         return "Done!";

@@ -80,15 +80,17 @@ class StorageService
         }
 
         // insert it
-        $repositories = $this->getWriteRepositories($contentType);
-        foreach ($repositories as $repository) {
-            $isSuccessful = $repository->store($input);
-            if ( ! $isSuccessful) {
-                return false;
-            }
+        $repository = $this->getWriteRepository($contentType);
+        $isSuccessful = $repository->store($input);
+        if ( ! $isSuccessful) {
+            return false;
         }
 
+        $relationData = $parameters->get('links', array());
+
         $this->fireAfterInsertEvent($request, $contentType, $isSuccessful);
+
+        $this->updateRelations($contentType, $id, $relationData);
 
         return true;
     }
@@ -119,15 +121,17 @@ class StorageService
         }
 
         // update it
-        $repositories = $this->getWriteRepositories($contentType);
-        foreach ($repositories as $repository) {
-            $isSuccessful = $repository->update($id, $input);
-            if ( ! $isSuccessful) {
-                return false;
-            }
+        $repository = $this->getWriteRepository($contentType);
+        $isSuccessful = $repository->update($id, $input);
+        if ( ! $isSuccessful) {
+            return false;
         }
 
+        $relationData = $parameters->get('links', array());
+
         $this->fireAfterUpdateEvent($request, $contentType, $id, $isSuccessful);
+
+        $this->updateRelations($contentType, $id, $relationData);
 
         return true;
     }
@@ -136,16 +140,23 @@ class StorageService
     {
         $this->fireBeforeDeleteEvent($request, $contentType, $id);
 
-        $repositories = $this->getWriteRepositories($contentType);
-        foreach ($repositories as $repository) {
-            if ( ! $repository->delete($id)) {
-                return false;
-            }
+        $repository = $this->getWriteRepository($contentType);
+        if ( ! $repository->delete($id)) {
+            return false;
         }
 
         $this->fireAfterDeleteEvent($request, $contentType, $id);
 
+        // remove all relations from and to this content
+        $this->updateRelations($contentType, $id, array());
+
         return true;
+    }
+
+    protected function updateRelations($contentType, $firstId, $relationData)
+    {
+        $repository = $this->getWriteRepository($contentType);
+        $repository->updateRelations($firstId, $relationData);
     }
 
     public function getReadRepository($contentType)
@@ -154,12 +165,10 @@ class StorageService
         return $this->app['repository.eloquent.' . $contentType->getKey()];
     }
 
-    protected function getWriteRepositories($contentType)
+    protected function getWriteRepository($contentType)
     {
         // $this->app['repository.resolver.write']->resolve($contentType);
-        return array(
-            $this->app['repository.eloquent.' . $contentType->getKey()]
-        );
+        return $this->app['repository.eloquent.' . $contentType->getKey()];
     }
 
     protected function getNewId()

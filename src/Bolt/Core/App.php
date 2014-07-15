@@ -41,11 +41,15 @@ class App extends Application
 
         // register fieldtypes from config
         $fieldTypesConfig = $this['config']->get('fieldtypes');
-        $this['fieldtypes'] = $this['fieldtypes.factory']->fromConfig($fieldTypesConfig);
+        if ($fieldTypesConfig) {
+            $this['fieldtypes'] = $this['fieldtypes.factory']->fromConfig($fieldTypesConfig);
+        }
 
         // register contenttypes from config
         $contentTypeConfig = $this['config']->get('contenttypes');
-        $this['contenttypes'] = $this['contenttypes.factory']->fromConfig($contentTypeConfig);
+        if ($contentTypeConfig) {
+            $this['contenttypes'] = $this['contenttypes.factory']->fromConfig($contentTypeConfig);
+        }
 
         $this->after(function() {
         });

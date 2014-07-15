@@ -36,6 +36,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
     {
         $this->registerConfigData($app);
         $this->registerDirectories($app);
+        $this->registerConfigFiles($app);
         $this->registerLocator($app);
         $this->registerLoader($app);
         $this->registerConfig($app);
@@ -44,30 +45,41 @@ class ConfigServiceProvider implements ServiceProviderInterface
 
     protected function registerConfigData(Application $app)
     {
-        $app['config.data'] = array();
+        if ( ! isset($app['config.data'])) {
+            $app['config.data'] = array();
+        }
     }
 
     protected function registerDirectories(Application $app)
     {
-        $app['config.directories'] = $app->share(function ($app) {
-            $paths = array();
+        if ( ! isset($app['config.directories'])) {
+            $app['config.directories'] = $app->share(function ($app) {
+                $paths = array();
 
-            if (isset($app['project']) && ! is_null($app['project'])) {
-                if (isset($app['env']) && ! is_null($app['env'])) {
-                    $paths[] = $app['paths']['app'].'/config/'.$app['project'].'/'.$app['env'];
+                if (isset($app['project']) && ! is_null($app['project'])) {
+                    if (isset($app['env']) && ! is_null($app['env'])) {
+                        $paths[] = $app['paths']['app'].'/config/'.$app['project'].'/'.$app['env'];
+                    }
+
+                    $paths[] = $app['paths']['app'].'/config/'.$app['project'];
                 }
 
-                $paths[] = $app['paths']['app'].'/config/'.$app['project'];
-            }
+                if (isset($app['env']) && ! is_null($app['env'])) {
+                    $paths[] = $app['paths']['app'].'/config/'.$app['env'];
+                }
 
-            if (isset($app['env']) && ! is_null($app['env'])) {
-                $paths[] = $app['paths']['app'].'/config/'.$app['env'];
-            }
+                $paths[] = $app['paths']['app'].'/config/';
 
-            $paths[] = $app['paths']['app'].'/config/';
+                return $paths;
+            });
+        }
+    }
 
-            return $paths;
-        });
+    protected function registerConfigFiles(Application $app)
+    {
+        if ( ! isset($app['config.files'])) {
+            $app['config.files'] = array();
+        }
     }
 
     protected function registerLocator(Application $app)

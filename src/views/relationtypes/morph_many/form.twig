@@ -8,9 +8,9 @@
 {% set options = [] %}
 
 {% if relation.get('inverted', false) %}
-{% set related = content.get('incoming.' ~ relation.getOther) %}
+{% set related = content.get('incoming.' ~ relation.get('other')) %}
 {% else %}
-{% set related = content.get('outgoing.' ~ relation.getOther) %}
+{% set related = content.get('outgoing.' ~ relation.get('other')) %}
 {% endif %}
 {% for uuid, other in related %}
     {% set selectedOptions = selectedOptions|merge([other.id]) %}
@@ -23,19 +23,19 @@
 {% endfor %}
 
 {% if relation.get('multiple', false) %}
-<select name='links[{{relation.getOther}}][]' id='relation-{{relation.getOther}}' class='wide' multiple data-placeholder="(none)">
+<select name='links[{{relation.get('other')}}][]' id='relation-{{relation.get('other')}}' class='wide' multiple data-placeholder="(none)">
 {% else %}
-<select name='links[{{relation.getOther}}][]' id='relation-{{relation.getOther}}' class='wide' data-placeholder="(none)">
+<select name='links[{{relation.get('other')}}][]' id='relation-{{relation.get('other')}}' class='wide' data-placeholder="(none)">
 {% endif %}
 </select>
 <script>
-    var $select = $('#relation-{{relation.getOther}}').selectize({
+    var $select = $('#relation-{{relation.get('other')}}').selectize({
         valueField: 'id',
         labelField: 'title',
         searchField: 'title',
         options: {{ options|json_encode()|raw }},
         load: function(query, callback) {
-            $.get('{{ path('async.content', {contentTypeKey: relation.getOther, originatorContentTypeKey: content.contentType.getKey}) }}', function(results) {
+            $.get('{{ path('async.content', {contentTypeKey: relation.get('other'), originatorContentTypeKey: content.contentType.getKey}) }}', function(results) {
                 var data = [];
                 _.each(results, function(result) {
                     data.push({
@@ -74,14 +74,14 @@
     selectize.setValue([{% for id in selectedOptions %}'{{ id }}',{% endfor %}]);
 </script>
 {#
-{% for uuid, other in content.get('incoming.' ~ relation.getOther) %}
+{% for uuid, other in content.get('incoming.' ~ relation.get('other')) %}
     {{ dump(uuid) }}
     {{ dump(other.get('title_nl')) }}
 {% endfor %}
  #}
 
 {#
-<a class="btn btn-primary" data-toggle="modal" data-target="#modal-{{relation.getOther}}">
+<a class="btn btn-primary" data-toggle="modal" data-target="#modal-{{relation.get('other')}}">
     <i class="fa fa-plus"></i> {% if relation.label %}{{ relation.label|trans }}{% else %}{{ relcontenttype|ucfirst|trans }}{% endif %}
 </a>
 #}

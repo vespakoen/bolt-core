@@ -17,12 +17,10 @@ class Relation extends ConfigObject
 
     protected $options;
 
-    public function __construct($app, $key, $other, $type, $options = array())
+    public function __construct($app, $key, $options = array())
     {
         $this->app = $app;
         $this->key = $key;
-        $this->other = $other;
-        $this->type = $type;
         $this->options = array_merge($this->getDefaultOptions(), $options);
 
         $this->validate();
@@ -35,12 +33,14 @@ class Relation extends ConfigObject
 
     public function getOther()
     {
-        return $this->other;
+        $other = $this->get('other');
+
+        return $this->app['contenttypes']->get($other);
     }
 
     public function getType()
     {
-        return $this->type;
+        return $this->get('type');
     }
 
     public function getLabel()

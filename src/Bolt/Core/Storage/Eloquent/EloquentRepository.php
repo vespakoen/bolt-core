@@ -4,6 +4,7 @@ namespace Bolt\Core\Storage\Eloquent;
 
 use Bolt\Core\Storage\Repository;
 use Bolt\Core\Config\Object\ContentType;
+use Bolt\Core\Config\Object\Collection\ContentCollection;
 use Bolt\Core\Storage\ReadRepositoryInterface;
 use Bolt\Core\Storage\WriteRepositoryInterface;
 
@@ -176,6 +177,7 @@ class EloquentRepository extends Repository implements ReadRepositoryInterface, 
                 $record['outgoing'][$contentTypeKey] = $this->app['contents.factory']->create($contents, $this->app['contenttypes']->get($contentTypeKey));
             }
         }
+
         return $records;
     }
 
@@ -192,10 +194,6 @@ class EloquentRepository extends Repository implements ReadRepositoryInterface, 
             ->create($input);
 
         if ($result) {
-            if (array_key_exists('links', $input) && ! empty($input['links'])) {
-                $this->updateRelations($input['id'], $input['links']);
-            }
-
             return $result->toArray();
         }
 
@@ -215,10 +213,6 @@ class EloquentRepository extends Repository implements ReadRepositoryInterface, 
             $result = $model->save();
 
             if ($result) {
-                if (array_key_exists('links', $input) && ! empty($input['links'])) {
-                    $this->updateRelations($id, $input['links']);
-                }
-
                 return $model->toArray();
             }
         }
@@ -245,52 +239,77 @@ class EloquentRepository extends Repository implements ReadRepositoryInterface, 
         return $model->delete();
     }
 
-    public function updateRelations($fromId, $relationData)
+    public function updateRelations($firstId, $relationData)
     {
+        $content = $this->find($firstId, true);
         $relations = $this->contentType->getRelations();
-        $fromType = $this->contentType->getKey();
+        $firstType = $this->contentType->getKey();
 
+        $inserts = array();
         $relationModel = $this->app['model.eloquent.relations'];
+        foreach ($relations as $key => $relation) {
+            $other = $relation->getOther();
+            $secondType = $other->getTableName();
 
-        // remove current outgoing relations
-        $relationModel
-            ->where('from_type', '=', $fromType)
-            ->where('from_id', '=', $fromId)
-            ->delete();
+            $isIncoming = $relation->get('inverted', false);
 
-        $newRelations = array();
-        foreach ($relationData as $toType => $toIds) {
-            $relation = $relations->get($toType);
-            if ($relation->get('inverted', false)) {
-                $relationModel
-                    ->where('to_type', '=', $fromType)
-                    ->where('to_id', '=', $fromId)
-                    ->delete();
+            // grab the current relations
+            $relationKey = ($isIncoming ? 'incoming' : 'outgoing') . '.' . $other->getTableName();
+            $currentRelations = $content->get($relationKey, new ContentCollection)->keys();
 
-                foreach ($toIds as $toId) {
-                    $newRelations[] = array(
+            // grab the new relations
+            $newRelations = isset($relationData[$key]) ? $relationData[$key] : array();
+
+            // grab the ones that need to be removed
+            $obsoleteRelations = array_diff($currentRelations, $newRelations);
+
+            // grab the new relations
+            $newRelations = array_diff($newRelations, $currentRelations);
+
+            if ($isIncoming) {
+                if (count($obsoleteRelations) > 0) {
+                    // delete relations that became obsolete
+                    $relationModel
+                        ->where('to_type', '=', $firstType)
+                        ->where('to_id', '=', $firstId)
+                        ->whereIn('from_id', $obsoleteRelations)
+                        ->delete();
+                }
+
+                // add new relations
+                foreach ($newRelations as $otherId) {
+                    $inserts[] = array(
                         'id' => $this->uuid(),
-                        'to_type' => $fromType,
-                        'to_id' => $fromId,
-                        'from_type' => $toType,
-                        'from_id' => $toId
+                        'to_type' => $firstType,
+                        'to_id' => $firstId,
+                        'from_type' => $secondType,
+                        'from_id' => $otherId
                     );
                 }
             } else {
-                foreach ($toIds as $toId) {
-                    $newRelations[] = array(
+                if (count($obsoleteRelations) > 0) {
+                    // delete relations that became obsolete
+                    $relationModel
+                        ->where('from_type', '=', $firstType)
+                        ->where('from_id', '=', $firstId)
+                        ->whereIn('to_id', $obsoleteRelations)
+                        ->delete();
+                }
+
+                foreach ($newRelations as $otherId) {
+                    $inserts[] = array(
                         'id' => $this->uuid(),
-                        'from_type' => $fromType,
-                        'from_id' => $fromId,
-                        'to_type' => $toType,
-                        'to_id' => $toId
+                        'to_type' => $secondType,
+                        'to_id' => $otherId,
+                        'from_type' => $firstType,
+                        'from_id' => $firstId
                     );
                 }
             }
         }
 
-        if(count($newRelations) > 0) {
-            $relationModel->insert($newRelations);
+        if (count($inserts) > 0) {
+            $relationModel->insert($inserts);
         }
     }
 
@@ -315,9 +334,9 @@ class EloquentRepository extends Repository implements ReadRepositoryInterface, 
     {
         if (function_exists('com_create_guid') === true)
         {
-            return trim(com_create_guid(), '{}');
+            return strtolower(trim(com_create_guid(), '{}'));
         }
 
-        return sprintf('%04X%04X-%04X-%04X-%04X-%04X%04X%04X', mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(16384, 20479), mt_rand(32768, 49151), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535));
+        return strtolower(sprintf('%04X%04X-%04X-%04X-%04X-%04X%04X%04X', mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(16384, 20479), mt_rand(32768, 49151), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535)));
     }
 }
