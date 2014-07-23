@@ -1,0 +1,17 @@
+{% set attributes = {
+    'value': '1',
+    'type': 'checkbox',
+    'style': 'width: 20px'
+}|merge(attributes) %}
+
+<div class="form-group{% if errors|length > 0 %} has-error{% endif %}">
+    <input
+        {% for attrKey, attrVal in attributes %}
+        {{ attrKey }}="{{ attrVal }}"
+        {% endfor %}
+        {% if value == true %}checked="checked"{% endif %}>
+
+    {% for error in errors %}
+    <span class="help-block">{{ __(error) }}</span>
+    {% endfor %}
+</div>

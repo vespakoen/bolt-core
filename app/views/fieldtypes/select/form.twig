@@ -1,0 +1,19 @@
+{% set attributes = attributes|merge({
+    'name': attributes['name'] ~ (field.get('multiple') ? '[]' : '')
+}) %}
+
+<div class="form-group{% if errors|length > 0 %} has-error{% endif %}">
+    <select
+        {% for attrKey, attrVal in attributes %}
+        {{ attrKey }}="{{ attrVal }}"
+        {% endfor %}
+        {% if field.get('multiple') %}multiple="multiple"{% endif %}>
+        {% for key, label in field.options.values %}
+        <option value="{{ key }}"{% if(key == value or key in value) %} selected="selected"{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+
+    {% for error in errors %}
+    <span class="help-block">{{ __(error) }}</span>
+    {% endfor %}
+</div>

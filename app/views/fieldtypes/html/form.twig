@@ -1,0 +1,29 @@
+{% set attributes = {
+    'style': 'height: 400px',
+}|merge(attributes) %}
+
+<div class="form-group{% if errors|length > 0 %} has-error{% endif %}">
+    <textarea
+        {% for attrKey, attrVal in attributes %}
+        {{ attrKey }}="{{ attrVal }}"
+        {% endfor %}>{{ value|raw }}</textarea>
+
+    {% for error in errors %}
+    <span class="help-block">{{ __(error) }}</span>
+    {% endfor %}
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('#{{ id }}').wysihtml5({
+            stylesheets: false,
+            "font-styles": true,
+            emphasis: true,
+            lists: true,
+            html: false,
+            link: true,
+            image: true,
+            color: false
+        });
+    });
+</script>
