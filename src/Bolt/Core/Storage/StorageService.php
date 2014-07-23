@@ -5,6 +5,7 @@ namespace Bolt\Core\Storage;
 use DateTime;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\ParameterBag;
 
 use Bolt\Core\Config\Object\ContentType;
 use Bolt\Core\Storage\StorageEvents;
@@ -24,6 +25,16 @@ class StorageService
         $this->eventDispatcher = $eventDispatcher;
     }
 
+    public function getNew(ContentType $contentType)
+    {
+        $idKey = $contentType->getIdField()
+            ->getKey();
+
+        $idValue = $this->getNewId();
+
+        return $this->app['content.factory']->create(array($idKey => $idValue), $contentType);
+    }
+
     public function getForListing(ContentType $contentType, Request $request)
     {
         $defaultFields = $contentType->getDefaultFields();
@@ -38,13 +49,13 @@ class StorageService
 
         $wheres = $this->getWheres($contentType);
 
-        return $repository->get($wheres, false, $sort, $order, $offset, $limit, $search);
+        return $repository->get($wheres, true, $sort, $order, $offset, $limit, $search);
     }
 
     public function getForManage(ContentType $contentType, $id = null)
     {
         if (is_null($id)) {
-            return $this->app['content.factory']->create(array(), $contentType);
+            return $this->getNew($contentType);
         } else {
             $repository = $this->getReadRepository($contentType);
 
@@ -52,11 +63,9 @@ class StorageService
         }
     }
 
-    public function insert(ContentType $contentType, Request $request)
+    public function insert(ContentType $contentType, ParameterBag $parameters)
     {
-        $this->fireBeforeInsertEvent($request, $contentType);
-
-        $parameters = $request->request;
+        $this->fireBeforeInsertEvent($parameters, $contentType);
 
         // figure out the date fields
         $defaultFields = $contentType->getDefaultFields();
@@ -88,18 +97,17 @@ class StorageService
 
         $relationData = $parameters->get('links', array());
 
-        $this->fireAfterInsertEvent($request, $contentType, $isSuccessful);
+        $this->fireAfterInsertEvent($parameters, $contentType, $isSuccessful);
 
         $this->updateRelations($contentType, $id, $relationData);
 
         return true;
     }
 
-    public function update(ContentType $contentType, Request $request, $id)
+    public function update(ContentType $contentType, ParameterBag $parameters, $id)
     {
-        $this->fireBeforeUpdateEvent($request, $contentType, $id);
+        $this->fireBeforeUpdateEvent($parameters, $contentType, $id);
 
-        $parameters = $request->request;
         $parameters->set('id', $id);
 
         // figure out the date fields
@@ -129,23 +137,23 @@ class StorageService
 
         $relationData = $parameters->get('links', array());
 
-        $this->fireAfterUpdateEvent($request, $contentType, $id, $isSuccessful);
+        $this->fireAfterUpdateEvent($parameters, $contentType, $id, $isSuccessful);
 
         $this->updateRelations($contentType, $id, $relationData);
 
         return true;
     }
 
-    public function delete(ContentType $contentType, Request $request, $id)
+    public function delete(ContentType $contentType, ParameterBag $parameters, $id)
     {
-        $this->fireBeforeDeleteEvent($request, $contentType, $id);
+        $this->fireBeforeDeleteEvent($parameters, $contentType, $id);
 
         $repository = $this->getWriteRepository($contentType);
         if ( ! $repository->delete($id)) {
             return false;
         }
 
-        $this->fireAfterDeleteEvent($request, $contentType, $id);
+        $this->fireAfterDeleteEvent($parameters, $contentType, $id);
 
         // remove all relations from and to this content
         $this->updateRelations($contentType, $id, array());
@@ -199,39 +207,39 @@ class StorageService
         );
     }
 
-    protected function fireBeforeInsertEvent($request, $contentType)
+    protected function fireBeforeInsertEvent($parameters, $contentType)
     {
-        $event = new BeforeInsertEvent($request, $contentType);
+        $event = new BeforeInsertEvent($parameters, $contentType);
         $this->eventDispatcher->dispatch(StorageEvents::BEFORE_INSERT, $event);
     }
 
-    protected function fireAfterInsertEvent($request, $contentType, $isSuccessful)
+    protected function fireAfterInsertEvent($parameters, $contentType, $isSuccessful)
     {
-        $event = new AfterInsertEvent($request, $contentType, $isSuccessful);
+        $event = new AfterInsertEvent($parameters, $contentType, $isSuccessful);
         $this->eventDispatcher->dispatch(StorageEvents::AFTER_INSERT, $event);
     }
 
-    protected function fireBeforeUpdateEvent($request, $contentType, $id)
+    protected function fireBeforeUpdateEvent($parameters, $contentType, $id)
     {
-        $event = new BeforeUpdateEvent($request, $contentType, $id);
+        $event = new BeforeUpdateEvent($parameters, $contentType, $id);
         $this->eventDispatcher->dispatch(StorageEvents::BEFORE_UPDATE, $event);
     }
 
-    protected function fireAfterUpdateEvent($request, $contentType, $id, $isSuccessful)
+    protected function fireAfterUpdateEvent($parameters, $contentType, $id, $isSuccessful)
     {
-        $event = new AfterUpdateEvent($request, $contentType, $id, $isSuccessful);
+        $event = new AfterUpdateEvent($parameters, $contentType, $id, $isSuccessful);
         $this->eventDispatcher->dispatch(StorageEvents::AFTER_UPDATE, $event);
     }
 
-    protected function fireBeforeDeleteEvent($request, $contentType, $id)
+    protected function fireBeforeDeleteEvent($parameters, $contentType, $id)
     {
-        $event = new BeforeDeleteEvent($request, $contentType, $id);
+        $event = new BeforeDeleteEvent($parameters, $contentType, $id);
         $this->eventDispatcher->dispatch(StorageEvents::BEFORE_DELETE, $event);
     }
 
-    protected function fireAfterDeleteEvent($request, $contentType, $id)
+    protected function fireAfterDeleteEvent($parameters, $contentType, $id)
     {
-        $event = new AfterDeleteEvent($request, $contentType, $id);
+        $event = new AfterDeleteEvent($parameters, $contentType, $id);
         $this->eventDispatcher->dispatch(StorageEvents::AFTER_DELETE, $event);
     }
 

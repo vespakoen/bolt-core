@@ -25,21 +25,31 @@ class Async extends Controller implements ControllerProviderInterface
     {
         $controllers = $app['controllers_factory'];
 
-        $controllers->get('content/{contentTypeKey}', 'controller.async:getContent')->bind('async.content');
+        $controllers->get('content/{contentTypeKey}/{id}', 'controller.async:getContent')
+            ->bind('async.content')
+            ->value('id', null);
+
         $controllers->get('migrate/', 'controller.async:getMigrate');
 
         return $controllers;
     }
 
-    public function getContent(Request $request, Application $app, $contentTypeKey)
+    public function getContent(Request $request, Application $app, $contentTypeKey, $id = null)
     {
         if ( ! $contentType = $app['contenttypes']->get($contentTypeKey)) {
             $app->abort(404, "Contenttype $contentTypeKey does not exist.");
         }
 
-        $contents = $this->storageService->getForListing($contentType, $request);
+        if (is_null($id)) {
+            $contents = $this->storageService->getForListing($contentType, $request);
+        } else {
+            $contents = $this->storageService->getForManage($contentType, $id);
+            if ( ! $contents) {
+                $app->abort(404, "Contenttype $contentTypeKey with id $id does not exist.");
+            }
+        }
 
-        return $this->json(array_values($contents->toArray()));
+        return $this->json($contents->toArray());
     }
 
 }

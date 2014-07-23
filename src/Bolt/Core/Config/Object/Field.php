@@ -27,22 +27,6 @@ class Field extends ConfigObject implements ArrayableInterface
         $this->validate();
     }
 
-    public static function getReservedFieldNames()
-    {
-        return array(
-            // 'id',
-            // 'slug',
-            // 'datecreated',
-            // 'datechanged',
-            // 'datepublish',
-            // 'datedepublish',
-            // 'ownerid',
-            // 'username',
-            // 'status',
-            // 'link'
-        );
-    }
-
     public function getKey()
     {
         return $this->key;
@@ -60,11 +44,7 @@ class Field extends ConfigObject implements ArrayableInterface
 
     public function getLabel()
     {
-        if ($label = $this->get('label')) {
-            return $label;
-        }
-
-        return ucfirst(str_replace(array('_', '-'), ' ', $this->getKey()));
+        return $this->get('label');
     }
 
     public function getRules()
@@ -102,10 +82,9 @@ class Field extends ConfigObject implements ArrayableInterface
 
     public function toArray()
     {
-        return array_merge(array(
-            'key' => $this->getKey(),
-            'type' => $this->getType()->getKey()
-        ), $this->getOptions());
+        return array_merge($this->options, array(
+            'key' => $this->getKey()
+        ));
     }
 
     public function validate()
@@ -117,20 +96,46 @@ class Field extends ConfigObject implements ArrayableInterface
         if ($this->key !== $cleaned) {
             $app['notify']->error(sprintf('Invalid field key "%s". It may only contain [a-z, A-Z, 0-9, -, _].', $this->key));
         }
-
-        if ($this->type->getKey() !== 'slug' && in_array($this->key, static::getReservedFieldNames())) {
-            $app['notify']->error(sprintf('Invalid key for Field "%s". It may NOT be named as the following reserved field names '.implode(',', static::getReservedFieldNames()).'.', $this->key));
-        }
     }
 
-    public function getViewForForm(Content $content = null, $locale = null)
+    public function getInputKey($locale = null)
     {
-        $field = $this;
-        $fieldType = $this->getType();
         $key = $this->getKey();
         if ( ! is_null($locale) && $this->get('multilanguage')) {
             $key = $key . '_' . $locale;
         }
+
+        return $key;
+    }
+
+    public function getInputName(Content $content, $locale = null)
+    {
+        $contentTypeKey = $content->getContentType()
+            ->getKey();
+
+        $id = $content->getId();
+
+        $key = $this->getInputKey($locale);
+
+        return $contentTypeKey . '[' . $id . '][' . $key . ']';
+    }
+
+    public function getInputId(Content $content, $locale = null)
+    {
+        $name = $this->getInputName($content, $locale);
+
+        return str_replace(array('][', '[', ']'), array('-', '-', ''), $name);
+    }
+
+    public function getViewForForm(Content $content, $locale = null, $options = array())
+    {
+        $this->mergeOptions($options);
+
+        $field = $this;
+
+        $key = $this->getInputKey($locale);
+        $id = $this->getInputId($content, $locale);
+        $name = $this->getInputName($content, $locale);
 
         $fieldDefault = $this->get('default');
 
@@ -144,16 +149,25 @@ class Field extends ConfigObject implements ArrayableInterface
         $allErrors = $flashBag->peek('errors');
         $errors = array_get($allErrors, $key, array());
 
+        $fieldType = $this->getType();
         $view = 'fieldtypes/form/' . $fieldType->getKey();
 
+        $fieldAttributes = $this->get('attributes', array());
+        $attributes = array_merge($fieldAttributes, array(
+            'id' => $id,
+            'name' => $name
+        ));
+
         $context = compact(
-            'key',
             'fieldType',
             'field',
+            'attributes',
             'content',
             'value',
             'errors',
-            'view'
+            'view',
+            'name',
+            'id'
         );
 
         return $this->app['view.factory']->create($view, $context);
@@ -163,13 +177,10 @@ class Field extends ConfigObject implements ArrayableInterface
     {
         $field = $this;
         $fieldType = $this->getType();
-        $key = $this->getKey();
         $fieldDefault = $this->get('default');
-        if($this->get('multilanguage')) {
-            $value = $content->get($key . '_' . $this->app['locale'], $fieldDefault);
-        } else {
-            $value = $content->get($key, $fieldDefault);
-        }
+
+        $key = $this->getInputKey($this->app['locale']);
+        $value = $content->get($key);
 
         $view = 'fieldtypes/listing/' . $fieldType->getKey();
 

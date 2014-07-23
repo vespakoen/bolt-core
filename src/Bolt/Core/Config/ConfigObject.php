@@ -29,6 +29,15 @@ class ConfigObject
     public function setOption($key, $value)
     {
         $this->options[$key] = $value;
+
+        return $this;
+    }
+
+    public function mergeOptions($options)
+    {
+        $this->options = array_replace_recursive($this->options, $options);
+
+        return $this;
     }
 
     public function get($key, $default = null)

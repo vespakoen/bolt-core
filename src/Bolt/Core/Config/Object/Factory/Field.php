@@ -28,7 +28,9 @@ class Field
 
         $type = array_get($config, 'type', 'string');
 
-        return $this->create($key, $type, $config);
+        $options = $this->getDefaultOptions($config);
+
+        return $this->create($key, $type, $options);
     }
 
     public function validateConfig($key, $config)
@@ -43,6 +45,13 @@ class Field
         if (!in_array($config['type'], $registeredFieldTypes)) {
             $app['notify']->error(sprintf('Invalid "type" key (%s) in field options for "%s" field. It must be one of the following: '.implode(', ', $registeredFieldTypes).'.', $config['type'], $key));
         }
+    }
+
+    protected function getDefaultOptions($options)
+    {
+        $defaults = $this->app['config']->get('defaults/field', array());
+
+        return array_replace_recursive($defaults, $options);
     }
 
     protected function getFieldClass()

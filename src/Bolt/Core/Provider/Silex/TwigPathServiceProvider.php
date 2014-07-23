@@ -16,7 +16,7 @@ class TwigPathServiceProvider implements ServiceProviderInterface
     {
         $app['twig.path'] = array(
         	realpath($app['paths']['base'].'/app/views'),
-            realpath($app['paths']['base'].'/vendor/vespakoen/bolt-core/src/views')
+            realpath($app['paths']['base'].'/vendor/vespakoen/bolt-core/app/views')
         );
     }
 

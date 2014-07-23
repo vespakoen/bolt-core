@@ -2,12 +2,14 @@
 
 namespace Bolt\Core\Config\Object;
 
+use Illuminate\Support\Contracts\ArrayableInterface;
+
 use Bolt\Core\App;
 use Bolt\Core\Config\Object\Content;
 use Bolt\Core\Config\ConfigObject;
 use Bolt\Core\Support\Facades\View;
 
-class Relation extends ConfigObject
+class Relation extends ConfigObject implements ArrayableInterface
 {
     protected $key;
 
@@ -71,11 +73,19 @@ class Relation extends ConfigObject
         $relationDefault = $this->get('default');
         $view = 'relationtypes/form/' . strtolower($relationType);
 
+        $contentTypeKey = $content->getContentType()->getKey();
+        $otherKey = $relation->getOther()->getKey();
+        $id = $content->getId();
+        $name = $contentTypeKey . '[' . $id . '][links][' . $otherKey . '][]';
+        $id = $contentTypeKey . '-' . $id . '-' . $otherKey;
+
         $context = compact(
             'relationType',
             'relation',
             'content',
-            'view'
+            'view',
+            'id',
+            'name'
         );
 
         return $this->app['view.factory']->create($view, $context);
@@ -84,6 +94,11 @@ class Relation extends ConfigObject
     public function addColumnsTo($table)
     {
         //
+    }
+
+    public function toArray()
+    {
+        return $this->options;
     }
 
     protected function getDefaultOptions()

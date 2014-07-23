@@ -6,10 +6,12 @@ use Silex\Application;
 use Silex\ControllerProviderInterface;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\ParameterBag;
 
 use Illuminate\Support\Collection;
 
 use Bolt\Core\Config\Object\Collection\ContentCollection;
+use Bolt\Core\Config\Object\Factory\Content;
 
 class Admin extends Controller implements ControllerProviderInterface
 {
@@ -102,17 +104,33 @@ class Admin extends Controller implements ControllerProviderInterface
 
     public function postManage(Request $request, Application $app, $contentTypeKey, $id = null)
     {
-        if ( ! $contentType = $app['contenttypes']->get($contentTypeKey)) {
-            $app->abort(404, "Contenttype $contentTypeKey does not exist.");
+        $success = true;
+
+        $input = $request->request->all();
+        foreach ($input as $key => $items) {
+            if(substr($key, 0, 1) == "_") {
+                continue;
+            }
+
+            if ( ! $contentType = $app['contenttypes']->get($key)) {
+               $app->abort(404, "Contenttype $contentTypeKey does not exist.");
+            }
+
+            foreach ($items as $itemId => $item) {
+                $parameters = new ParameterBag($item);
+                if (is_null($id)) {
+                    $isSuccessful = $this->storageService->insert($contentType, $parameters);
+                } else {
+                    $isSuccessful = $this->storageService->update($contentType, $parameters, $itemId);
+                }
+
+                if ( ! $isSuccessful) {
+                    $success = false;
+                }
+            }
         }
 
-        if (is_null($id)) {
-            $isSuccessful = $this->storageService->insert($contentType, $request);
-        } else {
-            $isSuccessful = $this->storageService->update($contentType, $request, $id);
-        }
-
-        if ($isSuccessful) {
+        if ($success) {
             return $this->to('overview', array(
                 'contentTypeKey' => $contentTypeKey
             ));
@@ -127,7 +145,9 @@ class Admin extends Controller implements ControllerProviderInterface
             $app->abort(404, "Contenttype $contentTypeKey does not exist.");
         }
 
-        $isSuccessful = $this->storageService->delete($contentType, $request, $id);
+        $parameters = $request->request;
+
+        $isSuccessful = $this->storageService->delete($contentType, $parameters, $id);
 
         if ($isSuccessful) {
             return $this->to('overview', array(
@@ -194,6 +214,14 @@ class Admin extends Controller implements ControllerProviderInterface
     {
         $projects = $app['projects'];
 
+        $projectsKey = $app['config']->get('app/project/contenttype');
+        $projectContentType = $app['contenttypes']->get($projectsKey);
+        $project = $app['content.factory']->create(array(
+            'namespace' => 'trapps',
+            'unfiltered' => true
+        ), $projectContentType);
+        $projects->push($project);
+
         foreach ($projects as $project) {
             $app['elasticsearch.manager']->dropIndex($project);
             $app['elasticsearch.manager']->createIndex($project);
@@ -223,7 +251,7 @@ class Admin extends Controller implements ControllerProviderInterface
     {
         if ($app['config']->get('app/project')) {
             $project = $app['projects']->findByMethod('getId', $projectId);
-            if($project) {
+            if ($project) {
                 $app['project.service']->setCurrentProject($project);
             }
         }

@@ -4,6 +4,8 @@ namespace Bolt\Core\Config\Object;
 
 use Twig_Error_Loader;
 
+use Illuminate\Support\Contracts\ArrayableInterface;
+
 use Bolt\Core\App;
 use Bolt\Core\Config\Object\Content;
 use Bolt\Core\Config\Object\Collection\ContentCollection;
@@ -14,7 +16,7 @@ use Bolt\Core\Config\ConfigObject;
 /**
  * A ContentType defines a resource and can be used to build Forms and Listings
  */
-class ContentType extends ConfigObject
+class ContentType extends ConfigObject implements ArrayableInterface
 {
     /**
      * The key that uniquely identifies the content type
@@ -99,6 +101,13 @@ class ContentType extends ConfigObject
     public function getAllFields()
     {
         return $this->getDefaultFields()->merge($this->getFields());
+    }
+
+    public function getIdField()
+    {
+        $fields = $this->getDefaultFields();
+
+        return $fields->forPurpose('id');
     }
 
     public function getTitleField()
@@ -200,6 +209,10 @@ class ContentType extends ConfigObject
 
     public function getViewForForm(Content $content = null)
     {
+        if (is_null($content)) {
+            $content = $this->app['storage.service']->getNew($this);
+        }
+
         $contentType = $this;
         $view = 'contenttypes/form/' . $contentType->getKey();
 
@@ -242,6 +255,15 @@ class ContentType extends ConfigObject
         if ($this->key !== $cleaned) {
             $this->app['notify']->error(sprintf('Invalid ContentType key "%s". It may only contain [a-z, A-Z, 0-9, -, _].', $this->key));
         }
+    }
+
+    public function toArray()
+    {
+        return array_merge($this->options, array(
+            'key' => $this->getKey(),
+            'fields' => $this->getAllFields()->toArray(),
+            'relations' => $this->getRelations()->toArray()
+        ));
     }
 
 }

@@ -6,22 +6,22 @@ use Symfony\Component\EventDispatcher\Event;
 
 class AfterDeleteEvent extends Event
 {
-    protected $request;
+    protected $parameters;
 
     protected $contentType;
 
     protected $id;
 
-    public function __construct($request, $contentType, $id)
+    public function __construct($parameters, $contentType, $id)
     {
-        $this->request = $request;
+        $this->parameters = $parameters;
         $this->contentType = $contentType;
         $this->id = $id;
     }
 
-    public function getRequest()
+    public function getParameters()
     {
-        return $this->request;
+        return $this->parameters;
     }
 
     public function getContentType()

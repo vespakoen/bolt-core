@@ -39,7 +39,7 @@ class ContentType
     {
         $defaults = $this->app['config']->get('defaults/contenttype', array());
 
-        $options = array_merge($defaults, $options);
+        $options = array_replace_recursive($defaults, $options);
 
         if ( ! array_key_exists('slug', $options)) {
             $options['slug'] = $key;

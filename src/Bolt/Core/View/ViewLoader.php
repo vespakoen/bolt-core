@@ -70,7 +70,8 @@ class ViewLoader extends Twig_Loader_Filesystem implements Twig_LoaderInterface
             }
         }
 
-        return $this->paths[1].'/not-found.twig';
+
+        return $this->paths['__main__'][1].'/not-found.twig';
     }
 
     /**

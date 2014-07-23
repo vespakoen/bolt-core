@@ -6,7 +6,7 @@ use Symfony\Component\EventDispatcher\Event;
 
 class AfterUpdateEvent extends Event
 {
-    protected $request;
+    protected $parameters;
 
     protected $contentType;
 
@@ -14,17 +14,17 @@ class AfterUpdateEvent extends Event
 
     protected $isSuccessful;
 
-    public function __construct($request, $contentType, $id, $isSuccessful)
+    public function __construct($parameters, $contentType, $id, $isSuccessful)
     {
-        $this->request = $request;
+        $this->parameters = $parameters;
         $this->contentType = $contentType;
         $this->id = $id;
         $this->isSuccessful = $isSuccessful;
     }
 
-    public function getRequest()
+    public function getParameters()
     {
-        return $this->request;
+        return $this->parameters;
     }
 
     public function getContentType()

@@ -248,6 +248,10 @@ class EloquentRepository extends Repository implements ReadRepositoryInterface, 
         $inserts = array();
         $relationModel = $this->app['model.eloquent.relations'];
         foreach ($relations as $key => $relation) {
+            if ( ! isset($relationData[$key])) {
+                continue;
+            }
+
             $other = $relation->getOther();
             $secondType = $other->getTableName();
 
@@ -258,7 +262,7 @@ class EloquentRepository extends Repository implements ReadRepositoryInterface, 
             $currentRelations = $content->get($relationKey, new ContentCollection)->keys();
 
             // grab the new relations
-            $newRelations = isset($relationData[$key]) ? $relationData[$key] : array();
+            $newRelations = $relationData[$key];
 
             // grab the ones that need to be removed
             $obsoleteRelations = array_diff($currentRelations, $newRelations);

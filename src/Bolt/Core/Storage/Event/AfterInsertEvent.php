@@ -6,22 +6,22 @@ use Symfony\Component\EventDispatcher\Event;
 
 class AfterInsertEvent extends Event
 {
-    protected $request;
+    protected $parameters;
 
     protected $contentType;
 
     protected $isSuccessful;
 
-    public function __construct($request, $contentType, $isSuccessful)
+    public function __construct($parameters, $contentType, $isSuccessful)
     {
-        $this->request = $request;
+        $this->parameters = $parameters;
         $this->contentType = $contentType;
         $this->isSuccessful = $isSuccessful;
     }
 
-    public function getRequest()
+    public function getParameters()
     {
-        return $this->request;
+        return $this->parameters;
     }
 
     public function getContentType()

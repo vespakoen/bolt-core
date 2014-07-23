@@ -8,8 +8,6 @@ use Silex\Application;
 
 use Illuminate\Support\Facades\Facade;
 
-use Whoops\Provider\Silex\WhoopsServiceProvider;
-
 class App extends Application
 {
     protected static $app;
@@ -25,10 +23,6 @@ class App extends Application
         }
 
         Facade::setFacadeApplication($this);
-
-        if (isset($values['debug']) && $values['debug']) {
-            $this->register(new WhoopsServiceProvider);
-        }
 
         // register the configserviceprovider so we can access the config
         $this->register(new ConfigServiceProvider);

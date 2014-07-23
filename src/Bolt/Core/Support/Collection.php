@@ -3,6 +3,7 @@
 namespace Bolt\Core\Support;
 
 use Illuminate\Support\Collection as IlluminateCollection;
+use Illuminate\Support\Contracts\ArrayableInterface;
 
 class Collection extends IlluminateCollection
 {

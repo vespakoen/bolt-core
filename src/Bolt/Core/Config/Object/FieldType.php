@@ -9,7 +9,9 @@ use Bolt\Core\Config\ConfigObject;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 
-class FieldType extends ConfigObject
+use Illuminate\Support\Contracts\ArrayableInterface;
+
+class FieldType extends ConfigObject implements ArrayableInterface
 {
     /**
      * Bolt's key for the FieldType
@@ -58,6 +60,13 @@ class FieldType extends ConfigObject
         if ($this->key !== $cleaned) {
             $this->app['notify']->error(sprintf('Invalid FieldType key "%s". It may only contain [a-z, A-Z, 0-9, -, _].', $this->key));
         }
+    }
+
+    public function toArray()
+    {
+        return array_merge($this->options, array(
+            'key' => $this->getKey()
+        ));
     }
 
 }

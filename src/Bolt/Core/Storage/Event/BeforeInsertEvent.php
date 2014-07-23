@@ -6,19 +6,19 @@ use Symfony\Component\EventDispatcher\Event;
 
 class BeforeInsertEvent extends Event
 {
-    protected $request;
+    protected $parameters;
 
     protected $contentType;
 
-    public function __construct($request, $contentType)
+    public function __construct($parameters, $contentType)
     {
-        $this->request = $request;
+        $this->parameters = $parameters;
         $this->contentType = $contentType;
     }
 
-    public function getRequest()
+    public function getParameters()
     {
-        return $this->request;
+        return $this->parameters;
     }
 
     public function getContentType()
