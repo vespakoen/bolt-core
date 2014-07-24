@@ -82,8 +82,40 @@
     var selectize = $select[0].selectize;
     selectize.setValue([{% for option in selectedOptions %}'{{ option }}',{% endfor %}]);
 </script>
+{#
+<!-- Modal -->
+<div class="modal fade" id="modal-{{ relation.get('other') }}" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog large">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">Modal title</h4>
+      </div>
+      <div class="modal-body">
+        Body!
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-<a class="btn btn-primary" data-toggle="modal" data-target="#modal-{{relation.get('other')}}">
+<a id="new-{{relation.get('other')}}" class="btn btn-primary" data-toggle="modal" data-target="#modal-{{relation.get('other')}}">
     <i class="fa fa-plus"></i> {% if relation.label %}{{ relation.label|trans }}{% else %}{{ relcontenttype|ucfirst|trans }}{% endif %}
 </a>
 
+<script>
+    $('#new-{{ relation.get('other') }}').click(function() {
+        var modal = $('#modal-{{ relation.get('other') }}');
+        var modalBody = modal.find('.modal-body');
+        var modalTitle = modal.find('.modal-title');
+        modalBody.html('Loading...');
+        modalTitle.html('{{ relation.get('other') }}');
+        $.get('/admin/async/partial/{{ relation.get('other') }}/form', function(form) {
+            modalBody.html(form);
+        });
+    });
+</script>
+ #}
