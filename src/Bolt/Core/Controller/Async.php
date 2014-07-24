@@ -11,6 +11,8 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 use Illuminate\Support\Collection;
 
+use Bolt\Core\Config\Object\Collection\ContentCollection;
+
 use DateTime;
 
 class Async extends Controller implements ControllerProviderInterface
@@ -28,6 +30,8 @@ class Async extends Controller implements ControllerProviderInterface
         $controllers->get('content/{contentTypeKey}/{id}', 'controller.async:getContent')
             ->bind('async.content')
             ->value('id', null);
+
+        $controllers->get('partial/{contentTypeKey}/form', 'controller.async:getForm')->bind('form');
 
         $controllers->get('migrate/', 'controller.async:getMigrate');
 
@@ -50,6 +54,26 @@ class Async extends Controller implements ControllerProviderInterface
         }
 
         return $this->json($contents->toArray());
+    }
+
+    public function getForm(Request $request, Application $app, $contentTypeKey)
+    {
+        if ( ! $contentType = $app['contenttypes']->get($contentTypeKey)) {
+            $app->abort(404, "Contenttype $contentTypeKey does not exist.");
+        }
+
+        $content = $this->storageService->getForManage($contentType, null);
+
+        if ($autoRelate = $contentType->get('auto_relate')) {
+            foreach ($autoRelate as $relateKey) {
+                $relationKey = $app['config']->get('app/' . $relateKey . '/contenttype');
+                $related = $content->getAttribute('outgoing.' . $relationKey, new ContentCollection);
+                $related->put($app[$relateKey]->getId(), $app[$relateKey]);
+                $content->setAttribute('outgoing.' . $relationKey, $related);
+            }
+        }
+
+        return $contentType->getViewForForm($content);
     }
 
 }
