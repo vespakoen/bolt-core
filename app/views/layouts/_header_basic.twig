@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" sizes="114x114" href="/img/apple-touch-icon-114x114.png">
     <link rel="apple-touch-icon" sizes="144x144" href="/img/apple-touch-icon-144x144.png">
     <script>
-        UPLOADCARE_PUBLIC_KEY = 'ccc0b7396e7fd4654e6e';
+        UPLOADCARE_PUBLIC_KEY = '{{ app.config.get('app/uploadcare/publickey') }}';
         UPLOADCARE_PATH_VALUE = true;
         UPLOADCARE_PREVIEW_STEP = true;
         UPLOADCARE_AUTOSTORE = true;
