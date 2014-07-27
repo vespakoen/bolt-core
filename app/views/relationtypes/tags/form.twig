@@ -16,12 +16,11 @@
     {% set selectedOptions = selectedOptions|merge([other.id]) %}
     {% set options = options|merge([{
         'id': other.id,
-        'title': other.title_nl,
+        'title': other.getTitle,
         'image': (other.image ? other.image : other.image_icon) ~ '-/scale_crop/70x70/center/img.jpg',
         'thumbnail': (other.image ? other.image : other.image_icon)  ~ '-/scale_crop/15x15/center/img.jpg'
     }]) %}
 {% endfor %}
-
 {% if relation.get('multiple', false) %}
 <select
     name="{{ name }}"
@@ -49,7 +48,7 @@
                 _.each(results, function(result) {
                     data.push({
                         id: result.id,
-                        title: result.title_nl,
+                        title: result.getTitle,
                         image: (result.image ? result.image : result.image_icon) + '-/scale_crop/70x70/center/img.jpg',
                         thumbnail: (result.image ? result.image : result.image_icon) + '-/scale_crop/15x15/center/img.jpg'
                     });
