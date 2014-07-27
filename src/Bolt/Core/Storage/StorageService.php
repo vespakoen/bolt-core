@@ -67,15 +67,6 @@ class StorageService
     {
         $this->fireBeforeInsertEvent($parameters, $contentType);
 
-        // figure out the date fields
-        $defaultFields = $contentType->getDefaultFields();
-        $dateCreatedKey = $defaultFields->forPurpose('datecreated')->getKey();
-        $dateUpdatedKey = $defaultFields->forPurpose('datechanged')->getKey();
-
-        // give it a created and updated datetime
-        $parameters->set($dateCreatedKey, new DateTime());
-        $parameters->set($dateUpdatedKey, new DateTime());
-
         // give the new record an id
         $id = $this->getNewId();
         $parameters->set('id', $id);
@@ -87,6 +78,15 @@ class StorageService
         if ( ! $contentType->validateInput($input)) {
             return false;
         }
+
+        // figure out the date fields
+        $defaultFields = $contentType->getDefaultFields();
+        $dateCreatedKey = $defaultFields->forPurpose('datecreated')->getKey();
+        $dateUpdatedKey = $defaultFields->forPurpose('datechanged')->getKey();
+
+        // give it a created and updated datetime
+        $parameters->set($dateCreatedKey, new DateTime());
+        $parameters->set($dateUpdatedKey, new DateTime());
 
         // insert it
         $repository = $this->getWriteRepository($contentType);
