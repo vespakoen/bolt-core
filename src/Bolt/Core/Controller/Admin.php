@@ -92,14 +92,18 @@ class Admin extends Controller implements ControllerProviderInterface
 
         if ($autoRelate = $contentType->get('auto_relate')) {
             foreach ($autoRelate as $relateKey) {
-                $relationKey = $app['config']->get('app/' . $relateKey . '/contenttype');
+                $relationKey = $app['config']->get('app/' . $relateKey . '/contenttype', $relateKey);
                 $related = $content->getAttribute('outgoing.' . $relationKey, new ContentCollection);
                 $related->put($app[$relateKey]->getId(), $app[$relateKey]);
                 $content->setAttribute('outgoing.' . $relationKey, $related);
             }
         }
 
-        return $this->view('layouts/manage', compact('content', 'contentType'));
+        $view = $this->view('layouts/manage', compact('content', 'contentType'));
+
+        $app['session']->getFlashBag()->clear();
+
+        return $view;
     }
 
     public function postManage(Request $request, Application $app, $contentTypeKey, $id = null)
