@@ -49,6 +49,11 @@ class StorageService
 
         $wheres = $this->getWheres($contentType);
 
+        $projectContentType = $this->app['config']->get('app/project/contenttype');
+        if ($request->get('originatorContentTypeKey') == $projectContentType && $this->app['user']->hasRole('ROLE_ADMIN')) {
+            $wheres = array();
+        }
+
         return $repository->get($wheres, true, $sort, $order, $offset, $limit, $search);
     }
 
@@ -71,11 +76,8 @@ class StorageService
         $id = $this->getNewId();
         $parameters->set('id', $id);
 
-        // get all the input
-        $input = $parameters->all();
-
         // validate it
-        if ( ! $contentType->validateInput($input)) {
+        if ( ! $contentType->validateInput($parameters->all())) {
             return false;
         }
 
@@ -90,16 +92,16 @@ class StorageService
 
         // insert it
         $repository = $this->getWriteRepository($contentType);
-        $isSuccessful = $repository->store($input);
+        $isSuccessful = $repository->store($parameters->all());
         if ( ! $isSuccessful) {
             return false;
         }
 
         $relationData = $parameters->get('links', array());
 
-        $this->fireAfterInsertEvent($parameters, $contentType, $isSuccessful);
-
         $this->updateRelations($contentType, $id, $relationData);
+
+        $this->fireAfterInsertEvent($parameters, $contentType, $isSuccessful);
 
         return true;
     }
@@ -117,29 +119,27 @@ class StorageService
 
         // unset the created datetime so it will not be updated
         $parameters->remove($dateCreatedKey);
-        // update the updated datetime
-        $parameters->set($dateUpdatedKey, new DateTime());
-
-        // get all the input
-        $input = $parameters->all();
 
         // validate it
-        if ( ! $contentType->validateInput($input)) {
+        if ( ! $contentType->validateInput($parameters->all())) {
             return false;
         }
 
+        // update the updated datetime
+        $parameters->set($dateUpdatedKey, new DateTime());
+
         // update it
         $repository = $this->getWriteRepository($contentType);
-        $isSuccessful = $repository->update($id, $input);
+        $isSuccessful = $repository->update($id, $parameters->all());
         if ( ! $isSuccessful) {
             return false;
         }
 
         $relationData = $parameters->get('links', array());
 
-        $this->fireAfterUpdateEvent($parameters, $contentType, $id, $isSuccessful);
-
         $this->updateRelations($contentType, $id, $relationData);
+
+        $this->fireAfterUpdateEvent($parameters, $contentType, $id, $isSuccessful);
 
         return true;
     }

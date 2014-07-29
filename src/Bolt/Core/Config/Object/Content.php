@@ -48,7 +48,7 @@ class Content implements ArrayableInterface
     {
         $titleField = $this->contentType->getTitleField();
         if ( ! $titleField->empty()) {
-            return $this->get($titleField);
+            return $this->get($titleField->getInputKey($this->app['locale']));
         }
 
         return '-';

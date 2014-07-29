@@ -326,6 +326,7 @@ class EloquentRepository extends Repository implements ReadRepositoryInterface, 
             switch ($field->getType()->getType()) {
                 case 'linestring':
                 case 'point';
+                case 'rectangle':
                     $selects[] = new Expression("ST_AsGeoJson(".$field->getKey().") as ".$field->getKey());
                     break;
             }

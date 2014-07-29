@@ -111,6 +111,7 @@ class Admin extends Controller implements ControllerProviderInterface
         $success = true;
 
         $input = $request->request->all();
+
         foreach ($input as $key => $items) {
             if(substr($key, 0, 1) == "_") {
                 continue;

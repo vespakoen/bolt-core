@@ -131,17 +131,15 @@ class Field extends ConfigObject implements ArrayableInterface
     {
         $this->mergeOptions($options);
 
-        $field = $this;
-
         $key = $this->getInputKey($locale);
         $id = $this->getInputId($content, $locale);
         $name = $this->getInputName($content, $locale);
 
-        $fieldDefault = $this->get('default');
-
         $flashBag = $this->app['session']->getFlashBag();
 
+        $fieldDefault = $this->get('default');
         $value = $content->get($key, $fieldDefault);
+
         if ($input = $flashBag->peek('input')) {
             $value = array_get($input, $key, $value);
         }
@@ -158,6 +156,7 @@ class Field extends ConfigObject implements ArrayableInterface
             'name' => $name
         ));
 
+        $field = $this;
         $context = compact(
             'fieldType',
             'field',
