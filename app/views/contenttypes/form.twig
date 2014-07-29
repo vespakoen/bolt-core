@@ -6,7 +6,7 @@
         <div class="panel-body">
             {% for field in nonMultilanguageFields %}
             <div class="form-group">
-                <label class="control-label col-sm-3" style="font-weight: bold">{{ field.getLabel }}</label>
+                <label class="control-label col-sm-3" style="font-weight: bold">{{ __('field.label.' ~ field.getKey, {}, contentType.getKey) }}</label>
                 <div class="col-sm-9">
                     {{ field.getViewForForm(content)|raw }}<br>
                 </div>
@@ -25,7 +25,7 @@
         <header class="panel-heading bg-light">
             <ul class="nav nav-tabs">
                 {% for key, locale in app.config.get('app/locales') %}
-                <li{% if loop.first %} class="active"{% endif %}><a href="#{{key}}" data-toggle="tab">{{locale}}</a></li>
+                <li{% if loop.first %} class="active"{% endif %}><a href="#{{key}}" data-toggle="tab">{{ __('language.' ~ key) }}</a></li>
                 {% endfor %}
             </ul>
         </header>
@@ -35,7 +35,7 @@
                 <div class="tab-pane{% if loop.first %} active{% endif %}" id="{{key}}">
                     {% for field in multilanguageFields %}
                     <div class="form-group">
-                        <label class="control-label col-sm-3" style="font-weight: bold">{{ field.getLabel }}</label>
+                        <label class="control-label col-sm-3" style="font-weight: bold">{{ __('field.label.' ~ field.getKey, {}, contentType.getKey) }}</label>
                         <div class="col-sm-9">
                             {{ field.getViewForForm(content, key)|raw }}<br>
                         </div>
@@ -56,14 +56,14 @@
 {% if not relations.isEmpty %}
 <section class="panel">
     <header class="panel-heading h4">
-        {{ __('Relationships') }}
-        <span class="label info-pop" data-html="true" data-title="{{ __('Relationships') }}"
+        {{ __('manage.relations.title') }}
+        <span class="label info-pop" data-html="true" data-title="{{ __('manage.relations.title') }}"
             data-content="{{ app.translator.trans('info.relationships',{},'infos') }}"><i class="fa fa-question-circle" style="color: lightblue; font-size: 20px;"></i></span>
     </header>
     <div class="panel-body">
         {% for relation in relations %}
         <div class="form-group">
-            <label class="control-label col-sm-3" style="font-weight: bold">{{ relation.getLabel }}</label>
+            <label class="control-label col-sm-3" style="font-weight: bold">{{ __('contenttype.plural.' ~ relation.getOther.getKey)|ucfirst }}</label>
             <div class="col-sm-9">
                 {{ relation.getViewForForm(content)|raw }}<br>
             </div>

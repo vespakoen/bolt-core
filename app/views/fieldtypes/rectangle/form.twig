@@ -21,7 +21,7 @@
             };
         }
 
-        window.leafletMaps['rectangle']['{{ id }}'] = L.map('map')
+        var map = window.leafletMaps['rectangle']['{{ id }}'] = L.map('map')
             .setView([50.8502, 5.699], 13);
 
         // add an OpenStreetMap tile layer
@@ -29,24 +29,16 @@
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(window.leafletMaps['rectangle']['{{ id }}']);
 
-        {% if value %}
-        var rectangle = {{value|raw}};
-        var feature = L.geoJson(rectangle);
-        feature.addTo(window.leafletMaps['rectangle']['{{ id }}']);
-        setTimeout(function() {
-            window.leafletMaps['rectangle']['{{ id }}'].fitBounds(feature.getBounds());
-        }, 0);
+        var featureGroup = new L.FeatureGroup().addTo(map);
 
-        var drawControl = new L.Control.Draw({
+        var editControl = new L.Control.Draw({
             edit: {
-                featureGroup: feature,
+                featureGroup: featureGroup,
                 remove: false
             },
             draw: false
         });
-        window.leafletMaps['rectangle']['{{ id }}'].addControl(drawControl);
-        {% else %}
-        var featureGroup = L.featureGroup().addTo(window.leafletMaps['rectangle']['{{ id }}']);
+
         var drawControl = new L.Control.Draw({
             draw: {
                 polyline: false,
@@ -60,19 +52,44 @@
                 remove: false
             }
         });
-        window.leafletMaps['rectangle']['{{ id }}'].addControl(drawControl);
 
-        window.leafletMaps['rectangle']['{{ id }}'].on('draw:created', function(e) {
+        {% if value %}
+        var rectangle = {{value|raw}};
+        var feature = L.geoJson(rectangle);
+        featureGroup.addLayer(feature.getLayers()[0]);
+        setTimeout(function() {
+            map.fitBounds(featureGroup.getBounds());
+        }, 0);
+
+        map.addControl(editControl);
+        {% else %}
+        // bitj blau
+        map.addControl(drawControl);
+
+        map.on('draw:created', function(e) {
+            map.removeControl(drawControl);
+            map.addControl(editControl);
             featureGroup.addLayer(e.layer)
             var layer = e.layer;
             $('#{{id}}').val(JSON.stringify(layer.toGeoJSON().geometry));
         });
         {% endif %}
 
-        window.leafletMaps['rectangle']['{{ id }}'].on('draw:edited', function(e) {
-            var layers = e.layers;
-            layers.eachLayer(function(layer) {
-                $('#{{id}}').val(JSON.stringify(layer.toGeoJSON().geometry));
+        map.on('draw:edited', function(e) {
+            var layer = featureGroup.getLayers()[0];
+            $('#{{id}}').val(JSON.stringify(layer.toGeoJSON().geometry));
+        });
+
+        $.get('http://{{ app.config.get('app/elasticsearch/hosts/0') }}/{{ app['project.service'].getCurrentProject.get('namespace') }}/_search?size=1000', function(response) {
+            _.each(response.hits.hits, function(result) {
+                var item = result._source;
+                if (item.pin && item.pin[0] && item.pin[1]) {
+                    L.marker([item.pin[1], item.pin[0]]).addTo(map);
+                }
+
+                if (item.trail) {
+                    L.geoJson(item.trail).addTo(map);
+                }
             });
         });
     });

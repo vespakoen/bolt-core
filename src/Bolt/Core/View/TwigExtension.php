@@ -1235,92 +1235,11 @@ class TwigExtension extends \Twig_Extension
      * and try to get a translated string. If there is not, we revert to
      * the generic (%contenttype%) string, which must have a translation.
      */
-    public function __()
+    public function __($key, $attributes = array(), $namespace = 'messages')
     {
-        $num_args = func_num_args();
-        if (0 == $num_args) {
-            return null;
-        }
-        $args = func_get_args();
-        if ($num_args > 4) {
-            $fn = 'transChoice';
-        } elseif ($num_args == 1 || is_array($args[1])) {
-            // If only 1 arg or 2nd arg is an array call trans
-            $fn = 'trans';
-        } else {
-            $fn = 'transChoice';
-        }
-        $tr_args=null;
-        if ($fn == 'trans' && $num_args > 1) {
-            $tr_args = $args[1];
-        } elseif ($fn == 'transChoice' && $num_args > 2) {
-            $tr_args = $args[2];
-        }
-        // Check for contenttype(s) placeholder
-        if ($tr_args) {
-            $keytype = '%contenttype%';
-            $keytypes = '%contenttypes%';
-            $have_singular = array_key_exists($keytype, $tr_args);
-            $have_plural = array_key_exists($keytypes, $tr_args);
-            if ($have_singular || $have_plural) {
-                // have a %contenttype% placeholder, try to find a specialized translation
-                if ($have_singular) {
-                    $text = str_replace($keytype, $tr_args[$keytype], $args[0]);
-                    unset($tr_args[$keytype]);
-                } else {
-                    $text = str_replace($keytypes, $tr_args[$keytypes], $args[0]);
-                    unset($tr_args[$keytypes]);
-                }
-                //echo "\n" . '<!-- contenttype replaced: '.htmlentities($text)." -->\n";
-                if ($fn == 'transChoice') {
-                        $trans = $this->app['translator']->transChoice(
-                            $text,
-                            $args[1],
-                            $this->htmlencode_params($tr_args),
-                            isset($args[3]) ? $args[3] : 'contenttypes',
-                            isset($args[4]) ? $args[4] : $this->app['request']->getLocale()
-                        );
-                } else {
-                        $trans = $this->app['translator']->trans(
-                            $text,
-                            $this->htmlencode_params($tr_args),
-                            isset($args[2]) ? $args[2] : 'contenttypes',
-                            isset($args[3]) ? $args[3] : $this->app['request']->getLocale()
-                        );
-                }
-                //echo '<!-- translation : '.htmlentities($trans)." -->\n";
-                if ($text != $trans) {
-                    return $trans;
-                }
-            }
-        }
+        global $app;
 
-        //try {
-        if (isset($args[1])) {
-            $args[1] = $this->htmlencode_params($args[1]);
-        }
-        switch($num_args) {
-            case 5:
-                return $this->app['translator']->transChoice($args[0], $args[1], $args[2], $args[3], $args[4]);
-            case 4:
-                //echo "<!-- 4. call: $fn($args[0], $args[1], $args[2], $args[3]) -->\n";
-                return $this->app['translator']->$fn($args[0], $args[1], $args[2], $args[3]);
-            case 3:
-                //echo "<!-- 3. call: $fn($args[0], $args[1], $args[2]) -->\n";
-                return $this->app['translator']->$fn($args[0], $args[1], $args[2]);
-            case 2:
-                //echo "<!-- 2. call: $fn($args[0],$args[1] -->\n";
-                return $this->app['translator']->$fn($args[0], $args[1]);
-            case 1:
-                //echo "<!-- 1. call: $fn($args[0]) -->\n";
-                return $this->app['translator']->$fn($args[0]);
-        }
-        /*}
-        catch (\Exception $e) {
-            echo "<!-- ARGHH !!! -->\n";
-            //return $args[0];
-            die($e->getMessage());
-        }*/
+        return $app['translator']->trans($key, $attributes, $namespace);
     }
 
     /**

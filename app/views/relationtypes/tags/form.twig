@@ -45,10 +45,10 @@
         load: function(query, callback) {
             $.get('{{ path('async.content', {contentTypeKey: relation.get('other'), originatorContentTypeKey: content.contentType.getKey}) }}', function(results) {
                 var data = [];
-                _.each(results, function(result) {
+                _.each(results, function(result, id) {
                     data.push({
                         id: result.id,
-                        title: result.getTitle,
+                        title: result.title_nl,
                         image: (result.image ? result.image : result.image_icon) + '-/scale_crop/70x70/center/img.jpg',
                         thumbnail: (result.image ? result.image : result.image_icon) + '-/scale_crop/15x15/center/img.jpg'
                     });

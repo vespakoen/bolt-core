@@ -45,19 +45,9 @@ class ContentType
             $options['slug'] = $key;
         }
 
-        if ( ! array_key_exists('name', $options)) {
-            $options['name'] = ucfirst($key);
-        }
+        $options['name'] = $this->app['translator']->trans('contenttype.plural.' . $key);
 
-        if ( ! array_key_exists('singular_name', $options)) {
-            $singularName = Str::singular($options['name']);
-            $options['singular_name'] = $singularName;
-        }
-
-        if ( ! array_key_exists('singular_slug', $options)) {
-            $singularSlug = Str::slug($options['singular_name']);
-            $options['singular_slug'] = $singularSlug;
-        }
+        $options['singular_name'] = $this->app['translator']->trans('contenttype.singular.' . $key);
 
         return $options;
     }

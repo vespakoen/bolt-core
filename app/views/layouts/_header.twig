@@ -32,7 +32,7 @@
             </li> #}
             <li>
                 <a href="{{ path('user.logout') }}" target="_blank">
-                    <i class="icon-signout"></i> {{ __('Logout') }}
+                    <i class="icon-signout"></i> {{ __('menu.logout') }}
                 </a>
             </li>
           </ul>
@@ -140,7 +140,7 @@
                   <li class="{% if false %}active{% endif %}">
                     <a href="{{ url }}">
                       <i class="fa fa-{{contentType.get('icon')}}"></i>
-                      <span>{{ __('%contenttypes%', {'%contenttypes%': contentType.get('name')})|ucfirst }}</span>
+                      <span>{{ contentType.get('name')|ucfirst }}</span>
                     </a>
                   </li>
                   {% endif %}

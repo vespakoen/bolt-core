@@ -21,7 +21,6 @@ class App extends Application
         foreach ($values as $key => $value) {
             $this[$key] = $value;
         }
-
         Facade::setFacadeApplication($this);
 
         // register the configserviceprovider so we can access the config
@@ -31,6 +30,12 @@ class App extends Application
         $providers = $this['config']->get('app/providers');
         foreach ($providers as $provider) {
             $this->register(new $provider);
+        }
+
+        // set the locale (https://github.com/silexphp/Silex/issues/983)
+        $locale = $values['locale'];
+        if ($this['translator']) {
+            $this['translator']->setlocale($locale);
         }
 
         // register fieldtypes from config
@@ -44,9 +49,6 @@ class App extends Application
         if ($contentTypeConfig) {
             $this['contenttypes'] = $this['contenttypes.factory']->fromConfig($contentTypeConfig);
         }
-
-        $this->after(function() {
-        });
     }
 
     public static function instance()
