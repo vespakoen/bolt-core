@@ -7,7 +7,7 @@
             {% if listingColumns %}
             {% for fieldKey in listingColumns %}
             {% set field = fields.get(fieldKey) %}
-            <td style="vertical-align: middle{% if field.getPurpose == "image" and loop.index == 1 %}; width: 70px{% endif %}">
+            <td style="vertical-align: middle{% if field.getPurpose == "image" and loop.index == 1 %}; width: 70px; height: 70px{% endif %}">
                 {{ field.getViewForListing(content)|raw }}
             </td>
             {% endfor %}
