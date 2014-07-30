@@ -2,10 +2,6 @@
 <header class="header bg-dark">
   <p class="h4">
     {{ __('listing.title', {':contentTypeSingularName': contentType.get('singular_name')}, contentType.getKey)|ucfirst }}
-
-    <span>{% if pager is defined and pager.totalpages > 1 %}
-        {{ __('Showing') }} {{ pager.showing_from }} - {{ pager.showing_to }} {{ __('of') }} {{ pager.count }}
-    {%endif %}</span>
   </p>
   <form class="m-t-sm navbar-right" role="search">
     <div class="form-group">
@@ -32,7 +28,7 @@
                         </div>
                     {% endif %}
                     </section>
-                    {{ pager() }}
+                    {% include 'partials/pagination' %}
                 </div>
 
                 <div class="col-lg-4">

@@ -44,14 +44,6 @@ class Admin extends Controller implements ControllerProviderInterface
 
     public function getDashboard(Request $request, Application $app)
     {
-        if ( ! $request->query->has('offset')) {
-            $request->query->set('offset', 0);
-        }
-
-        if ( ! $request->query->has('limit')) {
-            $request->query->set('limit', 5);
-        }
-
         $contentTypes = array();
         $contentTypeContent = new Collection();
         foreach ($app['contenttypes'] as $contentType) {
@@ -75,7 +67,9 @@ class Admin extends Controller implements ControllerProviderInterface
 
         $contents = $this->storageService->getForListing($contentType, $request);
 
-        return $this->view('layouts/overview', compact('contents', 'contentType'));
+        $paginator = $contents->getPaginator();
+
+        return $this->view('layouts/overview', compact('contents', 'contentType', 'paginator'));
     }
 
     public function getManage(Request $request, Application $app, $contentTypeKey, $id = null)

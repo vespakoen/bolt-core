@@ -41,8 +41,10 @@ class StorageService
         $defaultSort = $defaultFields->forPurpose('datechanged')->getKey();
         $sort = $request->get('sort', $defaultSort);
         $order = $request->get('order', 'desc');
-        $offset = (int) $request->get('offset', 0);
-        $limit = (int) $request->get('limit', 100);
+        $limit = (int) $request->get('limit', 10);
+        $page = (int) $request->get('page', 1);
+        $offset = ($page - 1) * $limit;
+
         $search = $request->get('search', null);
 
         $repository = $this->getReadRepository($contentType);

@@ -1,0 +1,16 @@
+{% set paginator = contents.getPaginator %}
+{% if paginator.getTotalPages > 1 %}
+<div class="text-center">
+    <ul class="pagination pagination-lg">
+        {% if paginator.hasPrevious %}
+        <li><a href="{{ path('overview', {'contentTypeKey': contentType.getKey }|merge(paginator.getPreviousParams)) }}">&laquo;</a></li>
+        {% endif %}
+        {% for i in 1..paginator.getTotalPages %}
+        <li{% if i == paginator.getPage %} class="active"{% endif %}><a href="{{ path('overview', {'contentTypeKey': contentType.getKey }|merge(paginator.getPageParams(i))) }}">{{ i }}</a></li>
+        {% endfor %}
+        {% if paginator.hasNext %}
+        <li><a href="{{ path('overview', {'contentTypeKey': contentType.getKey }|merge(paginator.getNextParams)) }}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</div>
+{% endif %}

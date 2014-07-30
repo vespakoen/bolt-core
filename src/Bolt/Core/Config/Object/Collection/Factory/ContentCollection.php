@@ -9,7 +9,7 @@ class ContentCollection
         $this->app = $app;
     }
 
-    public function create($items = array(), $contentType)
+    public function create($items = array(), $contentType, $total = null)
     {
         $contentCollectionClass = $this->getContentCollectionClass();
 
@@ -18,7 +18,7 @@ class ContentCollection
             $contents[$key] = $this->app['content.factory']->create($item, $contentType);
         }
 
-        return new $contentCollectionClass($contents);
+        return new $contentCollectionClass($contents, $total);
     }
 
     public function validateConfig($config)

@@ -32,6 +32,10 @@ class EloquentRepository extends Repository implements ReadRepositoryInterface, 
             $recordsQuery = $recordsQuery->with(array('incoming', 'outgoing'));
         }
 
+        foreach ($this->getRelationTableJoin($wheres) as $join) {
+            $recordsQuery = $recordsQuery->join($join['table'], $join['left'], '=', $join['right']);
+        }
+
         $recordsQuery = $recordsQuery->select($selects);
         foreach ($wheres as $key => $value) {
             if (is_array($value) && count($value) > 0) {
@@ -39,18 +43,6 @@ class EloquentRepository extends Repository implements ReadRepositoryInterface, 
             } else {
                 $recordsQuery = $recordsQuery->where($key, '=', $value);
             }
-        }
-
-        if ( ! is_null($offset)) {
-            $recordsQuery = $recordsQuery->skip($offset);
-        }
-
-        if ( ! is_null($limit)) {
-            $recordsQuery = $recordsQuery->take($limit);
-        }
-
-        foreach ($this->getRelationTableJoin($wheres) as $join) {
-            $recordsQuery->join($join['table'], $join['left'], '=', $join['right']);
         }
 
         if ( ! is_null($search)) {
@@ -63,6 +55,16 @@ class EloquentRepository extends Repository implements ReadRepositoryInterface, 
                     $query->orWhere(new Expression('LOWER(' . $searchField->getKey() . ')'), 'LIKE', '%' . strtolower($search) . '%');
                 }
             });
+        }
+
+        $total = $recordsQuery->count();
+
+        if ( ! is_null($offset)) {
+            $recordsQuery = $recordsQuery->skip($offset);
+        }
+
+        if ( ! is_null($limit)) {
+            $recordsQuery = $recordsQuery->take($limit);
         }
 
         if( ! is_null($sort)) {
@@ -81,7 +83,7 @@ class EloquentRepository extends Repository implements ReadRepositoryInterface, 
             $records = $this->loadRelatedFor($records);
         }
 
-        return $this->app['contents.factory']->create($records, $this->contentType);
+        return $this->app['contents.factory']->create($records, $this->contentType, $total);
     }
 
     /**

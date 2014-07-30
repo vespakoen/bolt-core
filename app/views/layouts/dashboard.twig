@@ -30,7 +30,7 @@
                         <section class="panel">
                             {{ contentType.getViewForListing(contents)|raw }}
                         </section>
-                        {{ pager() }}
+                        {% include 'partials/pagination' %}
                     </div>
 
                     <div class="col-lg-4">
