@@ -43,19 +43,48 @@ class Async extends Controller implements ControllerProviderInterface
 
     public function getImages(Request $request, Application $app)
     {
-        $namespace = str_replace('.', '', $app['project.service']->getCurrentProject()->get('namespace'));
+        $namespace = $app['project.service']->getCurrentProject()
+            ->get('namespace');
 
-        $json = `curl http://search.trapps.nl/$namespace/_search\?size\=1000 -XPOST -d '{"fields": ["image_lowres", "image_list_highres", "title_nl"], "query": {"filtered": {"query": {"match_all": {}},"filter": {"exists" : { "field" : "image_lowres" }}}}}'`;
-        $data = json_decode($json, true);
+        $thumbField = $app['config']->get('app/redactor/images/thumb');
+        $imageField = $app['config']->get('app/redactor/images/image');
+        $titleField = $app['config']->get('app/redactor/images/title');
 
-        $images = array();
-        foreach ($data['hits']['hits'] as $item) {
-            $thumb = $item['fields']['image_list_highres'][0];
-            $image = $item['fields']['image_lowres'][0];
-            $title = $item['fields']['title_nl'][0];
+        $data = $app['elasticsearch']->search(array(
+            "index" => $namespace,
+            "body" => array(
+                "size" => 1000,
+                "fields" => array(
+                        $imageField,
+                        $thumbField,
+                        $titleField
+                ),
+                "query" => array(
+                    "filtered" => array(
+                        "query" => array(
+                            "match_all" => array(
+                            )
+                        ),
+                        "filter" => array(
+                            "exists"  => array(
+                                "field"  => $imageField
+                            )
+                        )
+                    )
+                )
+            )
+        ));
 
-            $contentType = $app['contenttypes']->findBy('es_type', $item['_type']);
-            $folder = $contentType ? ucfirst($contentType->get('name')) : 'Geen categorie';
+        foreach (array_get($data, 'hits.hits', array()) as $item) {
+            $thumb = array_get($item, 'fields.' . $thumbField . '.0');
+            $image = array_get($item, 'fields.' . $imageField . '.0');
+            $title = array_get($item, 'fields.' . $titleField . '.0');
+
+            $contentType = $app['contenttypes']
+                ->findBy('es_type', $item['_type']);
+
+            $folder = $contentType ? ucfirst($contentType->get('name')) : '-';
+
             $images[] = array(
                 "thumb" => $thumb,
                 "image" => $image,
