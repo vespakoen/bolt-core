@@ -27,7 +27,7 @@ class TranslationServiceProvider implements ServiceProviderInterface
         foreach ($iterator as $file) {
             if ( ! in_array($file->getFilename(), array('.', '..'))) {
                 $namespace = trim(str_replace($path, '', $file->getPath()), '/');
-                $namespace = $namespace ? $namespace : 'messages';
+                $namespace = $namespace ? $namespace : '__messages__';
                 $extension = pathinfo($file->getFilename(), PATHINFO_EXTENSION);
                 $language = basename($file->getFilename(), '.' . $extension);
 

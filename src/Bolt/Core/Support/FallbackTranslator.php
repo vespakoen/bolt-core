@@ -14,17 +14,17 @@ class FallbackTranslator extends Translator
         }
 
         if (null === $domain) {
-            $domain = 'messages';
+            $domain = '__messages__';
         }
 
         if (!isset($this->catalogues[$locale])) {
             $this->loadCatalogue($locale);
         }
 
-        // Change translation domain to 'messages' if a translation can't be found in the
+        // Change translation domain to '__messages__' if a translation can't be found in the
         // current domain
-        if ('messages' !== $domain && false === $this->catalogues[$locale]->has((string) $id, $domain)) {
-            $domain = 'messages';
+        if ('__messages__' !== $domain && false === $this->catalogues[$locale]->has((string) $id, $domain)) {
+            $domain = '__messages__';
         }
 
         return strtr($this->catalogues[$locale]->get((string) $id, $domain), $parameters);
