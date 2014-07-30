@@ -2,7 +2,7 @@
 {% set relations = contentType.getRelations %}
 <header class="header bg-dark bg-gradient">
     <p class="h4">
-        {{ contentType.get('name')|raw }} beheren
+        {{ __('manage.title', {':contentTypeSingularName': contentType.get('singular_name')}, contentType.getKey)|ucfirst }}
     </p>
 </header>
 <section class="scrollable wrapper">
@@ -49,7 +49,7 @@
         <div class="col-md-4 col-lg-3 col-md-fixed">
             <section class="panel">
                 <header class="panel-heading h4">
-                {{ __('manage.actions.title', {':contentTypeSingularName': contentType.get('singular_name')}) }}
+                {{ __('manage.actions.title', {':contentTypeSingularName': contentType.get('singular_name')}, contentType.getKey) }}
                 </header>
                 <div class="panel-body">
                     {# <button type="submit" class="btn btn-primary" id="savebutton" style="margin-right: 8px;">
@@ -61,14 +61,14 @@
                     </button><br>
                     <br> #}
                     <button type="button" class="btn btn-primary" id="savecontinuebutton" style="margin-right: 8px;">
-                        <i class="fa fa-flag"></i> {{ __('manage.actions.save', {':contentTypeSingularName': contentType.get('singular_name')})|ucfirst }}
+                        <i class="fa fa-flag"></i> {{ __('manage.actions.save', {':contentTypeSingularName': contentType.get('singular_name')}, contentType.getKey)|ucfirst }}
                     </button><br>
                     <br>
                     <p class="lastsaved">
                     {% if content.get('datechanged') != null %}
                     {{ __('manage.actions.saved_on') }} <strong>{{ content.get('datechanged')|localdate("%b %e, %H:%M") }}</strong></p>
                     {% else %}
-                    {{ __('manage.actions.not_saved', {':contentTypeSingularName': contentType.get('singular_name')}) }}
+                    {{ __('manage.actions.not_saved', {':contentTypeSingularName': contentType.get('singular_name')}, contentType.getKey) }}
                     {% endif %}
                     </p>
                 </div>

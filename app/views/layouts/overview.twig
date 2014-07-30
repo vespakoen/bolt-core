@@ -1,7 +1,7 @@
 {% include 'layouts/_header' %}
 <header class="header bg-dark">
   <p class="h4">
-    {{ __('listing.title', {':contentTypeName': contentType.get('name')})|ucfirst }}
+    {{ __('listing.title', {':contentTypeSingularName': contentType.get('singular_name')}, contentType.getKey)|ucfirst }}
 
     <span>{% if pager is defined and pager.totalpages > 1 %}
         {{ __('Showing') }} {{ pager.showing_from }} - {{ pager.showing_to }} {{ __('of') }} {{ pager.count }}
@@ -28,7 +28,7 @@
                         {{ contentType.getViewForListing(contents)|raw }}
                     {% else %}
                         <div class="panel-body text-center h4">
-                            {{ __('listing.no_results', {':contentTypeName': contentType.get('name') }) }}
+                            {{ __('listing.no_results', {':contentTypeName': contentType.get('name') }, contentType.getKey)|ucfirst }}
                         </div>
                     {% endif %}
                     </section>
@@ -38,11 +38,11 @@
                 <div class="col-lg-4">
                     <section class="panel">
                         <header class="panel-heading h4">
-                            {{ __('listing.actions.title',{':contentTypeSingularName': contentType.get('singular_name') }) }}
+                            {{ __('listing.actions.title',{':contentTypeName': contentType.get('name') }, contentType.getKey)|ucfirst }}
                         </header>
                         <div class="panel-body">
                             <a class="btn btn-primary btn-large" href="{{ path('manage.new', { 'contentTypeKey': contentType.slug }) }}">
-                                <i class="fa fa-plus"></i> {{ __('listing.actions.new',{':contentTypeSingularName': contentType.get('singular_name') }) }}
+                                <i class="fa fa-plus"></i> {{ __('listing.actions.new',{':contentTypeSingularName': contentType.get('singular_name') }, contentType.getKey)|ucfirst }}
                             </a>
                             <div class="line line-dashed line-lg pull-in"></div>
 
@@ -54,7 +54,7 @@
                                         <i class="fa fa-times"></i>
                                     </a>
                                     {% endif %}
-                                    <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> {{ __('listing.actions.search') }}</button>
+                                    <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> {{ __('listing.actions.search', {}, contentType.getKey) }}</button>
                                 </div>
                             </form>
                         </div>

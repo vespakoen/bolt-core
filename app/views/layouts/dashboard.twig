@@ -9,7 +9,7 @@
                     <i class="fa fa-times"></i>
                 </a>
                 {% endif %}
-                <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> {{ __('Search') }}</button>
+                <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> {{ __('listing.actions.search') }}</button>
             </div>
         </form>
     </div>
@@ -19,7 +19,7 @@
     {% if contents|length > 0 %}
     <header class="header bg-dark lter">
       <p class="h4">
-        {{ contentType.name|raw }}
+        {{ __('listing.title', {':contentTypeSingularName': contentType.get('singular_name')}, contentType.getKey)|ucfirst }}
       </p>
     </header>
     <div class="wrapper">
@@ -36,11 +36,11 @@
                     <div class="col-lg-4">
                         <section class="panel">
                             <header class="panel-heading h4">
-                                {{ __('Actions for %contenttypes%',{'%contenttypes%':contentType.name}) }}
+                                {{ __('listing.actions.title', {':contentTypeName': contentType.get('name') }, contentType.getKey) }}
                             </header>
                             <div class="panel-body">
                                 <a class="btn btn-primary btn-large" href="{{ path('manage.new', { 'contentTypeKey': contentType.slug }) }}">
-                                    <i class="fa fa-plus"></i> {{ __('New %contenttype%',{'%contenttype%': contentType.singular_name}) }}
+                                    <i class="fa fa-plus"></i> {{ __('listing.actions.new', {':contentTypeSingularName': contentType.get('singular_name') }, contentType.getKey)|ucfirst }}
                                 </a>
                             </div>
                         </section>

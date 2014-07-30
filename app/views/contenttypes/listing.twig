@@ -28,34 +28,34 @@
             <td class="actions" style="vertical-align: middle; text-align: right; width: 190px;">
                 <div style="" class="btn-group">
                     <a class="btn btn-primary btn-mini" href="{{ path('manage', { 'contentTypeKey': content.contentType.key, 'id': content.id }) }}">
-                        <i class="icon-edit"></i> {{ __('Edit') }}
+                        <i class="glyphicon glyphicon-edit"></i> {{ __('listing.edit', {}, contentType.getKey) }}
                     </a>
                     <button class="btn dropdown-toggle btn-mini" data-toggle="dropdown">
-                        <i class="icon-info-sign"></i>
+                        <i class="glyphicon glyphicon-info-sign"></i>
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu pull-right">
                         {% if content.status != "published" %}
                             {# {% if isallowed('publish', content) %} #}
                             <li><a href="{{ path('contentaction', { 'action': 'publish', 'contentTypeKey': content.contentType.key,  'id': content.id }) }}">
-                                <i class="icon-star-empty"></i> {{ __('Publish %contenttype%',{'%contenttype%':content.contentType.singular_name}) }}</a></li>
+                                <i class="glyphicon glyphicon-star-empty"></i> {{ __('listing.publish', {':contentTypeSingularName': content.contentType.get('singular_name')}, contentType.getKey) }}</a></li>
                             {# {% endif %} #}
                         {% else %}
                             {# {% if isallowed('depublish', content) %} #}
                             <li><a href="{{ path('contentaction', { 'action': 'held', 'contentTypeKey': content.contentType.key,  'id': content.id }) }}">
-                                <i class="icon-star"></i> {{ __("Change status to 'held'") }}</a></li>
+                                <i class="glyphicon glyphicon-star"></i> {{ __("Change status to 'held'") }}</a></li>
                             <li><a href="{{ path('contentaction', { 'action': 'draft', 'contentTypeKey': content.contentType.key,  'id': content.id }) }}">
-                                <i class="icon-pencil"></i> {{ __("Change status to 'draft'") }}</a></li>
+                                <i class="glyphicon glyphicon-pencil"></i> {{ __("Change status to 'draft'") }}</a></li>
                             {# {% endif %} #}
                         {% endif %}
                         {# {% if isallowed('create', content) %} #}
-                        <li><a href="{{ path('manage', { 'contentTypeKey': content.contentType.key, 'id': content.id, 'duplicate': 1 }) }}">
-                            <i class="icon-copy"></i> {{ __('Duplicate %contenttype%', {'%contenttype%': content.contentType.singular_name}) }}</a></li>
+                        {# <li><a href="{{ path('manage', { 'contentTypeKey': content.contentType.key, 'id': content.id, 'duplicate': 1 }) }}">
+                            <i class="glyphicon glyphicon-copy"></i> {{ __('Duplicate %contenttype%', {'%contenttype%': content.contentType.singular_name}) }}</a></li> #}
                         {# {% endif %} #}
                         {# {% if isallowed('delete', content) %} #}
                         <li><a href="{{ path('deletecontent', { 'contentTypeKey': content.contentType.key, 'id': content.id }) }}"
                                data-confirm="Are you sure you want to delete ''?" class="confirm">
-                            <i class="icon-trash"></i> {{ __('Delete %contenttype%',{'%contenttype%': content.contentType.singular_name}) }}</a></li>
+                            <i class="glyphicon glyphicon-trash"></i> {{ __('listing.delete', {':contentTypeSingularName': content.contentType.get('singular_name') }, contentType.getKey) }}</a></li>
                         {# {% endif %} #}
                         <li class="divider"></li>
                         {% if content.contentType.get('sortable') %}
@@ -64,7 +64,7 @@
                         {# <li><a href="#"><i class="fa fa-random pull-left"></i> Move to position</li> #}
                         <li class="divider"></li>
                         {% endif %}
-                        {# <li><a class="nolink">{{__('Author:') }} <strong><i class="icon-user"></i>
+                        {# <li><a class="nolink">{{__('Author:') }} <strong><i class="glyphicon glyphicon-user"></i>
                             {% if content.user.displayname is defined %}
                                 {{ content.user.displayname|trimtext(15) }}
                             {% else %}
@@ -74,12 +74,12 @@
                             <strong>{{ content.status }}</strong></a></li>
                         <li><a class="nolink">{{ __('Slug:') }}
                             <code title="{{ content.slug }}">{{ content.slug|trimtext(24) }}</code></a></li> #}
-                        <li><a class="nolink">{{ __('Created on:') }}
-                            <i class="icon-asterisk"></i> {{ content.datecreated|date("Y-m-d H:i") }}</a></li>
-                        <li><a class="nolink">{{ __('Published on:') }}
-                            <i class="icon-calendar"></i> {{ content.datepublish|date("Y-m-d H:i") }}</a></li>
-                        <li><a class="nolink">{{ __('Last edited on:') }}
-                            <i class="icon-refresh"></i> {{ content.datechanged|date("Y-m-d H:i") }}</a></li>
+                        <li><a class="nolink">{{ __('listing.created', {}, contentType.getKey) }}:
+                            <i class="glyphicon glyphicon-asterisk"></i> {{ content.datecreated|date("Y-m-d H:i") }}</a></li>
+                        <li><a class="nolink">{{ __('listing.published', {}, contentType.getKey) }}:
+                            <i class="glyphicon glyphicon-calendar"></i> {{ content.datepublish|date("Y-m-d H:i") }}</a></li>
+                        <li><a class="nolink">{{ __('listing.edited', {}, contentType.getKey) }}:
+                            <i class="glyphicon glyphicon-refresh"></i> {{ content.datechanged|date("Y-m-d H:i") }}</a></li>
 
                     </ul>
                 </div>
