@@ -19,4 +19,8 @@ final class StorageEvents
     const BEFORE_REORDER = 'storage.before_reorder';
 
     const AFTER_REORDER = 'storage.after_reorder';
+
+    const RELATIONS_ADDED = 'storage.relations_added';
+
+    const RELATIONS_DELETED = 'storage.relations_deleted';
 }

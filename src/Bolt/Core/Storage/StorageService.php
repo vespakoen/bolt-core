@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 use Bolt\Core\Config\Object\ContentType;
+use Bolt\Core\Config\Object\Collection\ContentCollection;
 use Bolt\Core\Storage\StorageEvents;
 use Bolt\Core\Storage\Event\AfterDeleteEvent;
 use Bolt\Core\Storage\Event\AfterInsertEvent;
@@ -15,6 +16,8 @@ use Bolt\Core\Storage\Event\AfterUpdateEvent;
 use Bolt\Core\Storage\Event\BeforeDeleteEvent;
 use Bolt\Core\Storage\Event\BeforeInsertEvent;
 use Bolt\Core\Storage\Event\BeforeUpdateEvent;
+use Bolt\Core\Storage\Event\RelationsAddedEvent;
+use Bolt\Core\Storage\Event\RelationsDeletedEvent;
 
 class StorageService
 {
@@ -103,7 +106,7 @@ class StorageService
 
         $this->updateRelations($contentType, $id, $relationData);
 
-        $this->fireAfterInsertEvent($parameters, $contentType, $isSuccessful);
+        $this->fireAfterInsertEvent($parameters, $contentType, $id, $isSuccessful);
 
         return true;
     }
@@ -163,10 +166,122 @@ class StorageService
         return true;
     }
 
-    protected function updateRelations($contentType, $firstId, $relationData)
+    public function deleteMany(ContentType $contentType, ParameterBag $parameters, $ids)
     {
+        $isSuccessful = true;
+        foreach ($ids as $id) {
+            if ( ! $this->delete($contentType, $parameters, $id)) {
+                $isSuccessful = false;
+            }
+        }
+
+        return $isSuccessful;
+    }
+
+    // @todo this thing is f'ing HUGE!
+    protected function updateRelations($contentType, $id, $relationData)
+    {
+        // no inception, please
+        if ($contentType->getKey() == "relations") {
+            return;
+        }
+
         $repository = $this->getWriteRepository($contentType);
-        $repository->updateRelations($firstId, $relationData);
+
+        $relationRepository = $this->app['repository.eloquent.relations'];
+
+        $content = $repository->find($id, true);
+        $relations = $contentType->getRelations();
+        $type = $contentType->getKey();
+
+        $inserts = array();
+        $relationModel = $this->app['model.eloquent.relations'];
+
+        foreach ($relations as $key => $relation) {
+            if ( ! isset($relationData[$key])) {
+                $relationData[$key] = array();
+            }
+
+            $other = $relation->getOther();
+            $otherType = $other->getKey();
+
+            $isIncoming = $relation->get('inverted', false);
+
+            // grab the current relations
+            $relationKey = ($isIncoming ? 'incoming' : 'outgoing') . '.' . $other->getTableName();
+            $currentRelations = $content->get($relationKey, new ContentCollection)->keys();
+
+            // grab the new relations
+            $newRelations = $relationData[$key];
+
+            // grab the ones that need to be removed
+            $obsoleteRelations = array_diff($currentRelations, $newRelations);
+
+            // grab the new relations
+            $newRelations = array_diff($newRelations, $currentRelations);
+
+            $relationContentType = $this->app['contenttypes']->get('relations');
+            if ($isIncoming) {
+                if (count($obsoleteRelations) > 0) {
+                    // delete relations that became obsolete
+                    $toDelete = $relationRepository->get(array(
+                        'to_type' => $type,
+                        'to_id' => $id,
+                        'from_id' => $obsoleteRelations
+                    ), false);
+
+                    $toDeleteIds = $toDelete->keys();
+                    $this->deleteMany($relationContentType, new ParameterBag, $toDeleteIds);
+
+                    $this->fireRelationsDeletedEvent($other, $obsoleteRelations);
+                }
+
+                // add new relations
+                if (count($newRelations) > 0) {
+                    foreach ($newRelations as $otherId) {
+                        $newRelation = new ParameterBag(array(
+                            'from_type' => $otherType,
+                            'from_id' => $otherId,
+                            'to_type' => $type,
+                            'to_id' => $id
+                        ));
+
+                        $this->insert($relationContentType, $newRelation);
+                    }
+
+                    $this->fireRelationsAddedEvent($other, $newRelations);
+                }
+            } else {
+                if (count($obsoleteRelations) > 0) {
+                    // delete relations that became obsolete
+                    $toDelete = $relationRepository->get(array(
+                        'from_type' => $type,
+                        'from_id' => $id,
+                        'to_id' => $obsoleteRelations
+                    ), false);
+
+                    $toDeleteIds = $toDelete->keys();
+                    $this->deleteMany($relationContentType, new ParameterBag, $toDeleteIds);
+
+                    $this->fireRelationsDeletedEvent($other, $obsoleteRelations);
+                }
+
+                if (count($newRelations) > 0) {
+                    foreach ($newRelations as $otherId) {
+                        $newRelation = new ParameterBag(array(
+                            'from_type' => $type,
+                            'from_id' => $id,
+                            'to_type' => $otherType,
+                            'to_id' => $otherId
+                        ));
+
+                        $this->insert($relationContentType, $newRelation);
+                    }
+
+                    $this->fireRelationsAddedEvent($other, $newRelations);
+                }
+            }
+        }
     }
 
     public function getReadRepository($contentType)
@@ -215,9 +330,9 @@ class StorageService
         $this->eventDispatcher->dispatch(StorageEvents::BEFORE_INSERT, $event);
     }
 
-    protected function fireAfterInsertEvent($parameters, $contentType, $isSuccessful)
+    protected function fireAfterInsertEvent($parameters, $contentType, $id, $isSuccessful)
     {
-        $event = new AfterInsertEvent($parameters, $contentType, $isSuccessful);
+        $event = new AfterInsertEvent($parameters, $contentType, $id, $isSuccessful);
         $this->eventDispatcher->dispatch(StorageEvents::AFTER_INSERT, $event);
     }
 
@@ -243,6 +358,18 @@ class StorageService
     {
         $event = new AfterDeleteEvent($parameters, $contentType, $id);
         $this->eventDispatcher->dispatch(StorageEvents::AFTER_DELETE, $event);
+    }
+
+    protected function fireRelationsAddedEvent($contentType, $ids)
+    {
+        $event = new RelationsAddedEvent($contentType, $ids);
+        $this->eventDispatcher->dispatch(StorageEvents::RELATIONS_ADDED, $event);
+    }
+
+    protected function fireRelationsDeletedEvent($contentType, $ids)
+    {
+        $event = new RelationsDeletedEvent($contentType, $ids);
+        $this->eventDispatcher->dispatch(StorageEvents::RELATIONS_DELETED, $event);
     }
 
 }
