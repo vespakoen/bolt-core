@@ -100,7 +100,14 @@ class ContentType extends ConfigObject implements ArrayableInterface
 
     public function getAllFields()
     {
-        return $this->getDefaultFields()->merge($this->getFields());
+        return $this->getDefaultFields()
+            ->merge($this->getFields());
+    }
+
+    public function getDatabaseFields()
+    {
+        return $this->getAllFields()
+            ->getDatabaseFields();
     }
 
     public function getIdField()
@@ -161,14 +168,7 @@ class ContentType extends ConfigObject implements ArrayableInterface
     {
         $rules = array();
 
-        $fields = $this->getAllFields();
-        $app = $this->app;
-        $fields = $fields->map(function($field) use ($app) {
-            if ($field->get('multilanguage', false)) {
-                $field->setKey($field->getKey() . '_' . $app['locale']);
-            }
-            return $field;
-        });
+        $fields = $this->getDatabaseFields();
 
         foreach ($fields as $field) {
             $rules = array_merge($rules, $field->getRules());

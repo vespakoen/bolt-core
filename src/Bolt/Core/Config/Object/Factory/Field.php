@@ -11,10 +11,11 @@ class Field
         $this->app = $app;
     }
 
-    public function create($key, $type, $options = array())
+    public function create($key, $options = array())
     {
         $fieldClass = $this->getFieldClass();
 
+        $type = $options['type'];
         if (is_string($type)) {
             $type = $this->app['fieldtypes']->get($type);
         }
@@ -26,11 +27,9 @@ class Field
     {
         $this->validateConfig($key, $config);
 
-        $type = array_get($config, 'type', 'string');
-
         $options = $this->getDefaultOptions($config);
 
-        return $this->create($key, $type, $options);
+        return $this->create($key, $options);
     }
 
     public function validateConfig($key, $config)
@@ -42,7 +41,7 @@ class Field
         }
 
         $registeredFieldTypes = $app['fieldtypes']->keys();
-        if (!in_array($config['type'], $registeredFieldTypes)) {
+        if ( ! in_array($config['type'], $registeredFieldTypes)) {
             $app['notify']->error(sprintf('Invalid "type" key (%s) in field options for "%s" field. It must be one of the following: '.implode(', ', $registeredFieldTypes).'.', $config['type'], $key));
         }
     }

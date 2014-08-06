@@ -68,28 +68,28 @@ class Model extends Eloquent
             ->where('to_type', '=', $this->getTable());
     }
 
-    public function callBoltSetter($key, $value, $setter)
-    {
-        switch ($setter) {
-            case 'geojson_to_postgis':
-                $this->attributes[$key] = new Expression("ST_GeomFromGeoJSON('" . $value . "')");
-                break;
+    // public function callBoltSetter($key, $value, $setter)
+    // {
+    //     switch ($setter) {
+    //         case 'geojson_to_postgis':
+    //             $this->attributes[$key] = new Expression("ST_GeomFromGeoJSON('" . $value . "')");
+    //             break;
 
-            case 'to_json_if_array':
-                $this->attributes[$key] = is_array($value) || is_object($value) ? json_encode($value) : $value;
-                break;
-        }
-    }
+    //         case 'to_json_if_array':
+    //             $this->attributes[$key] = is_array($value) || is_object($value) ? json_encode($value) : $value;
+    //             break;
+    //     }
+    // }
 
-    public function callBoltGetter($value, $getter)
-    {
-        switch($getter) {
-            case 'from_json_if_json':
-                return substr($value, 0, 1) == "{" || substr($value, 0, 1) == "[" ? json_decode($value) : $value;
-                break;
-        }
+    // public function callBoltGetter($value, $getter)
+    // {
+    //     switch($getter) {
+    //         case 'from_json_if_json':
+    //             return substr($value, 0, 1) == "{" || substr($value, 0, 1) == "[" ? json_decode($value) : $value;
+    //             break;
+    //     }
 
-        return $value;
-    }
+    //     return $value;
+    // }
 
 }

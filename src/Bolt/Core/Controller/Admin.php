@@ -105,13 +105,12 @@ class Admin extends Controller implements ControllerProviderInterface
         $success = true;
 
         $input = $request->request->all();
-
-        foreach ($input as $key => $items) {
-            if(substr($key, 0, 1) == "_") {
+        foreach ($input as $contentTypeKey => $items) {
+            if(substr($contentTypeKey, 0, 1) == "_") {
                 continue;
             }
 
-            if ( ! $contentType = $app['contenttypes']->get($key)) {
+            if ( ! $contentType = $app['contenttypes']->get($contentTypeKey)) {
                $app->abort(404, "Contenttype $contentTypeKey does not exist.");
             }
 

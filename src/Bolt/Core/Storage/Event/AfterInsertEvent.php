@@ -12,10 +12,11 @@ class AfterInsertEvent extends Event
 
     protected $isSuccessful;
 
-    public function __construct($parameters, $contentType, $isSuccessful)
+    public function __construct($parameters, $contentType, $id, $isSuccessful)
     {
         $this->parameters = $parameters;
         $this->contentType = $contentType;
+        $this->id = $id;
         $this->isSuccessful = $isSuccessful;
     }
 
@@ -27,6 +28,11 @@ class AfterInsertEvent extends Event
     public function getContentType()
     {
         return $this->contentType;
+    }
+
+    public function getId()
+    {
+        return $this->id;
     }
 
     public function isSuccessful()

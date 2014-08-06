@@ -19,9 +19,9 @@ class Repository {
         return $this->findBy($wheres, $loadRelated);
     }
 
-    public function findMany($ids)
+    public function findMany($ids, $loadRelated = false)
     {
-        return $this->get(array($this->contentType->getKey() . '.id' => $ids), false);
+        return $this->get(array($this->contentType->getKey() . '.id' => $ids), $loadRelated);
     }
 
     public function findBy($wheres, $loadRelated = true)

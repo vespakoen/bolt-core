@@ -75,7 +75,10 @@ class EloquentRepository extends Repository implements ReadRepositoryInterface, 
             ->get()
             ->toArray();
 
-        $records = array_build($records, function($key, $record) {
+        $me = $this;
+        $records = array_build($records, function($key, $record) use ($me) {
+            $record = $me->callGetters($record);
+
             return array($record['id'], $record);
         });
 
@@ -192,6 +195,7 @@ class EloquentRepository extends Repository implements ReadRepositoryInterface, 
             $input['id'] = $this->uuid();
         }
 
+        $input = $this->callSetters($input);
         $result = $this->model
             ->create($input);
 
@@ -211,6 +215,7 @@ class EloquentRepository extends Repository implements ReadRepositoryInterface, 
             ->find($id);
 
         if ($model) {
+            $input = $this->callSetters($input);
             $model->fill($input);
             $result = $model->save();
 
@@ -231,107 +236,57 @@ class EloquentRepository extends Repository implements ReadRepositoryInterface, 
             return false;
         }
 
-        // clean up relationships
-        $relationModel = $this->app['model.eloquent.relations'];
-        $relationModel
-            ->where('to_id', '=', $id)
-            ->orWhere('from_id', '=', $id)
-            ->delete();
-
         return $model->delete();
     }
 
-    public function updateRelations($firstId, $relationData)
+    // @todo optimize
+    public function deleteMany($ids)
     {
-        $content = $this->find($firstId, true);
-        $relations = $this->contentType->getRelations();
-        $firstType = $this->contentType->getKey();
+        foreach ($ids as $id) {
+            $this->delete($id);
+        }
 
-        $inserts = array();
-        $relationModel = $this->app['model.eloquent.relations'];
-        foreach ($relations as $key => $relation) {
-            if ( ! isset($relationData[$key])) {
-                continue;
-            }
+        return true;
+    }
 
-            $other = $relation->getOther();
-            $secondType = $other->getTableName();
+    protected function callSetters($attributes)
+    {
+        $result = array();
 
-            $isIncoming = $relation->get('inverted', false);
-
-            // grab the current relations
-            $relationKey = ($isIncoming ? 'incoming' : 'outgoing') . '.' . $other->getTableName();
-            $currentRelations = $content->get($relationKey, new ContentCollection)->keys();
-
-            // grab the new relations
-            $newRelations = $relationData[$key];
-
-            // grab the ones that need to be removed
-            $obsoleteRelations = array_diff($currentRelations, $newRelations);
-
-            // grab the new relations
-            $newRelations = array_diff($newRelations, $currentRelations);
-
-            if ($isIncoming) {
-                if (count($obsoleteRelations) > 0) {
-                    // delete relations that became obsolete
-                    $relationModel
-                        ->where('to_type', '=', $firstType)
-                        ->where('to_id', '=', $firstId)
-                        ->whereIn('from_id', $obsoleteRelations)
-                        ->delete();
-                }
-
-                // add new relations
-                foreach ($newRelations as $otherId) {
-                    $inserts[] = array(
-                        'id' => $this->uuid(),
-                        'to_type' => $firstType,
-                        'to_id' => $firstId,
-                        'from_type' => $secondType,
-                        'from_id' => $otherId
-                    );
-                }
+        $fields = $this->contentType->getDatabaseFields();
+        foreach ($attributes as $key => $value) {
+            if ($field = $fields->get($key)) {
+                $result[$key] = $field->setter($value, $this);
             } else {
-                if (count($obsoleteRelations) > 0) {
-                    // delete relations that became obsolete
-                    $relationModel
-                        ->where('from_type', '=', $firstType)
-                        ->where('from_id', '=', $firstId)
-                        ->whereIn('to_id', $obsoleteRelations)
-                        ->delete();
-                }
-
-                foreach ($newRelations as $otherId) {
-                    $inserts[] = array(
-                        'id' => $this->uuid(),
-                        'to_type' => $secondType,
-                        'to_id' => $otherId,
-                        'from_type' => $firstType,
-                        'from_id' => $firstId
-                    );
-                }
+                $result[$key] = $value;
             }
         }
 
-        if (count($inserts) > 0) {
-            $relationModel->insert($inserts);
+        return $result;
+    }
+
+    public function callGetters($attributes)
+    {
+        $result = array();
+        $fields = $this->contentType->getDatabaseFields();
+        foreach ($attributes as $key => $value) {
+            if ($field = $fields->get($key)) {
+                $result[$key] = $field->getter($value, $this);
+            } else {
+                $result[$key] = $value;
+            }
         }
+
+        return $result;
     }
 
     protected function getSelects()
     {
-        $selects = array($this->contentType->getKey().'.*');
+        $selects = array();
 
-        $fields = $this->contentType->getFields();
+        $fields = $this->contentType->getDatabaseFields();
         foreach ($fields as $field) {
-            switch ($field->getType()->getType()) {
-                case 'linestring':
-                case 'point';
-                case 'rectangle':
-                    $selects[] = new Expression("ST_AsGeoJson(".$field->getKey().") as ".$field->getKey());
-                    break;
-            }
+            $selects[] = $field->selector($this->contentType->getTableName());
         }
 
         return $selects;

@@ -43,11 +43,17 @@ class FieldCollection extends Collection
 
     public function getDatabaseFields()
     {
-        $fields = new static($this->items);
+        $copies = array();
+        foreach($this->items as $field) {
+            $copies[$field->getKey()] = clone $field;
+        }
+
+        $fields = new static($copies);
 
         $locales = Config::get('app/locales');
 
         $multilanguageFields = $fields->getMultilanguageFields();
+
         foreach ($multilanguageFields as $multilanguageField) {
             $fields->forget($multilanguageField->getKey());
             foreach ($locales as $locale => $name) {

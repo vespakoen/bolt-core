@@ -7,6 +7,7 @@ use Bolt\Core\Config\Object\Content;
 use Bolt\Core\Config\Object\FieldType;
 use Bolt\Core\Config\ConfigObject;
 
+use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Contracts\ArrayableInterface;
 
 class Field extends ConfigObject implements ArrayableInterface
@@ -195,6 +196,60 @@ class Field extends ConfigObject implements ArrayableInterface
         return $this->app['view.factory']->create($view, $context);
     }
 
+    public function getter($value, $model)
+    {
+        $type = $this->getType();
+        $getter = $this->get('eloquent.getter', $type->get('eloquent.getter'));
+
+        switch($getter) {
+            case 'from_json_if_json':
+                return substr($value, 0, 1) == "{" || substr($value, 0, 1) == "[" ? json_decode($value) : $value;
+                break;
+
+            default:
+                return $value;
+                break;
+        }
+    }
+
+    public function setter($value, $model)
+    {
+        $type = $this->getType();
+        $setter = $this->get('eloquent.setter', $type->get('eloquent.setter'));
+
+        switch ($setter) {
+            case 'geojson_to_postgis':
+                return new Expression("ST_GeomFromGeoJSON('" . $value . "')");
+                break;
+
+            case 'to_json_if_array':
+                return is_array($value) || is_object($value) ? json_encode($value) : $value;
+                break;
+
+            default:
+                return $value;
+                break;
+        }
+    }
+
+    public function selector($tableName)
+    {
+        $type = $this->getType();
+        $selector = $this->get('eloquent.selector', $type->get('eloquent.selector'));
+
+        $key = $this->getKey();
+
+        switch ($selector) {
+            case 'postgis_as_geojson':
+                return new Expression("ST_AsGeoJson(" . $tableName . '.' . $key.") as ".$key);
+                break;
+
+            default:
+                return $tableName . '.' . $key;
+                break;
+        }
+    }
+
     protected function getDefaultOptions()
     {
         return array(
@@ -210,6 +265,11 @@ class Field extends ConfigObject implements ArrayableInterface
     protected function guessLabel()
     {
         return ucfirst(str_replace('_', ' ', $this->key));
+    }
+
+    public function __clone()
+    {
+        $this->type = clone $this->type;
     }
 
 }
