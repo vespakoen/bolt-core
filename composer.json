@@ -22,5 +22,6 @@
         "psr-0": {
             "Bolt\\Core\\": "src/"
         }
-    }
+    },
+    "minimum-stability": "dev"
 }
