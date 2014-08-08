@@ -11,7 +11,7 @@ class Migrator
         $this->db = $db;
     }
 
-    public function migrateTo(ContentTypeCollection $contentTypes)
+    public function migrateTo(ContentTypeCollection $contentTypes, $logErrors = false)
     {
         $schemaManager = $this->db->getSchemaManager();
         $fromSchema = $schemaManager->createSchema();
@@ -23,7 +23,9 @@ class Migrator
            try {
                 $this->db->query($query);
             } catch(\Exception $e) {
-                // var_dump($e);
+                if ($logErrors) {
+                    var_dump($e->getMessage());
+                }
             }
         }
     }

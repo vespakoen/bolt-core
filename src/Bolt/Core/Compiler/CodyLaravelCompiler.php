@@ -204,65 +204,6 @@ class CodyLaravelCompiler
     protected function getModelMethods($contentType)
     {
         return array();
-
-        // $methods = array();
-
-        // $fields = $contentType->getAllFields()->getDatabaseFields();
-
-        // foreach ($fields as $field) {
-        //     $type = $field->getType();
-
-        //     $body = null;
-
-        //     // get the setter if it is defined or the field, fallback to the setter on the type
-        //     $setter = $field->get('eloquent.setter', $type->get('eloquent.setter'));
-
-        //     if ($setter) {
-        //         $body = '$this->callBoltSetter(\''.$field->getKey().'\', $value, \''.$setter.'\');';
-        //     }
-
-        //     if ( ! is_null($body)) {
-        //         $methodName = 'set' . $this->studly($field->getKey()).'Attribute';
-        //         $methods[$methodName] = array(
-        //             'parameters' => array(
-        //                 'value' => array(
-        //                     'type' => 'string',
-        //                     'comment' => 'Prepare the value for the database'
-        //                 )
-        //             ),
-        //             'content' => array(
-        //                 'php-core' => $body
-        //             )
-        //         );
-        //     }
-
-        //     $body = null;
-
-        //     // get the setter if it is defined or the field, fallback to the setter on the type
-        //     $getter = $field->get('eloquent.getter', $type->get('eloquent.getter'));
-
-        //     if ($getter) {
-        //         $body = 'return $this->callBoltGetter($value, \''.$getter.'\');';
-        //     }
-
-        //     if ( ! is_null($body)) {
-        //         $methodName = 'get' . $this->studly($field->getKey()).'Attribute';
-        //         $methods[$methodName] = array(
-        //             'parameters' => array(
-        //                 'value' => array(
-        //                     'type' => 'string',
-        //                     'comment' => 'Unserialize the database value'
-        //                 )
-        //             ),
-        //             'content' => array(
-        //                 'php-core' => $body
-        //             )
-        //         );
-        //     }
-        // }
-
-
-        // return $methods;
     }
 
     /**
