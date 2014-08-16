@@ -249,6 +249,54 @@ class EloquentRepository extends Repository implements ReadRepositoryInterface, 
         return true;
     }
 
+    public function reorder($id, $from, $to)
+    {
+        // $repository->where('weiefght', '>', 0)
+        //     ->update(array('weigefht' => new \Illuminate\Database\Query\Expression('wefight + 1')));
+
+        // $weightField = $contentType->getDefaultFields()->forPurpose('weight');
+        // $direction = $request->get('direction');
+        // $currentItem = $this->model->find($id);
+
+        // // ignore cases we don't like
+        // if (
+        //     ! $weightField || // no weight field specified @todo throw an error
+        //     ! $currentItem // no item found that has to be moved
+        // ) {
+        //     return $this->back();
+        // }
+
+        // $weightFieldKey = $weightField->getKey();
+        // $currentWeight = $currentItem->weight;
+
+        // if ($currentWeight == 0) {
+        //     // table is fucked, we will clean up the weigths, and let the user try again
+        //     $contents = $model->get();
+        //     foreach ($contents as $i => $content) {
+        //         $content->weight = $i + 1;
+        //         $content->save();
+        //     }
+
+        //     // sync elasticsearch index
+        // }
+
+        // if ($direction == 'down') {
+        //     // move next item up
+        //     // move current item down
+
+        //     $contents = $model->where('weight', '<', $currentWeight)
+        //         ->orderBy($weightFieldKey, 'asc')
+        //         ->get();
+        // } else {
+        //     // move previous item down
+        //     // move current item up
+
+        //     $contents = $model->where('weight', '<', $currentWeight)
+        //         ->orderBy($weightFieldKey, 'asc')
+        //         ->get();
+        // }
+    }
+
     protected function callSetters($attributes)
     {
         $result = array();

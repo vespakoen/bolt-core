@@ -110,6 +110,12 @@ class ContentType extends ConfigObject implements ArrayableInterface
             ->getDatabaseFields();
     }
 
+    public function getValidationFields()
+    {
+        return $this->getAllFields()
+            ->getValidationFields();
+    }
+
     public function getIdField()
     {
         $fields = $this->getDefaultFields();
@@ -168,7 +174,7 @@ class ContentType extends ConfigObject implements ArrayableInterface
     {
         $rules = array();
 
-        $fields = $this->getDatabaseFields();
+        $fields = $this->getValidationFields();
 
         foreach ($fields as $field) {
             $rules = array_merge($rules, $field->getRules());

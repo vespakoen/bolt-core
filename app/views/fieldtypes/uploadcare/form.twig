@@ -26,27 +26,29 @@
 </div>
 
 <script>
-    var widget = uploadcare.Widget('#{{ id }}');
-    widget.onUploadComplete(function(info) {
-        if(info.cdnUrl && window.leafletMaps && window.leafletMaps['point']) {
-            if (Object.keys(window.leafletMaps['point']).length > 0 && info.originalImageInfo.geo_location) {
-                var feature = L.geoJson({
-                    "type": "Point",
-                    "coordinates": [
-                        info.originalImageInfo.geo_location.longitude,
-                        info.originalImageInfo.geo_location.latitude
-                    ]
-                });
+    $(document).ready(function() {
+        var widget = uploadcare.Widget('#{{ id }}');
+        widget.onUploadComplete(function(info) {
+            if(info.cdnUrl && window.leafletMaps && window.leafletMaps['point']) {
+                if (Object.keys(window.leafletMaps['point']).length > 0 && info.originalImageInfo.geo_location) {
+                    var feature = L.geoJson({
+                        "type": "Point",
+                        "coordinates": [
+                            info.originalImageInfo.geo_location.longitude,
+                            info.originalImageInfo.geo_location.latitude
+                        ]
+                    });
 
-                _.each(window.leafletMaps['point'], function(map, id) {
-                    feature.addTo(map)
-                    map.fire('draw:created', {layer: feature});
-                    setTimeout(function() {
-                        map.fitBounds(feature.getBounds());
-                    }, 0);
-                })
+                    _.each(window.leafletMaps['point'], function(map, id) {
+                        feature.addTo(map)
+                        map.fire('draw:created', {layer: feature});
+                        setTimeout(function() {
+                            map.fitBounds(feature.getBounds());
+                        }, 0);
+                    })
+                }
+                document.getElementById('uploadcare-preview-{{ id }}').setAttribute('src', info.cdnUrl + '-/scale_crop/200x200/center/');
             }
-            document.getElementById('uploadcare-preview-{{ id }}').setAttribute('src', info.cdnUrl + '-/scale_crop/200x200/center/');
-        }
+        });
     });
 </script>

@@ -162,50 +162,15 @@ class Admin extends Controller implements ControllerProviderInterface
             $app->abort(404, "Contenttype $contentTypeKey does not exist.");
         }
 
-        $model = $app['model.eloquent.' . $contentTypeKey];
-        $weightField = $contentType->getDefaultFields()->forPurpose('weight');
-        $direction = $request->get('direction');
-        $currentItem = $model->find($id);
+        $isSuccessful = $this->storageService->reorder($contentType, $id, 0, 10);
 
-        // ignore cases we don't like
-        if (
-            ! $weightField || // no weight field specified @todo throw an error
-            ! $currentItem // no item found that has to be moved
-        ) {
+        if ($isSuccessful) {
+            return $this->to('overview', array_merge($request->all(), array(
+                'contentTypeKey' => $contentTypeKey
+            )));
+        } else {
             return $this->back();
         }
-
-        $weightFieldKey = $weightField->getKey();
-        $currentWeight = $currentItem->weight;
-
-        if ($currentWeight == 0) {
-            // table is fucked, we will clean up the weigths, and let the user try again
-            $contents = $model->get();
-            foreach ($contents as $i => $content) {
-                $content->weight = $i + 1;
-                $content->save();
-            }
-
-            // sync elasticsearch index
-        }
-
-        if ($direction == 'down') {
-            // move next item up
-            // move current item down
-
-            $contents = $model->where('weight', '<', $currentWeight)
-                ->orderBy($weightFieldKey, 'asc')
-                ->get();
-        } else {
-            // move previous item down
-            // move current item up
-
-            $contents = $model->where('weight', '<', $currentWeight)
-                ->orderBy($weightFieldKey, 'asc')
-                ->get();
-        }
-
-        return $this->back();
     }
 
     public function getResetElasticsearch(Request $request, Application $app)
