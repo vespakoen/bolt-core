@@ -37,49 +37,51 @@
 {% endif %}
 </select>
 <script>
-    var $select = $('#{{ id }}').selectize({
-        valueField: 'id',
-        labelField: 'title',
-        searchField: 'title',
-        options: {{ options|json_encode()|raw }},
-        load: function(query, callback) {
-            $.get('{{ path('async.content', {contentTypeKey: relation.get('other'), originatorContentTypeKey: content.contentType.getKey}) }}', function(results) {
-                var data = [];
-                _.each(results, function(result, id) {
-                    data.push({
-                        id: result.id,
-                        title: result.title_nl,
-                        image: (result.image ? result.image : result.image_icon) + '-/scale_crop/70x70/center/img.jpg',
-                        thumbnail: (result.image ? result.image : result.image_icon) + '-/scale_crop/15x15/center/img.jpg'
+    $(document).ready(function() {
+        var $select = $('#{{ id }}').selectize({
+            valueField: 'id',
+            labelField: 'title',
+            searchField: 'title',
+            options: {{ options|json_encode()|raw }},
+            load: function(query, callback) {
+                $.get('{{ path('async.content', {contentTypeKey: relation.get('other'), originatorContentTypeKey: content.contentType.getKey}) }}' + '&search=' + query, function(results) {
+                    var data = [];
+                    _.each(results, function(result, id) {
+                        data.push({
+                            id: result.id,
+                            title: result.title_nl,
+                            description: result.description_nl,
+                            image: (result.image ? result.image : result.image_icon) + '-/scale_crop/70x70/center/img.jpg',
+                            thumbnail: (result.image ? result.image : result.image_icon) + '-/scale_crop/15x15/center/img.jpg'
+                        });
                     });
+                    callback(data);
                 });
-                callback(data);
-            });
-        },
-        render: {
-            item: function(item, escape) {
-                return '<div>' +
-                    '<img src="' + item.thumbnail + '" alt="">' +
-                    (item.title ? '<span class="title"> ' + item.title + '</span>' : '') +
-                '</div>';
             },
-            option: function(item, escape) {
-                var title = item.title || item.title;
-                return '<div>' +
-                    '<img src="' + item.image + '" alt="">' +
-                    '<span class="title"> ' + title + '</span>' +
-                '</div>';
-            }
-        },
-        preload: false,
-        create: false,
-        plugins: ['remove_button'],
-        delimiter: ',',
-        persist: false
-    });
+            render: {
+                item: function(item, escape) {
+                    return '<div>' +
+                        '<img src="' + item.thumbnail + '" alt="">' +
+                        (item.title ? '<span class="title"> ' + item.title + '</span>' : '') +
+                    '</div>';
+                },
+                option: function(item, escape) {
+                    return '<div>' +
+                        '<img src="' + item.image + '" alt="">' +
+                        '<span class="title"> ' + item.title + '</span>' +
+                    '</div>';
+                }
+            },
+            preload: false,
+            create: false,
+            plugins: ['remove_button', 'drag_drop'],
+            delimiter: ',',
+            persist: false
+        });
 
-    var selectize = $select[0].selectize;
-    selectize.setValue([{% for option in selectedOptions %}'{{ option }}',{% endfor %}]);
+        var selectize = $select[0].selectize;
+        selectize.setValue([{% for option in selectedOptions %}'{{ option }}',{% endfor %}]);
+    });
 </script>
 {#
 <!-- Modal -->
