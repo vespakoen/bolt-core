@@ -110,6 +110,12 @@ class ContentType extends ConfigObject implements ArrayableInterface
             ->getDatabaseFields();
     }
 
+    public function getValidationFields()
+    {
+        return $this->getAllFields()
+            ->getValidationFields();
+    }
+
     public function getIdField()
     {
         $fields = $this->getDefaultFields();
@@ -164,11 +170,31 @@ class ContentType extends ConfigObject implements ArrayableInterface
         return $fields;
     }
 
+    public function getDefaultSortField()
+    {
+        $defaultFields = $this->getDefaultFields();
+
+        $weightField = $defaultFields->forPurpose('weight');
+
+        if ($weightField) {
+            return $weightField;
+        }
+
+        return $defaultFields->forPurpose('datechanged');
+    }
+
+    public function getDefaultOrder()
+    {
+        $defaultSortField = $this->getDefaultSortField();
+
+        return $defaultSortField->get('purpose') == "weight" ? 'asc' : 'desc';
+    }
+
     public function getRules()
     {
         $rules = array();
 
-        $fields = $this->getDatabaseFields();
+        $fields = $this->getValidationFields();
 
         foreach ($fields as $field) {
             $rules = array_merge($rules, $field->getRules());

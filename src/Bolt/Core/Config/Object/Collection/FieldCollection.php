@@ -43,25 +43,36 @@ class FieldCollection extends Collection
 
     public function getDatabaseFields()
     {
-        $copies = array();
-        foreach($this->items as $field) {
-            $copies[$field->getKey()] = clone $field;
-        }
-
-        $fields = new static($copies);
+        $fields = $this->copy();
 
         $locales = Config::get('app/locales');
 
         $multilanguageFields = $fields->getMultilanguageFields();
-
-        foreach ($multilanguageFields as $multilanguageField) {
-            $fields->forget($multilanguageField->getKey());
+        foreach ($multilanguageFields as $field) {
+            $fields->forget($field->getKey());
             foreach ($locales as $locale => $name) {
-                $translationField = clone $multilanguageField;
-                $newKey = $multilanguageField->getKey() . '_' . $locale;
-                $translationField->setKey($newKey);
-                $fields->addField($newKey, $translationField);
+                $copy = clone $field;
+                $newKey = $field->getKey() . '_' . $locale;
+                $copy->setKey($newKey);
+                $fields->addField($newKey, $copy);
             }
+        }
+
+        return $fields;
+    }
+
+    public function getValidationFields()
+    {
+        $fields = $this->copy();
+
+        $multilanguageFields = $fields->getMultilanguageFields();
+        foreach ($multilanguageFields as $field) {
+            $fields->forget($field->getKey());
+
+            $copy = clone $field;
+            $newKey = $field->getKey() . '_' . App::make('locale');
+            $copy->setKey($newKey);
+            $fields->addField($newKey, $copy);
         }
 
         return $fields;
