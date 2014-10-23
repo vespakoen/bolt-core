@@ -1,5 +1,26 @@
 {% include 'layouts/_header_basic' %}
 
+<div class="modal fade" id="projectChooser" tabindex="-1" role="dialog" aria-labelledby="projectChooser" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Kies een project</h4>
+      </div>
+      <div class="modal-body">
+        <ul>
+          {% set projects = app.user.getProjects %}
+          {% for project in projects %}
+          <li style="list-style: none; margin-top: 10px;">
+            <a href="{{ path('setproject', {projectId: project.get('id')}) }}"><img src="{{ project.get('image_icon') ~ '-/scale_crop/30x30/center/img.jpg' }}" class="img-rounded"> &nbsp;{{ project.get('title_nl') }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% if active is not defined %}{% set active="dashboard" %}{% endif %}
 <section class="vbox">
   <header class="header bg-black navbar navbar-inverse pull-in">
@@ -31,7 +52,7 @@
               <a href="docs.html">Help</a>
             </li> #}
             <li>
-                <a href="{{ path('user.logout') }}" target="_blank">
+                <a href="{{ path('user.logout') }}">
                     <i class="icon-signout"></i> {{ __('menu.logout') }}
                 </a>
             </li>
@@ -110,31 +131,32 @@
         <section class="vbox">
           <section class="scrollable">
             <div class="slim-scroll" data-height="auto" data-disable-fade-out="true" data-distance="0" data-size="5px">
-              {% set projects = app.user.getProjects %}
               {% set currentProject = app['project.service'].getCurrentProject %}
+              {% if currentProject %}
               <div class="nav-user nav-primary hidden-xs pos-rlt">
                 <div class="nav-avatar pos-rlt">
-                  <a href="#" class="thumb-sm avatar animated rollIn" data-toggle="dropdown">
+                  <a href="#" class="thumb-sm avatar animated rollIn" data-toggle="modal" data-target="#projectChooser">
                     <img src="{{ currentProject.get('image_icon') ~ '-/scale_crop/150x150/center/' }}" alt=""> <span class="caret caret-white"></span>
                   </a>
-                  <ul class="dropdown-menu m-t-sm animated fadeInLeft">
+                  <!-- <ul class="dropdown-menu m-t-sm animated fadeInLeft">
                     <span class="arrow top"></span>
                     {% for project in projects %}
                     <li{% if project.get('id') == currentProject.get('id') %} class="active"{% endif %}>
                       <a href="{{ path('setproject', {projectId: project.get('id')}) }}"><img src="{{ project.get('image_icon') ~ '-/scale_crop/15x15/center/img.jpg' }}"> {{ project.get('title_nl') }}</a>
                     </li>
                     {% endfor %}
-                  </ul>
+                  </ul> -->
                   <div class="visible-xs m-t m-b">
                     <a href="#" class="h3">{{ currentProject.get('title_nl') }}</a>
                     {# <p><i class="fa fa-map-marker"></i> Eijsden, Nederland</p> #}
                   </div>
                 </div>
               </div>
+              {% endif %}
 
               <nav class="nav-primary hidden-xs" data-ride="collapse">
                 <ul class="nav">
-                {% for key, contentType in app.contenttypes if not contentType.get('system') %}
+                {% for key, contentType in app.contenttypes if not contentType.get('system') and contentType.getKey in app.user.getContentTypeKeys %}
                   {% if app.user.hasRole(contentType.get('role', 'ROLE_USER')) %}
                   {% set url = path('overview', {'contentTypeKey': key }) %}
                   <li class="{% if false %}active{% endif %}">
