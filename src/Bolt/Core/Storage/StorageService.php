@@ -40,10 +40,11 @@ class StorageService
 
     public function getForListing(ContentType $contentType, Request $request)
     {
-        $defaultFields = $contentType->getDefaultFields();
-        $defaultSort = $defaultFields->forPurpose('datechanged')->getKey();
-        $sort = $request->get('sort', $defaultSort);
-        $order = $request->get('order', 'desc');
+        $defaultSortFieldKey = $contentType->getDefaultSortField()->getKey();
+        $defaultOrder = $contentType->getDefaultOrder();
+
+        $sort = $request->get('sort', $defaultSortFieldKey);
+        $order = $request->get('order', $defaultOrder);
         $limit = (int) $request->get('limit', 10);
         $page = (int) $request->get('page', 1);
         $offset = ($page - 1) * $limit;
@@ -153,15 +154,16 @@ class StorageService
     {
         $this->fireBeforeDeleteEvent($parameters, $contentType, $id);
 
+        // remove all relations from and to this content
+        $this->updateRelations($contentType, $id, array());
+
+        $this->fireAfterDeleteEvent($parameters, $contentType, $id);
+
         $repository = $this->getWriteRepository($contentType);
         if ( ! $repository->delete($id)) {
             return false;
         }
 
-        $this->fireAfterDeleteEvent($parameters, $contentType, $id);
-
-        // remove all relations from and to this content
-        $this->updateRelations($contentType, $id, array());
 
         return true;
     }
@@ -179,7 +181,7 @@ class StorageService
     }
 
     // @todo this thing is f'ing HUGE!
-    protected function updateRelations($contentType, $id, $relationData)
+    protected function updateRelations(ContentType $contentType, $id, $relationData)
     {
         // no inception, please
         if ($contentType->getKey() == "relations") {
@@ -191,6 +193,7 @@ class StorageService
         $relationRepository = $this->app['repository.eloquent.relations'];
 
         $content = $repository->find($id, true);
+
         $relations = $contentType->getRelations();
         $type = $contentType->getKey();
 
@@ -284,15 +287,13 @@ class StorageService
         }
     }
 
-    public function getReadRepository($contentType)
+    protected function getReadRepository(ContentType $contentType)
     {
-        // $this->app['repository.resolver.read']->resolve($contentType);
         return $this->app['repository.eloquent.' . $contentType->getKey()];
     }
 
-    protected function getWriteRepository($contentType)
+    protected function getWriteRepository(ContentType $contentType)
     {
-        // $this->app['repository.resolver.write']->resolve($contentType);
         return $this->app['repository.eloquent.' . $contentType->getKey()];
     }
 
@@ -303,11 +304,17 @@ class StorageService
         return $connection->query($sql)->fetchColumn(0);
     }
 
-    protected function getWheres($contentType)
+    protected function getWheres(ContentType $contentType)
     {
         // filter if filter=true, only filter when filter=false if the user is an admin
         if ($contentType->get('filter', true) == false && $this->app['user']->hasRole('ROLE_ADMIN')) {
             return array();
+        }
+
+        if ($this->app['projects']->count() == 0) {
+            return array(
+                'outgoing.from_id' => $this->app['user']->getId()
+            );
         }
 
         // if we are filtering projects, it cannot be done by the relationship but must be filtered on the id
@@ -324,7 +331,7 @@ class StorageService
         );
     }
 
-    protected function fireBeforeInsertEvent($parameters, $contentType)
+    protected function fireBeforeInsertEvent(ParameterBag $parameters, ContentType $contentType)
     {
         $event = new BeforeInsertEvent($parameters, $contentType);
         $this->eventDispatcher->dispatch(StorageEvents::BEFORE_INSERT, $event);
@@ -336,37 +343,37 @@ class StorageService
         $this->eventDispatcher->dispatch(StorageEvents::AFTER_INSERT, $event);
     }
 
-    protected function fireBeforeUpdateEvent($parameters, $contentType, $id)
+    protected function fireBeforeUpdateEvent(ParameterBag $parameters, ContentType $contentType, $id)
     {
         $event = new BeforeUpdateEvent($parameters, $contentType, $id);
         $this->eventDispatcher->dispatch(StorageEvents::BEFORE_UPDATE, $event);
     }
 
-    protected function fireAfterUpdateEvent($parameters, $contentType, $id, $isSuccessful)
+    protected function fireAfterUpdateEvent(ParameterBag $parameters, ContentType $contentType, $id, $isSuccessful)
     {
         $event = new AfterUpdateEvent($parameters, $contentType, $id, $isSuccessful);
         $this->eventDispatcher->dispatch(StorageEvents::AFTER_UPDATE, $event);
     }
 
-    protected function fireBeforeDeleteEvent($parameters, $contentType, $id)
+    protected function fireBeforeDeleteEvent(ParameterBag $parameters, ContentType $contentType, $id)
     {
         $event = new BeforeDeleteEvent($parameters, $contentType, $id);
         $this->eventDispatcher->dispatch(StorageEvents::BEFORE_DELETE, $event);
     }
 
-    protected function fireAfterDeleteEvent($parameters, $contentType, $id)
+    protected function fireAfterDeleteEvent(ParameterBag $parameters, ContentType $contentType, $id)
     {
         $event = new AfterDeleteEvent($parameters, $contentType, $id);
         $this->eventDispatcher->dispatch(StorageEvents::AFTER_DELETE, $event);
     }
 
-    protected function fireRelationsAddedEvent($contentType, $ids)
+    protected function fireRelationsAddedEvent(ContentType $contentType, $ids)
     {
         $event = new RelationsAddedEvent($contentType, $ids);
         $this->eventDispatcher->dispatch(StorageEvents::RELATIONS_ADDED, $event);
     }
 
-    protected function fireRelationsDeletedEvent($contentType, $ids)
+    protected function fireRelationsDeletedEvent(ContentType $contentType, $ids)
     {
         $event = new RelationsDeletedEvent($contentType, $ids);
         $this->eventDispatcher->dispatch(StorageEvents::RELATIONS_DELETED, $event);
