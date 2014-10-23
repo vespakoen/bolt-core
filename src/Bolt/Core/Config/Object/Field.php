@@ -235,11 +235,11 @@ class Field extends ConfigObject implements ArrayableInterface
     public function selector($tableName)
     {
         $type = $this->getType();
-        $selector = $this->get('eloquent.selector', $type->get('eloquent.selector'));
+        $getter = $this->get('eloquent.getter', $type->get('eloquent.getter'));
 
         $key = $this->getKey();
 
-        switch ($selector) {
+        switch ($getter) {
             case 'postgis_as_geojson':
                 return new Expression("ST_AsGeoJson(" . $tableName . '.' . $key.") as ".$key);
                 break;
