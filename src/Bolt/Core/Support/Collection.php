@@ -60,4 +60,14 @@ class Collection extends IlluminateCollection
         return $results;
     }
 
+    public function copy()
+    {
+        $copies = array();
+        foreach($this->items as $key => $item) {
+            $copies[$key] = clone $item;
+        }
+
+        return new static($copies);
+    }
+
 }
