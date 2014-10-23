@@ -11,7 +11,7 @@
 }|merge(attributes) %}
 
 <div class="form-group{% if errors|length > 0 %} has-error{% endif %}">
-    <img class="img-rounded" id="uploadcare-preview-{{ id }}" src="{% if value %}{{ value }}-/scale_crop/200x200/center/{% endif %}" style="max-width: 30%; float: right;">
+    <img class="img-rounded" id="uploadcare-preview-{{ id }}" src="{% if value %}{{ value }}-/scale_crop/200x200/center/{% endif %}" style="max-width: 30%; float: right; background: url(/img/trans.jpg); margin-bottom: 10px">
 
     <input
         {% for attrKey, attrVal in attributes %}
