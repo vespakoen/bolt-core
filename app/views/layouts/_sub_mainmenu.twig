@@ -1,6 +1,9 @@
     {# Link to Dashboard  #}
     <li class="{% if active in ['', 'dashboard'] %}active {% endif %}"><a href="{{ path('admin.dashboard') }}">
-        <i class="icon-home text-white"></i> <span class="text-white">{{ __('menu.dashboard') }}</span></a>
+        <i class="fa fa-home text-white"></i> <span class="text-white">{{ __('menu.dashboard') }}</span></a>
+    </li>
+    <li class="{% if active in ['', 'map'] %}active {% endif %}"><a href="{{ path('admin.map') }}">
+        <i class="fa fa-map-marker text-white"></i> <span class="text-white">{{ __('menu.map') }}</span></a>
     </li>
     {#
     <li class="{% if active=='settings' %}active {% endif %}dropdown">
@@ -64,7 +67,7 @@
     {# View site #}
     <li>
         <a href="/" target="_blank">
-            <i class="icon-external-link text-white"></i> <span class="text-white">{{ __('menu.view_website') }}</span>
+            <i class="fa fa-external-link text-white"></i> <span class="text-white">{{ __('menu.view_website') }}</span>
         </a>
     </li>
 
