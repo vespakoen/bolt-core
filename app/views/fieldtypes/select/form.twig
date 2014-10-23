@@ -8,7 +8,12 @@
         {{ attrKey }}="{{ attrVal }}"
         {% endfor %}
         {% if field.get('multiple') %}multiple="multiple"{% endif %}>
-        {% for key, label in field.options.values %}
+        {% if not field.options.values is iterable %}
+        {% set values = app[field.options.values].forSelect() %}
+        {% else %}
+        {% set values = field.options.values %}
+        {% endif %}
+        {% for key, label in values %}
         <option value="{{ key }}"{% if(key == value or key in value) %} selected="selected"{% endif %}>{{ label }}</option>
         {% endfor %}
     </select>

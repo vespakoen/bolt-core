@@ -25,21 +25,37 @@ class Admin extends Controller implements ControllerProviderInterface
     {
         $controllers = $app['controllers_factory'];
 
-        $controllers->get('/', 'controller.admin:getDashboard');
+        $controllers->get('redirect', 'controller.admin:getRedirect');
         $controllers->get('dashboard', 'controller.admin:getDashboard')->bind('admin.dashboard');
+        $controllers->get('map', 'controller.admin:getMap')->bind('admin.map');
         $controllers->get('graph', 'controller.admin:getGraph')->bind('admin.graph');
         $controllers->get('contentaction', 'controller.admin:getContentaction')->bind('contentaction');
         $controllers->get('setproject/{projectId}', 'controller.admin:getSetproject')->bind('setproject');
         $controllers->get('{contentTypeKey}/', 'controller.admin:getOverview')->bind('overview');
         $controllers->get('{contentTypeKey}/manage', 'controller.admin:getManage')->bind('manage.new');
         $controllers->get('{contentTypeKey}/manage/{id}', 'controller.admin:getManage')->bind('manage');
+        $controllers->get('{contentTypeKey}/manage-single/{id}', 'controller.admin:getManageSingle')->bind('manage.single');
         $controllers->post('{contentTypeKey}/manage', 'controller.admin:postManage');
         $controllers->post('{contentTypeKey}/manage/{id}', 'controller.admin:postManage');
         $controllers->get('{contentTypeKey}/reorder/{id}', 'controller.admin:getReorder')->bind('reorder');
+        $controllers->get('{contentTypeKey}/duplicate/{id}/{destinationProject}', 'controller.admin:getDuplicate')->bind('duplicate');
         $controllers->get('{contentTypeKey}/delete/{id}', 'controller.admin:getDeletecontent')->bind('deletecontent');
         $controllers->get('reset-elasticsearch', 'controller.admin:getResetElasticsearch');
+        $controllers->get('/', 'controller.admin:getDashboard')->bind('dashboard');
 
         return $controllers;
+    }
+
+    public function getRedirect(Request $request, Application $app)
+    {
+        if ($app['user']->hasRole('ROLE_COMPANY_OWNER')) {
+            return $this->to('manage.single', array(
+                'contentTypeKey' => 'companies',
+                'id' => $app['user']->getCompany()->getId()
+            ));
+        } else {
+            return $this->to('dashboard');
+        }
     }
 
     public function getDashboard(Request $request, Application $app)
@@ -57,6 +73,11 @@ class Admin extends Controller implements ControllerProviderInterface
         }
 
         return $this->view('layouts/dashboard', compact('contentTypeContent', 'contentTypes'));
+    }
+
+    public function getMap(Request $request, Application $app)
+    {
+        return $this->view('layouts/map');
     }
 
     public function getOverview(Request $request, Application $app, $contentTypeKey)
@@ -88,12 +109,50 @@ class Admin extends Controller implements ControllerProviderInterface
             foreach ($autoRelate as $relateKey) {
                 $relationKey = $app['config']->get('app/' . $relateKey . '/contenttype', $relateKey);
                 $related = $content->getAttribute('outgoing.' . $relationKey, new ContentCollection);
-                $related->put($app[$relateKey]->getId(), $app[$relateKey]);
+
+                $appKey = $app['contenttypes']
+                    ->get($relateKey)
+                    ->get('app_key');
+
+                $related->put($app[$appKey]->getId(), $app[$appKey]);
                 $content->setAttribute('outgoing.' . $relationKey, $related);
             }
         }
 
         $view = $this->view('layouts/manage', compact('content', 'contentType'));
+
+        $app['session']->getFlashBag()->clear();
+
+        return $view;
+    }
+
+    public function getManageSingle(Request $request, Application $app, $contentTypeKey, $id = null)
+    {
+        if ( ! $contentType = $app['contenttypes']->get($contentTypeKey)) {
+            $app->abort(404, "Contenttype $contentTypeKey does not exist.");
+        }
+
+        $content = $this->storageService->getForManage($contentType, $id);
+
+        if( ! $content) {
+            $app->abort(404);
+        }
+
+        if ($autoRelate = $contentType->get('auto_relate')) {
+            foreach ($autoRelate as $relateKey) {
+                $relationKey = $app['config']->get('app/' . $relateKey . '/contenttype', $relateKey);
+                $related = $content->getAttribute('outgoing.' . $relationKey, new ContentCollection);
+
+                $appKey = $app['contenttypes']
+                    ->get($relateKey)
+                    ->get('app_key');
+
+                $related->put($app[$appKey]->getId(), $app[$appKey]);
+                $content->setAttribute('outgoing.' . $relationKey, $related);
+            }
+        }
+
+        $view = $this->view('layouts/manage_single', compact('content', 'contentType'));
 
         $app['session']->getFlashBag()->clear();
 
@@ -128,7 +187,7 @@ class Admin extends Controller implements ControllerProviderInterface
             }
         }
 
-        if ($success) {
+        if ($success && ! $request->get('redirect') == "back") {
             return $this->to('overview', array(
                 'contentTypeKey' => $contentTypeKey
             ));
@@ -147,13 +206,9 @@ class Admin extends Controller implements ControllerProviderInterface
 
         $isSuccessful = $this->storageService->delete($contentType, $parameters, $id);
 
-        if ($isSuccessful) {
-            return $this->to('overview', array(
-                'contentTypeKey' => $contentTypeKey
-            ));
-        } else {
-            return $this->back();
-        }
+        return $this->to('overview', array(
+            'contentTypeKey' => $contentTypeKey
+        ));
     }
 
     public function getReorder(Request $request, Application $app, $contentTypeKey, $id)
@@ -161,55 +216,55 @@ class Admin extends Controller implements ControllerProviderInterface
         if ( ! $contentType = $app['contenttypes']->get($contentTypeKey)) {
             $app->abort(404, "Contenttype $contentTypeKey does not exist.");
         }
+        $item = $this->storageService->getForManage($contentType, $id);
 
-        $model = $app['model.eloquent.' . $contentTypeKey];
-        $weightField = $contentType->getDefaultFields()->forPurpose('weight');
         $direction = $request->get('direction');
-        $currentItem = $model->find($id);
 
-        // ignore cases we don't like
-        if (
-            ! $weightField || // no weight field specified @todo throw an error
-            ! $currentItem // no item found that has to be moved
-        ) {
-            return $this->back();
-        }
-
-        $weightFieldKey = $weightField->getKey();
-        $currentWeight = $currentItem->weight;
-
-        if ($currentWeight == 0) {
-            // table is fucked, we will clean up the weigths, and let the user try again
-            $contents = $model->get();
-            foreach ($contents as $i => $content) {
-                $content->weight = $i + 1;
-                $content->save();
-            }
-
-            // sync elasticsearch index
-        }
-
-        if ($direction == 'down') {
-            // move next item up
-            // move current item down
-
-            $contents = $model->where('weight', '<', $currentWeight)
-                ->orderBy($weightFieldKey, 'asc')
-                ->get();
+        if ($direction == 'up') {
+            $from = $item->get('weight');
+            $to = $from - 1;
         } else {
-            // move previous item down
-            // move current item up
-
-            $contents = $model->where('weight', '<', $currentWeight)
-                ->orderBy($weightFieldKey, 'asc')
-                ->get();
+            $from = $item->get('weight');
+            $to = $from + 1;
         }
+
+        $this->storageService->reorder($contentType, $request, $id, $from, $to);
+
+        return $this->back();
+    }
+
+    public function getDuplicate(Request $request, Application $app, $contentTypeKey, $id, $destinationProject)
+    {
+        if ( ! $contentType = $app['contenttypes']->get($contentTypeKey)) {
+            $app->abort(404, "Contenttype $contentTypeKey does not exist.");
+        }
+
+        $item = $this->storageService->getForManage($contentType, $id);
+
+        $data = $item->toArray();
+
+        foreach ($data['incoming'] as $type => $items) {
+            $data['links'][$type] = array_keys($items);
+        }
+
+        foreach ($data['outgoing'] as $type => $items) {
+            $data['links'][$type] = array_keys($items);
+        }
+
+        $data['links']['apps'] = array($destinationProject);
+
+        unset($data['incoming']);
+        unset($data['outgoing']);
+
+        $this->storageService->insert($contentType, new ParameterBag($data));
 
         return $this->back();
     }
 
     public function getResetElasticsearch(Request $request, Application $app)
     {
+        ini_set('max_execution_time', 0);
+
         $projects = $app['projects'];
 
         $projectsKey = $app['config']->get('app/project/contenttype');
@@ -220,10 +275,18 @@ class Admin extends Controller implements ControllerProviderInterface
         ), $projectContentType);
         $projects->push($project);
 
+        $projects->each(function($project) use ($app, $projects, $projectContentType) {
+            $newProject = $app['content.factory']->create(array(
+                'namespace' => $project->get('namespace') . '-web',
+                'unfiltered' => true
+            ), $projectContentType);
+            $projects->push($newProject);
+        });
+
         foreach ($projects as $project) {
             $app['elasticsearch.manager']->dropIndex($project);
             $app['elasticsearch.manager']->createIndex($project);
-            $app['elasticsearch.manager']->syncAll($project);
+            // $app['elasticsearch.manager']->syncAll($project);
         }
 
         return "Done!";

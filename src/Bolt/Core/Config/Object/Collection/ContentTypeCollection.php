@@ -56,4 +56,15 @@ class ContentTypeCollection extends Collection
             }
         }
     }
+
+    public function forSelect()
+    {
+        $values = array();
+
+        foreach($this as $contentType) {
+            $values[$contentType->getKey()] = ucfirst($contentType->get('name'));
+        }
+
+        return $values;
+    }
 }
