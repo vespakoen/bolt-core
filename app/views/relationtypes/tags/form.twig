@@ -66,15 +66,16 @@
                     '</div>';
                 },
                 option: function(item, escape) {
+                    var title = item.title || item.title;
                     return '<div>' +
                         '<img src="' + item.image + '" alt="">' +
-                        '<span class="title"> ' + item.title + '</span>' +
+                        '<span class="title"> ' + title + '</span>' +
                     '</div>';
                 }
             },
             preload: false,
             create: false,
-            plugins: ['remove_button', 'drag_drop'],
+            plugins: ['remove_button'],
             delimiter: ',',
             persist: false
         });

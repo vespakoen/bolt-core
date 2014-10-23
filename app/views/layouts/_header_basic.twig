@@ -37,7 +37,6 @@
            {%  if app.config.get('general/wysiwyg/filebrowser') is iterable %}filebrowser: {{ app.config.get('general/wysiwyg/filebrowser')|json_encode()|raw }}{% else %}filebrowser: false{% endif %}
         };
     </script>
-    <script src="https://code.jquery.com/jquery-2.1.1.js"></script>
-    <script src="https://code.jquery.com/ui/1.11.0/jquery-ui.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 </head>
 <body {% if class is defined %}class="{{ class }}"{% endif %} ng-app="trapps-backend">

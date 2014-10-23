@@ -211,56 +211,6 @@ class Admin extends Controller implements ControllerProviderInterface
         ));
     }
 
-    public function getReorder(Request $request, Application $app, $contentTypeKey, $id)
-    {
-        if ( ! $contentType = $app['contenttypes']->get($contentTypeKey)) {
-            $app->abort(404, "Contenttype $contentTypeKey does not exist.");
-        }
-        $item = $this->storageService->getForManage($contentType, $id);
-
-        $direction = $request->get('direction');
-
-        if ($direction == 'up') {
-            $from = $item->get('weight');
-            $to = $from - 1;
-        } else {
-            $from = $item->get('weight');
-            $to = $from + 1;
-        }
-
-        $this->storageService->reorder($contentType, $request, $id, $from, $to);
-
-        return $this->back();
-    }
-
-    public function getDuplicate(Request $request, Application $app, $contentTypeKey, $id, $destinationProject)
-    {
-        if ( ! $contentType = $app['contenttypes']->get($contentTypeKey)) {
-            $app->abort(404, "Contenttype $contentTypeKey does not exist.");
-        }
-
-        $item = $this->storageService->getForManage($contentType, $id);
-
-        $data = $item->toArray();
-
-        foreach ($data['incoming'] as $type => $items) {
-            $data['links'][$type] = array_keys($items);
-        }
-
-        foreach ($data['outgoing'] as $type => $items) {
-            $data['links'][$type] = array_keys($items);
-        }
-
-        $data['links']['apps'] = array($destinationProject);
-
-        unset($data['incoming']);
-        unset($data['outgoing']);
-
-        $this->storageService->insert($contentType, new ParameterBag($data));
-
-        return $this->back();
-    }
-
     public function getResetElasticsearch(Request $request, Application $app)
     {
         ini_set('max_execution_time', 0);
