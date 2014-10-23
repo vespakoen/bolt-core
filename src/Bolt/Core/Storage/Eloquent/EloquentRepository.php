@@ -25,7 +25,6 @@ class EloquentRepository extends Repository implements ReadRepositoryInterface, 
     public function get($wheres = array(), $loadRelated = true, $sort = null, $order = 'asc', $offset = null, $limit = null, $search = null)
     {
         $selects = $this->getSelects();
-
         $recordsQuery = $this->model;
 
         if($loadRelated) {
@@ -101,8 +100,14 @@ class EloquentRepository extends Repository implements ReadRepositoryInterface, 
     {
         $joins = array();
         foreach($wheres as $tableAndColumn => $value) {
+            $parts = explode('.', $tableAndColumn);
+
+            if (count($parts) === 1) {
+                continue;
+            }
+
             // split the table and the column name
-            list($table, $column) = explode('.', $tableAndColumn);
+            list($table, $column) = $parts;
 
             // join relations (AS "incoming") on from_id if the table name is incoming
             if ($table == 'incoming') {
